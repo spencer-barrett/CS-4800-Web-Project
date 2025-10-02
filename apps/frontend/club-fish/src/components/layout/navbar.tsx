@@ -34,18 +34,14 @@ export default function Navbar() {
 
     ];
     return (
-
-
-
-
-
         <header className="h-16 md:h-18 flex-shrink-0  grid md:grid-cols-4 grid-cols-3 w-full py-2 px-4">
             <div className="flex md:hidden justify-start">
                 <MobileNav />
             </div>
             <div className="flex items-center justify-center col-span-1">
-
-                <Logo className="text-white" />
+                <Link href="/">
+                    <Logo className="text-white" />
+                </Link>
             </div>
             <div className="md:flex hidden w-full flex-1 items-center md:col-span-2 col-span-1">
                 <NavigationMenu className="mx-auto" viewport={false}>
@@ -61,11 +57,10 @@ export default function Navbar() {
                 </NavigationMenu>
             </div>
             <div className="flex items-center justify-end md:justify-center col-span-1 gap-6">
-                <Button variant="default" size="lg" className="hidden md:block bg-amber-400 cursor-pointer text-foreground hover:bg-amber-500 border-2 border-amber-300" asChild>
+                <Button variant="default" size="lg" className="hidden md:block bg-amber-400 cursor-pointer text-foreground hover:bg-amber-500 border-2 border-amber-300 dark:border-amber-600" asChild>
                     <Link href="/login" className="!flex !items-center justify-center">
-                        <PlayButton className="!h-5 !w-auto" />
+                        <PlayButton className="!h-5 !w-auto fill-background" />
                     </Link>
-
                 </Button>
                 <ModeToggle />
             </div>
