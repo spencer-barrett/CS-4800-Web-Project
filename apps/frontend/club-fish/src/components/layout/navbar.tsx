@@ -57,11 +57,13 @@ export default function Navbar() {
                 </NavigationMenu>
             </div>
             <div className="flex items-center justify-end md:justify-center col-span-1 gap-6">
-                <Button variant="default" size="lg" className="hidden md:block bg-amber-400 cursor-pointer text-foreground hover:bg-amber-500 border-2 border-amber-300 dark:border-amber-600" asChild>
-                    <Link href="/login" className="!flex !items-center justify-center">
-                        <PlayButton className="!h-5 !w-auto fill-background" />
-                    </Link>
-                </Button>
+                <div className="hidden md:flex">
+                    <Button variant="default" size="lg" className=" bg-amber-400 cursor-pointer text-foreground hover:bg-amber-500 border-2 border-amber-300 dark:border-amber-600" asChild>
+                        <Link href="/login" className="!flex !items-center justify-center">
+                            <PlayButton className="!h-5 !w-auto fill-background" />
+                        </Link>
+                    </Button>
+                </div>
                 <ModeToggle />
             </div>
         </header>
