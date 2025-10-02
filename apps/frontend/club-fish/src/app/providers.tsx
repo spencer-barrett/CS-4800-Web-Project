@@ -1,14 +1,11 @@
-// app/providers.tsx
-"use client";
+"use client"
 
-import { ThemeProvider } from "next-themes";
-import { useRouter } from "next/navigation";
+import * as React from "react"
+import { ThemeProvider as NextThemesProvider } from "next-themes"
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      {children}
-    </ThemeProvider>
-  );
+export function ThemeProvider({
+  children,
+  ...props
+}: React.ComponentProps<typeof NextThemesProvider>) {
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }

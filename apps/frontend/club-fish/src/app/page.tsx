@@ -37,7 +37,7 @@ export default function Home() {
   }
   //bg-[#29cfb4]
   return (
-    <div className="h-svh w-svw bg-[#29cfb4] bg-cover bg-center">
+    <div className="h-[calc(100vh-60px)] md:h-[calc(100vh-72px)] w-full bg-[#29cfb4] bg-cover bg-center ">
       {/* <div className="absolute top-0 left-0 z-10 bg-background/40 h-svh w-svw backdrop-blur-sm" /> */}
 
       <div className="w-full h-full flex flex-col items-center justify-center gap-6 z-11  overflow-auto">
@@ -92,8 +92,8 @@ export default function Home() {
                 <div className="flex flex-col w-full">
                   <ul>
                     {result.peopleTemp && result.peopleTemp.map((person) =>
-                      <>
-                        <li key={person.id} className="my-4">
+                      <span key={person.id}>
+                        <li  className="my-4">
                           <div className="flex">
                             <Avatar className="h-20 w-20">
                               <AvatarImage src={azurePublicUrl(person.profileImg)} alt={person.profileImg} />
@@ -106,7 +106,7 @@ export default function Home() {
                           </div>
                         </li>
                         <Separator color="foreground/60" className="h-[1px] bg-foreground/60" />
-                      </>
+                      </span>
 
                     )}
                   </ul>

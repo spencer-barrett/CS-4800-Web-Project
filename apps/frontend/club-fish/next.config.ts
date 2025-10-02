@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '**.blob.core.windows.net' },
     ],
   },
+  
 };
 
 export default nextConfig;
