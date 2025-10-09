@@ -59,7 +59,7 @@ export default function Navbar() {
             <div className="flex items-center justify-end md:justify-center col-span-1 gap-6">
                 <div className="hidden lg:flex">
                     <Button variant="default" size="lg" className="bg-amber-400 cursor-pointer text-foreground hover:bg-amber-500 border-2 border-amber-300 dark:border-amber-600" asChild>
-                        <Link href="/login" className="!flex !items-center justify-center">
+                        <Link href="/play" className="!flex !items-center justify-center">
                             <PlayButton className="!h-5 !w-auto fill-background" />
                         </Link>
                     </Button>

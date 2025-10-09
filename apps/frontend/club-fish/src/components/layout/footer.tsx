@@ -31,7 +31,7 @@ export default function Footer() {
             id="about-us"
             className="flex flex-col items-center justify-center"
           >
-                                <Logo className="text-foreground !h-[57px] !w-[90px]" />
+            <Logo className="text-foreground !h-[57px] !w-[90px]" />
 
             <div>Lorem Ipusm</div>
           </div>
@@ -40,20 +40,20 @@ export default function Footer() {
               <div id="" className="flex-col flex items-center w-full" key={item.title}>
                 <div>
                   <span className="font-[800]">{item.title}</span>
-                   <ul>
-                  {item.content.map((i) => (
-                   
+                  <ul>
+                    {item.content.map((i) => (
+
                       <li key={i.href}>
                         <Link href={i.href}>{i.label}</Link>
                       </li>
-                    
-                  ))}
+
+                    ))}
                   </ul>
                 </div>
               </div>
             ))}
           </section>
-          
+
           <div className="flex justify-center items-center">
             <Button
               variant="default"
@@ -61,7 +61,7 @@ export default function Footer() {
               asChild
             >
               <Link
-                href="/login"
+                href="/play"
                 className="!flex !items-center justify-center"
               >
                 <PlayButton className="!h-8 !w-auto fill-background" />
@@ -89,7 +89,7 @@ export default function Footer() {
             </Accordion>
           </section>
         </div>
-        
+
         <div id="legal-info" className="flex items-center justify-center">
           <ul className="flex flex-col text-center gap-2 !text-[0.75rem]">
             <li className="">
