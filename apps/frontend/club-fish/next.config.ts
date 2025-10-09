@@ -6,7 +6,19 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '**.blob.core.windows.net' },
     ],
   },
+
   
+};
+module.exports = {  
+// async redirects() {
+//     return [
+//       {
+//         source: '/play',
+//         destination: '/login',
+//         permanent: true,
+//       },
+//     ]
+//   }
 };
 
 export default nextConfig;
