@@ -31,16 +31,18 @@ export function withAuth<P extends { user: User }>(
             return () => unsub();
         }, []);
 
-        if (user === undefined) return <Loading />;
-
-        if (!allowWhen(user)) {
-            const next = encodeURIComponent(pathname || "/");
-
-            if (pathname !== redirectTo) {
-                router.replace(`${redirectTo}?next=${next}`);
+        useEffect(() => {
+            if (user === undefined) return; // still checking
+            if (!allowWhen(user)) {
+                const next = encodeURIComponent(pathname || "/");
+                if (pathname !== redirectTo) {
+                    router.replace(`${redirectTo}?next=${next}`);
+                }
             }
-            return null;
-        }
+        }, [user, pathname, redirectTo, router]);
+
+        if (user === undefined) return <Loading />;
+        if (!allowWhen(user)) return null;
 
         return <Wrapped {...(props as P)} user={user as User} />;
     }
