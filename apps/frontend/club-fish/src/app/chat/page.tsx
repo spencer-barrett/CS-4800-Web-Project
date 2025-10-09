@@ -1,6 +1,8 @@
 'use client';
 
-import { Button, Input } from '@heroui/react';
+// import { Button, Input } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import React from 'react';
 
 type WireMessage = { author: string; content: string };
@@ -59,14 +61,16 @@ export default function ChatPage() {
             <div className='flex items-center my-6'>
             
               <Input
-                label="Enter your username"
+                
                 type='text'
                 onChange={(e) => setName(e.target.value)}
                 value={name}
                 className='mr-6'
-                size='sm'
+                placeholder='Enter a username'
+                // size='sm'
               />
-              <Button color="primary" className='text-background' onPress={joinChat} disabled={!name.trim()}>Enter</Button>
+              
+              <Button color="primary" className='text-background' onClick={joinChat} disabled={!name.trim()}>Enter</Button>
             </div>
           </div>
 
@@ -106,7 +110,7 @@ export default function ChatPage() {
 
               />
             </div>
-            <Button color='primary' className='text-background' onPress={sendMessage}>Send</Button>
+            <Button color='primary' className='text-background' onClick={sendMessage}>Send</Button>
           </div>
         </div>
       </div>
