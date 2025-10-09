@@ -26,9 +26,9 @@ export default function Navbar() {
     const items = [
         { href: "/", label: "Home" },
         { href: "/login", label: "Create Fish" },
-        { href: "/company", label: "Company" },
+        { href: "https://web-deployment-sandy.vercel.app/", label: "Company" },
         { href: "/faq", label: "FAQ" },
-        { href: "/contact", label: "Contact" },
+        { href: "/contact-us", label: "Contact" },
 
 
 
@@ -40,7 +40,7 @@ export default function Navbar() {
             </div>
             <div className="flex items-center justify-center col-span-1">
                 <Link href="/">
-                    <Logo className="text-white" />
+                    <Logo className="text-foreground !h-[44px] !w-[70px]" />
                 </Link>
             </div>
             <div className="md:flex hidden w-full flex-1 items-center md:col-span-2 col-span-1">
@@ -57,8 +57,8 @@ export default function Navbar() {
                 </NavigationMenu>
             </div>
             <div className="flex items-center justify-end md:justify-center col-span-1 gap-6">
-                <div className="hidden md:flex">
-                    <Button variant="default" size="lg" className=" bg-amber-400 cursor-pointer text-foreground hover:bg-amber-500 border-2 border-amber-300 dark:border-amber-600" asChild>
+                <div className="hidden lg:flex">
+                    <Button variant="default" size="lg" className="bg-amber-400 cursor-pointer text-foreground hover:bg-amber-500 border-2 border-amber-300 dark:border-amber-600" asChild>
                         <Link href="/login" className="!flex !items-center justify-center">
                             <PlayButton className="!h-5 !w-auto fill-background" />
                         </Link>

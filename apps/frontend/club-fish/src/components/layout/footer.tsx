@@ -31,7 +31,8 @@ export default function Footer() {
             id="about-us"
             className="flex flex-col items-center justify-center"
           >
-            <Logo />
+                                <Logo className="text-foreground !h-[57px] !w-[90px]" />
+
             <div>Lorem Ipusm</div>
           </div>
           <section className="md:flex justify-center hidden">
