@@ -1,0 +1,129 @@
+{
+  "buildManifest": {
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "root.tsx",
+        "path": ""
+      },
+      "layouts/app-layout": {
+        "id": "layouts/app-layout",
+        "parentId": "root",
+        "file": "./layouts/app-layout.tsx"
+      },
+      "pages/home": {
+        "id": "pages/home",
+        "parentId": "layouts/app-layout",
+        "file": "./pages/home.tsx",
+        "index": true
+      },
+      "pages/about": {
+        "id": "pages/about",
+        "parentId": "layouts/app-layout",
+        "file": "./pages/about.tsx",
+        "path": "about"
+      },
+      "pages/staff": {
+        "id": "pages/staff",
+        "parentId": "layouts/app-layout",
+        "file": "./pages/staff.tsx",
+        "path": "staff"
+      },
+      "pages/projects": {
+        "id": "pages/projects",
+        "parentId": "layouts/app-layout",
+        "file": "./pages/projects.tsx",
+        "path": "projects"
+      }
+    }
+  },
+  "reactRouterConfig": {
+    "appDirectory": "/root/programming/school/CS-4800-Web-Project/apps/frontend/guppylabs/src/app",
+    "basename": "/",
+    "buildDirectory": "/root/programming/school/CS-4800-Web-Project/apps/frontend/guppylabs/build",
+    "future": {
+      "unstable_middleware": false,
+      "unstable_optimizeDeps": false,
+      "unstable_splitRouteModules": false,
+      "unstable_subResourceIntegrity": false,
+      "unstable_viteEnvironmentApi": false
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "root.tsx",
+        "path": ""
+      },
+      "layouts/app-layout": {
+        "id": "layouts/app-layout",
+        "parentId": "root",
+        "file": "./layouts/app-layout.tsx"
+      },
+      "pages/home": {
+        "id": "pages/home",
+        "parentId": "layouts/app-layout",
+        "file": "./pages/home.tsx",
+        "index": true
+      },
+      "pages/about": {
+        "id": "pages/about",
+        "parentId": "layouts/app-layout",
+        "file": "./pages/about.tsx",
+        "path": "about"
+      },
+      "pages/staff": {
+        "id": "pages/staff",
+        "parentId": "layouts/app-layout",
+        "file": "./pages/staff.tsx",
+        "path": "staff"
+      },
+      "pages/projects": {
+        "id": "pages/projects",
+        "parentId": "layouts/app-layout",
+        "file": "./pages/projects.tsx",
+        "path": "projects"
+      }
+    },
+    "routeDiscovery": {
+      "mode": "initial"
+    },
+    "serverBuildFile": "index.js",
+    "serverModuleFormat": "esm",
+    "ssr": false,
+    "unstable_routeConfig": [
+      {
+        "id": "root",
+        "path": "",
+        "file": "root.tsx",
+        "children": [
+          {
+            "file": "./layouts/app-layout.tsx",
+            "children": [
+              {
+                "file": "./pages/home.tsx",
+                "index": true
+              },
+              {
+                "file": "./pages/about.tsx",
+                "path": "about"
+              },
+              {
+                "file": "./pages/staff.tsx",
+                "path": "staff"
+              },
+              {
+                "file": "./pages/projects.tsx",
+                "path": "projects"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "viteConfig": {
+    "build": {
+      "assetsDir": "assets"
+    }
+  }
+}
