@@ -26,7 +26,7 @@ export default function Home() {
               asChild
             >
               <Link
-                href="/login"
+                href="/play"
                 className="!flex !items-center justify-center"
               >
                  <PlayButton className="!h-8 !w-auto fill-foreground" />
