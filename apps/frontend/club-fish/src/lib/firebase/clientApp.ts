@@ -2,6 +2,7 @@
 
 import { getFirestore } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
+import { getAuth, setPersistence, browserLocalPersistence  } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_API_KEY,
@@ -14,5 +15,6 @@ const firebaseConfig = {
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
-
+export const auth = getAuth(firebaseApp);
+setPersistence(auth, browserLocalPersistence).catch(() => {});
 export const db = getFirestore(firebaseApp);
