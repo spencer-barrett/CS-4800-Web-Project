@@ -2,26 +2,31 @@ import Phaser from "phaser";
 
 export class MainScene extends Phaser.Scene {
   fish!: Phaser.GameObjects.Image;
+  private bodyColor = "#60cbfcff";
+
+  init(data: { bodyColor?: string }) {
+    console.log("MainScene: init", data);
+    if (data?.bodyColor) this.bodyColor = data.bodyColor;
+  }
 
   constructor() {
-    super("main");
+    super("MainScene");
   }
 
   create() {
+    console.log("MainScene: create started");
     const { width, height } = this.scale;
 
-    // You guys can paint assets loaded from bootScene here
-    this.add.image(width * 0.5, height * 0.5, "bg").setOrigin(0.5);
-    this.fish = this.add.image(width * 0.3, height * 0.55, "clownfish").setScale(3);
+    console.log("Ocean exists?", this.textures.exists("ocean"));
+    console.log("BG exists?", this.textures.exists("bg"));
 
-    // Simple phaser tween example you can try any of the other phaser examples here or delete and add movement controls
-    this.tweens.add({
-      targets: this.fish,
-      x: width * 0.7,
-      yoyo: true,
-      repeat: -1,
-      duration: 2400,
-      ease: "Sine.easeInOut"
-    });
+    const key = `fish-${this.bodyColor}`;
+    console.log(`Fish texture "${key}" exists?`, this.textures.exists(key));
+
+    // Add images
+    this.add.image(width * 0.5, height * 0.5, "ocean").setOrigin(0.5);
+    this.fish = this.add.image(width * 0.5, height * 0.5, key).setScale(0.5);
+
+    console.log("MainScene: create finished");
   }
 }
