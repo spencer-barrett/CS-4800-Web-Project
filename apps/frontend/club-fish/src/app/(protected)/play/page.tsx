@@ -33,15 +33,16 @@ function MainHudOverlay() {
 
     return (
         <>
-        <ChatWindowOverlay/>
-            <div className="absolute bottom-3 right-3 space-x-2">
-                
-                <Button size="sm" variant="secondary" onClick={() => setShowMenu((v) => !v)}>
+            <ChatWindowOverlay/>
+            <div className="absolute bottom-3 right-3 space-x-2" style={{ pointerEvents: "none" }}>
+                <Button size="sm" variant="secondary" onClick={() => setShowMenu((v) => !v)} style={{ pointerEvents: "auto" }}>
+       
+
                     Menu
                 </Button>
             </div>
             {showMenu && (
-                <div className="absolute inset-0 grid place-items-center">
+                <div className="absolute inset-0 grid place-items-center " style={{ pointerEvents: "auto" }}>
                     <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
                         <h2 className="mb-3 text-xl font-bold">Game Menu</h2>
                         <p className="mb-4 text-sm opacity-80">Change settings or exit to lobby.</p>
