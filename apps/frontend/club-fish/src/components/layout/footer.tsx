@@ -20,7 +20,7 @@ export default function Footer() {
       content: [{ label: "change password", href: "/change-password" }],
     },
   ];
-  var currentTime = new Date();
+  const currentTime = new Date();
   return (
     <footer className="min-h-64 shrink-0 border-t-1 border-border">
       <div className="flex flex-col p-4 md:p-6 h-full gap-4">
