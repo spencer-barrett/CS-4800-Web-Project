@@ -1,4 +1,4 @@
-# CS-4800-Web-Project
+# CLUB FISH: AN ONLINE VIRTUAL WORLD!
 Github repo for the CS 4800 Fall 2025 Semester Project
 
 
