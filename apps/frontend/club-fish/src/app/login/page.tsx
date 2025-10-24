@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardAction, CardDescription } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { Suspense, useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/clientApp";
 import { onAuthStateChanged, type User } from "firebase/auth";
@@ -17,32 +17,32 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/clientApp";
+import { UserProfile } from "@/types/user-profile";
 
-export type UserProfile = {
-    hasCharacter: boolean;
-    createdAt: number;
-};
 
-async function initUserProfile(uid: string): Promise<void> {
+async function initUserProfile(displayName: string, uid: string): Promise<void> {
     const ref = doc(db, "users", uid);
     await setDoc(
-        ref, 
-        { hasCharacter: false, createdAt: Date.now() } satisfies UserProfile, 
+        ref,
+        { hasCharacter: false, createdAt: Date.now(), displayName: displayName } satisfies UserProfile,
         { merge: true }
     );
 }
 
 export function LoginInner() {
     const [email, setEmail] = useState("");
+    const [displayName, setDisplayName] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [emailManipulated, setEmailManipulated] = useState(false);
+    const [displayNameManipulated, setDisplayNameManipulated] = useState(false);
     const [passwordManipulated, setPasswordManipulated] = useState(false);
     const [confirmPasswordManipulated, setConfirmPasswordManipulated] = useState(false);
     const [errorLogin, setErrorLogin] = useState(false);
     const [errorSignUp, setErrorSignUp] = useState(false);
     const [authChecked, setAuthChecked] = useState(false);
     const [user, setUser] = useState<User | null>(null);
+    const showDisplayError = displayNameManipulated && displayName.trim() === "";
     const showEmailError = emailManipulated && email.trim() === "";
     const showPasswordError = passwordManipulated && password.trim() === "";
     const showConfirmPasswordError = confirmPasswordManipulated && (confirmPassword.trim() === "" || confirmPassword !== password);
@@ -57,8 +57,11 @@ export function LoginInner() {
         const unsub = onAuthStateChanged(auth, async (u) => {
             setUser(u);
             setAuthChecked(true);
-            
+
+
+
             if (u) {
+
                 try {
                     const snap = await getDoc(doc(db, "users", u.uid));
                     const profile = snap.data() as UserProfile | undefined;
@@ -81,7 +84,7 @@ export function LoginInner() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             setErrorLogin(false);
-            
+
         } catch (error) {
             console.error("Login error:", error);
             setErrorLogin(true);
@@ -91,9 +94,9 @@ export function LoginInner() {
     const handleSignUp = async () => {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await initUserProfile(userCredential.user.uid);
+            await initUserProfile(displayName, userCredential.user.uid);
             setErrorSignUp(false);
-            
+
         } catch (error) {
             console.error("Sign up error:", error);
             setErrorSignUp(true);
@@ -141,18 +144,18 @@ export function LoginInner() {
                                             </Field>
                                             <Field>
                                                 <FieldLabel htmlFor="login-password">
-                                                    Password 
+                                                    Password
                                                     <CardAction className="flex w-full justify-end">
                                                         <Button variant="link" disabled>Forgot Password?</Button>
                                                     </CardAction>
                                                 </FieldLabel>
-                                                <Input 
-                                                    id="login-password" 
-                                                    type="password" 
-                                                    required 
-                                                    placeholder="password" 
-                                                    onChange={(e) => setPassword(e.target.value)} 
-                                                    onBlur={() => setPasswordManipulated(true)} 
+                                                <Input
+                                                    id="login-password"
+                                                    type="password"
+                                                    required
+                                                    placeholder="password"
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    onBlur={() => setPasswordManipulated(true)}
                                                 />
                                                 <FieldDescription className={showPasswordError ? "text-red-500" : "hidden"}>
                                                     Please enter your password.
@@ -163,10 +166,10 @@ export function LoginInner() {
                                 </form>
                             </CardContent>
                             <CardFooter className="flex flex-col justify-center">
-                                <Button 
-                                    className="w-[50%] bg-amber-400 font-[800]" 
-                                    type="submit" 
-                                    onClick={handleLogin} 
+                                <Button
+                                    className="w-[50%] bg-amber-400 font-[800]"
+                                    type="submit"
+                                    onClick={handleLogin}
                                     disabled={!validLogin}
                                 >
                                     Login
@@ -192,6 +195,20 @@ export function LoginInner() {
                                     <FieldSet>
                                         <FieldGroup>
                                             <Field>
+                                                <FieldLabel htmlFor="signup-display">Username</FieldLabel>
+                                                <Input
+                                                    id="signup-display"
+                                                    type="text"
+                                                    required
+                                                    placeholder="username"
+                                                    onChange={(e) => setDisplayName(e.target.value)}
+                                                    onBlur={() => setDisplayNameManipulated(true)}
+                                                />
+                                                <FieldDescription className={showDisplayError ? "text-red-500" : "hidden"}>
+                                                    Please enter a username.
+                                                </FieldDescription>
+                                            </Field>
+                                            <Field>
                                                 <FieldLabel htmlFor="signup-email">Email</FieldLabel>
                                                 <Input
                                                     id="signup-email"
@@ -207,13 +224,13 @@ export function LoginInner() {
                                             </Field>
                                             <Field>
                                                 <FieldLabel htmlFor="signup-password">Password</FieldLabel>
-                                                <Input 
-                                                    id="signup-password" 
-                                                    type="password" 
-                                                    required 
-                                                    placeholder="password" 
-                                                    onChange={(e) => setPassword(e.target.value)} 
-                                                    onBlur={() => setPasswordManipulated(true)} 
+                                                <Input
+                                                    id="signup-password"
+                                                    type="password"
+                                                    required
+                                                    placeholder="password"
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    onBlur={() => setPasswordManipulated(true)}
                                                 />
                                                 <FieldDescription className={showPasswordError ? "text-red-500" : "hidden"}>
                                                     Please enter a valid password.
@@ -221,13 +238,13 @@ export function LoginInner() {
                                             </Field>
                                             <Field>
                                                 <FieldLabel htmlFor="signup-confirm-password">Confirm Password</FieldLabel>
-                                                <Input 
-                                                    id="signup-confirm-password" 
-                                                    type="password" 
-                                                    required 
-                                                    placeholder="confirm password" 
-                                                    onChange={(e) => setConfirmPassword(e.target.value)} 
-                                                    onBlur={() => setConfirmPasswordManipulated(true)} 
+                                                <Input
+                                                    id="signup-confirm-password"
+                                                    type="password"
+                                                    required
+                                                    placeholder="confirm password"
+                                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                                    onBlur={() => setConfirmPasswordManipulated(true)}
                                                 />
                                                 <FieldDescription className={showConfirmPasswordError ? "text-red-500" : "hidden"}>
                                                     Passwords must match.
@@ -238,10 +255,10 @@ export function LoginInner() {
                                 </form>
                             </CardContent>
                             <CardFooter className="flex flex-col justify-center">
-                                <Button 
-                                    className="w-[50%] bg-amber-400 font-[800]" 
-                                    type="button" 
-                                    onClick={handleSignUp} 
+                                <Button
+                                    className="w-[50%] bg-amber-400 font-[800]"
+                                    type="button"
+                                    onClick={handleSignUp}
                                     disabled={!validSignUp}
                                 >
                                     Sign Up
