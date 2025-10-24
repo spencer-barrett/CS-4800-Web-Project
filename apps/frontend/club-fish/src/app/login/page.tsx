@@ -17,12 +17,8 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/clientApp";
+import { UserProfile } from "@/types/user-profile";
 
-export type UserProfile = {
-    hasCharacter: boolean;
-    createdAt: number;
-    displayName: string;
-};
 
 async function initUserProfile(displayName: string, uid: string): Promise<void> {
     const ref = doc(db, "users", uid);
