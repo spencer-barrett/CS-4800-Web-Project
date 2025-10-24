@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import CharacterCreateOverlay from "@/components/game-ui/CharacterCreateOverlay";
+import ChatWindowOverlay from "@/components/game-ui/ChatWindow";
 
 
 // import PhaserCanvas to prevent SSR issues with Phaser
@@ -32,7 +33,9 @@ function MainHudOverlay() {
 
     return (
         <>
+        <ChatWindowOverlay/>
             <div className="absolute bottom-3 right-3 space-x-2">
+                
                 <Button size="sm" variant="secondary" onClick={() => setShowMenu((v) => !v)}>
                     Menu
                 </Button>
