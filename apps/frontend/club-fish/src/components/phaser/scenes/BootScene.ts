@@ -35,4 +35,10 @@ export class BootScene extends Phaser.Scene {
 
     img.src = dataUrl;
   }
+
+  update(time: number, delta: number) {
+      super.update(time, delta);
+
+
+  }
 }
