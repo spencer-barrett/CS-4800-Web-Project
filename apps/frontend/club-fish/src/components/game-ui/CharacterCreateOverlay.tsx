@@ -26,7 +26,7 @@ export default function CharacterCreateOverlay({ game }: { game: Phaser.Game | n
 
     return (
         <div className="absolute inset-0 grid place-items-center">
-            <Card className="w-[45%] h-[90%] bg-white text-black flex flex-col">
+            <Card className="w-[45%] h-[90%] bg-white text-black flex flex-col" style={{ pointerEvents: "auto" }}>
                 <CardHeader>
                     <CardTitle>Create Your Fish!</CardTitle>
                 </CardHeader>
