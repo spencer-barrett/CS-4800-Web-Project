@@ -4,16 +4,31 @@ import { useEffect, useRef, useState } from "react";
 import { FieldSet, FieldGroup, Field } from "../ui/field";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import { auth, db } from "@/lib/firebase/clientApp";
+import { doc, getDoc } from "firebase/firestore";
+import { UserProfile } from "@/types/user-profile";
+
+
+type ChatMessage = {
+    text: string;
+    sender: string;
+};
 
 export default function ChatWindowOverlay() {
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    const handleMessage = (e?: React.FormEvent) => {
+    const handleMessage = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         if (!message.trim()) return;
-        setMessages((prev) => [...prev, message]);
+        if (!auth.currentUser) return;
+        const snap = await getDoc(doc(db, "users", auth.currentUser.uid));
+        const profile = snap.data() as UserProfile | undefined;
+
+        const sender = profile?.displayName ?? "Anonymous";
+
+        setMessages((prev) => [...prev, { text: message, sender }]);
         setMessage("");
     };
 
@@ -40,7 +55,8 @@ export default function ChatWindowOverlay() {
                                 key={i}
                                 className="rounded bg-gray-100 px-2 py-1 w-fit max-w-[90%]"
                             >
-                                {m}
+                                <span className="font-semibold mr-2">{m.sender}:</span>
+                                {m.text}
                             </div>
                         ))}
                     </div>
@@ -63,6 +79,7 @@ export default function ChatWindowOverlay() {
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 className="text-black"
+                                autoComplete="off"
                             />
                         </Field>
                     </FieldGroup>
