@@ -124,6 +124,7 @@ export default function PhaserCanvas({
         >
             <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
 
+
             <div
                 style={{
                     position: "absolute",
@@ -134,10 +135,17 @@ export default function PhaserCanvas({
                     pointerEvents: "none",
                 }}
             >
-                <div style={{ pointerEvents: "auto", width: "100%", height: "100%" }}>
-                    {renderOverlay?.({ game: gameRef.current, width: size.w, height: size.h, sceneKey: activeSceneKey })}
+                <div style={{ width: "100%", height: "100%", position: "relative" }}>
+                    {/* // specify what is clickable in overlay components */}
+                    {renderOverlay?.({
+                        game: gameRef.current,
+                        width: size.w,
+                        height: size.h,
+                        sceneKey: activeSceneKey,
+                    })}
                 </div>
             </div>
         </div>
+
     );
 }
