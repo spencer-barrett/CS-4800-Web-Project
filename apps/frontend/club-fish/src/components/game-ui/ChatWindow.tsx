@@ -42,7 +42,7 @@ export default function ChatWindowOverlay() {
     }, [messages]);
 
     return (
-        <div className="w-[450px] h-[220px] bg-white/90 rounded-xl absolute bottom-3 left-3 flex flex-col shadow-lg">
+        <div className="w-[450px] h-[220px] bg-white/90 rounded-xl absolute bottom-3 left-3 flex flex-col shadow-lg" style={{ pointerEvents: "auto" }}>
 
             <div className="flex-grow overflow-hidden p-2">
                 <ScrollArea className="h-full w-full">
