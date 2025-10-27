@@ -22,7 +22,7 @@ export default class minigameRPS extends Phaser.Scene {
     private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
 
     //selected card, can be Claw, Kelp, Coral, or None
-    public selectedCard: String = "none";
+    public selectedCard: String = "None";
 
     constructor(){
         super({key : 'rps'})
