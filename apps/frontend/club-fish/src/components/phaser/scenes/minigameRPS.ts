@@ -21,6 +21,9 @@ export default class minigameRPS extends Phaser.Scene {
     //just for resetting the scene with shift, no game functionality yet
     private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
 
+    //selected card, can be Claw, Kelp, Coral, or None
+    public selectedCard: String = "none";
+
     constructor(){
         super({key : 'rps'})
     }
@@ -36,7 +39,7 @@ export default class minigameRPS extends Phaser.Scene {
         //global width and height
         const {width, height} = this.scale
         
-        this.add.image(width*0.5, height*0.5, 'sky').setScale(1.5)
+        this.add.image(width*0.5, height*0.5, 'rps-bg').setDisplaySize(width, height)
         this.input.on('pointerdown', this.handleGlobalClick, this);
         //custom cursor
         this.input.setDefaultCursor('url(assets/cursor-small.cur), pointer')
@@ -57,7 +60,7 @@ export default class minigameRPS extends Phaser.Scene {
         this.timerBar = new TimerBar(this, width*0.2, 50, 600, 20, 10000);
         this.timerText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.05, `${this.initialTime}`, {
 			fontSize: '32px',
-			color: '#000'
+			color: '#ffffffff'
 		})
         this.timerText.setOrigin(0.5,0.5)
         this.timerEvent = this.time.addEvent({
@@ -70,7 +73,7 @@ export default class minigameRPS extends Phaser.Scene {
         //player selection text
         this.playerSelection = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.85, "Select A Card!", {
 			fontSize: '32px',
-			color: '#000'
+			color: '#ffffffff'
 		})
         this.playerSelection.setOrigin(0.5,0.5)
 
@@ -86,6 +89,7 @@ export default class minigameRPS extends Phaser.Scene {
                         ease: 'Power1'
                     })
                     this.playerSelection.setText("Claw!")
+                    this.selectedCard = "Claw"
                 }
                 else{
                     this.tweens.add({
@@ -95,6 +99,7 @@ export default class minigameRPS extends Phaser.Scene {
                         ease: 'Power1'
                     })
                     this.playerSelection.setText("Select A Card!")
+                    this.selectedCard = "None"
                 }
                 if (this.kelp.y != originalPosY){
                     this.tweens.add({
@@ -132,6 +137,7 @@ export default class minigameRPS extends Phaser.Scene {
                         ease: 'Power1'
                     })
                     this.playerSelection.setText("Kelp!")
+                    this.selectedCard = "Kelp"
                 }
                 else{
                     this.tweens.add({
@@ -141,6 +147,7 @@ export default class minigameRPS extends Phaser.Scene {
                         ease: 'Power1'
                     })
                     this.playerSelection.setText("Select A Card!")
+                    this.selectedCard = "None"
                 }
                 if (this.coral.y != originalPosY){
                     this.tweens.add({
@@ -178,6 +185,7 @@ export default class minigameRPS extends Phaser.Scene {
                         ease: 'Power1'
                     })
                     this.playerSelection.setText("Coral!")
+                    this.selectedCard = "Coral"
                 }
                 else{
                     this.tweens.add({
@@ -187,6 +195,7 @@ export default class minigameRPS extends Phaser.Scene {
                         ease: 'Power1'
                     })
                     this.playerSelection.setText("Select A Card!")
+                    this.selectedCard = "None"
                 }
             }                    
         });
@@ -224,6 +233,45 @@ export default class minigameRPS extends Phaser.Scene {
             this.timerEvent.destroy(); // Stop the timer
             this.timerText?.setText('Time\'s Up!'); // Display a final message
             this.canClick = false //remove residuary click permission
+            //pick random card for user if they have nothing selected
+            if (this.selectedCard == "None"){
+                const randomNum = Math.floor(Math.random() * 3) + 1
+                switch (randomNum){
+                    case 1: //select claw
+                        this.tweens.add({
+                            targets: this.claw,
+                            y: this.claw.y - 100,
+                            duration: 300,
+                            ease: 'Power1'
+                        })
+                        this.playerSelection.setText("Claw!")
+                        this.selectedCard = "Claw"
+                        break;
+                    case 2: //select kelp
+                        this.tweens.add({
+                            targets: this.kelp,
+                            y: this.kelp.y - 100,
+                            duration: 300,
+                            ease: 'Power1'
+                        })
+                        this.playerSelection.setText("Kelp!")
+                        this.selectedCard = "Kelp"
+                        break;
+                    case 3: //select coral
+                        this.tweens.add({
+                            targets: this.coral,
+                            y: this.coral.y - 100,
+                            duration: 300,
+                            ease: 'Power1'
+                        })
+                        this.playerSelection.setText("Coral!")
+                        this.selectedCard = "Coral"
+                        break;
+                    default:
+                        console.log("unexpected no automatic choice")
+                        break;
+                }
+            }
         }
     }
 
