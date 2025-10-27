@@ -82,118 +82,58 @@ export default class minigameRPS extends Phaser.Scene {
         this.claw.on('pointerdown', () => {
             if(this.canClick){
                 if (this.claw.y == originalPosY){
-                    this.tweens.add({
-                        targets: this.claw,
-                        y: this.claw.y - 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.selectCard(this.claw)
                     this.playerSelection.setText("Claw!")
                     this.selectedCard = "Claw"
                 }
                 else{
-                    this.tweens.add({
-                        targets: this.claw,
-                        y: this.claw.y + 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.deselectCard(this.claw)
                     this.playerSelection.setText("Select A Card!")
                     this.selectedCard = "None"
                 }
                 if (this.kelp.y != originalPosY){
-                    this.tweens.add({
-                    targets: this.kelp,
-                        y: this.kelp.y + 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.deselectCard(this.kelp)
                 }
                 if (this.coral.y != originalPosY){
-                    this.tweens.add({
-                    targets: this.coral,
-                        y: this.coral.y + 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.deselectCard(this.coral)
                 }
             }                   
         });
         this.kelp.on('pointerdown', () => {
             if(this.canClick){
                 if (this.claw.y != originalPosY){
-                    this.tweens.add({
-                        targets: this.claw,
-                        y: this.claw.y + 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.deselectCard(this.claw)
                 }
                 if (this.kelp.y == originalPosY){
-                    this.tweens.add({
-                        targets: this.kelp,
-                        y: this.kelp.y - 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.selectCard(this.kelp)
                     this.playerSelection.setText("Kelp!")
                     this.selectedCard = "Kelp"
                 }
                 else{
-                    this.tweens.add({
-                        targets: this.kelp,
-                        y: this.kelp.y + 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.deselectCard(this.kelp)
                     this.playerSelection.setText("Select A Card!")
                     this.selectedCard = "None"
                 }
                 if (this.coral.y != originalPosY){
-                    this.tweens.add({
-                        targets: this.coral,
-                        y: this.coral.y + 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.deselectCard(this.coral)
                 }     
             }               
         });
         this.coral.on('pointerdown', () => {
             if (this.canClick){
                 if (this.claw.y != originalPosY){
-                    this.tweens.add({
-                        targets: this.claw,
-                        y: this.claw.y + 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.deselectCard(this.claw)
                 }
                 if (this.kelp.y != originalPosY){
-                    this.tweens.add({
-                        targets: this.kelp,
-                        y: this.kelp.y + 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.deselectCard(this.kelp)
                 }
                 if (this.coral.y == originalPosY){
-                    this.tweens.add({
-                        targets: this.coral,
-                        y: this.coral.y - 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.selectCard(this.coral)
                     this.playerSelection.setText("Coral!")
                     this.selectedCard = "Coral"
                 }
                 else{
-                    this.tweens.add({
-                        targets: this.coral,
-                        y: this.coral.y + 100,
-                        duration: 300,
-                        ease: 'Power1'
-                    })
+                    this.deselectCard(this.coral)
                     this.playerSelection.setText("Select A Card!")
                     this.selectedCard = "None"
                 }
@@ -201,6 +141,25 @@ export default class minigameRPS extends Phaser.Scene {
         });
 
         this.cursors = this.input.keyboard!.createCursorKeys()
+    }
+
+    private selectCard(c: Phaser.GameObjects.Sprite){
+        const card = c as Phaser.GameObjects.Sprite
+        this.tweens.add({
+                        targets: card,
+                        y: card.y - 100,
+                        duration: 300,
+                        ease: 'Power1'
+                    })
+    }
+    private deselectCard(c: Phaser.GameObjects.Sprite){
+        const card = c as Phaser.GameObjects.Sprite
+        this.tweens.add({
+                        targets: card,
+                        y: card.y + 100,
+                        duration: 300,
+                        ease: 'Power1'
+                    })
     }
 
     private handleGlobalClick(): void {
@@ -238,32 +197,17 @@ export default class minigameRPS extends Phaser.Scene {
                 const randomNum = Math.floor(Math.random() * 3) + 1
                 switch (randomNum){
                     case 1: //select claw
-                        this.tweens.add({
-                            targets: this.claw,
-                            y: this.claw.y - 100,
-                            duration: 300,
-                            ease: 'Power1'
-                        })
+                        this.selectCard(this.claw)
                         this.playerSelection.setText("Claw!")
                         this.selectedCard = "Claw"
                         break;
                     case 2: //select kelp
-                        this.tweens.add({
-                            targets: this.kelp,
-                            y: this.kelp.y - 100,
-                            duration: 300,
-                            ease: 'Power1'
-                        })
+                        this.selectCard(this.kelp)
                         this.playerSelection.setText("Kelp!")
                         this.selectedCard = "Kelp"
                         break;
                     case 3: //select coral
-                        this.tweens.add({
-                            targets: this.coral,
-                            y: this.coral.y - 100,
-                            duration: 300,
-                            ease: 'Power1'
-                        })
+                        this.selectCard(this.coral)
                         this.playerSelection.setText("Coral!")
                         this.selectedCard = "Coral"
                         break;
@@ -277,7 +221,7 @@ export default class minigameRPS extends Phaser.Scene {
 
 
     update(){
-        //dev scene reset
+        //dev scene reset, use shift to reset
         this.timerBar.update();
         if (!this.cursors){
 			return
@@ -286,6 +230,7 @@ export default class minigameRPS extends Phaser.Scene {
 			this.scene.restart()
             this.initialTime = 10
             this.canClick = true;
+            this.selectedCard = "None"
 		}
 
     }
