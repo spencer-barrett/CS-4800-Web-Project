@@ -12,9 +12,6 @@ A minimal Next.js project using the App Router, TypeScript, and Tailwind-ready c
 1) Install Deps
 ` npm install `
 
-1.5) Also install Phaser, wasn't sure how to add it correctly to the package.json file. 
-` npm install phaser `
-
 3) Start the development server `npm run dev`
 
 4) Navigate to http://localhost:3000
