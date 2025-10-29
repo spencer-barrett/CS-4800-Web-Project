@@ -67,6 +67,7 @@ export function LoginInner() {
                     const profile = snap.data() as UserProfile | undefined;
 
                     if (!profile || !profile.hasCharacter) {
+                        console.log(profile); //TODO: DELETE
                         router.replace("/play?onboarding=1");
                     } else {
                         router.replace(next);
