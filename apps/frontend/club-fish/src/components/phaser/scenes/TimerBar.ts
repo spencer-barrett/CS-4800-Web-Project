@@ -51,7 +51,7 @@ export class TimerBar {
     /**
      * Updates the width of the foreground bar based on the timer's progress.
      */
-    public update(): void {
+    public updateBar(): void {
         const remainingTime = this.timerEvent.getRemaining();
         const progress = remainingTime / this.totalTime;
         
@@ -71,7 +71,7 @@ export class TimerBar {
             callbackScope: this,
             loop: false,
         });
-        this.update();
+        this.updateBar();
     }
 
     /**

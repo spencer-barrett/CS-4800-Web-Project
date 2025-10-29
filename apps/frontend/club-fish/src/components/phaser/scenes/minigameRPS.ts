@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import { TimerBar } from './TimerBar'
+import { room } from "./BootScene"
+
 
 export default class minigameRPS extends Phaser.Scene {
     private timerBar!: TimerBar;
@@ -35,7 +37,7 @@ export default class minigameRPS extends Phaser.Scene {
         // this.load.image('cursor', 'assets/cursor.cur')d
         
     }
-    create(){
+    async create(){
         //global width and height
         const {width, height} = this.scale
         
@@ -140,7 +142,7 @@ export default class minigameRPS extends Phaser.Scene {
             }                    
         });
 
-        this.cursors = this.input.keyboard!.createCursorKeys()
+        this.cursors = this.input.keyboard?.createCursorKeys()
     }
 
     private selectCard(c: Phaser.GameObjects.Sprite){
@@ -221,8 +223,8 @@ export default class minigameRPS extends Phaser.Scene {
 
 
     update(){
+        this.timerBar.updateBar(); //update bar fill amount
         //dev scene reset, use shift to reset
-        this.timerBar.update();
         if (!this.cursors){
 			return
 		}
@@ -232,6 +234,16 @@ export default class minigameRPS extends Phaser.Scene {
             this.canClick = true;
             this.selectedCard = "None"
 		}
+        if (this.cursors.space?.isDown){
+            //console.log('pressed space')
+            this.scene.start("main")
+            // this.scene.restart()
+            // this.initialTime = 10
+            // this.canClick = true;
+            // this.selectedCard = "None"
+            // room.send("hi", {x: 10, y: 5});
+            // console.log('did it work?')
+        }
 
     }
 }
