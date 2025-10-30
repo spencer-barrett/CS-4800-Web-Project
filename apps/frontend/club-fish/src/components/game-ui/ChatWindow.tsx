@@ -7,12 +7,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { auth, db } from "@/lib/firebase/clientApp";
 import { doc, getDoc } from "firebase/firestore";
 import { UserProfile } from "@/types/user-profile";
-
-
-type ChatMessage = {
-    text: string;
-    sender: string;
-};
+import { ChatMessage } from "@/types/chat-message";
 
 export default function ChatWindowOverlay() {
     const [message, setMessage] = useState("");
