@@ -30,10 +30,10 @@ export default config({
          * Use @colyseus/playground
          * (It is not recommended to expose this route in a production environment)
          */
-        if (process.env.NODE_ENV !== "production") {
-            app.use("/", playground());
-        }
-
+        // if (process.env.NODE_ENV !== "production") {
+        //     app.use("/", playground());
+        // }
+        app.get("/", (_, res) => res.send("Server OK"));
         /**
          * Use @colyseus/monitor
          * It is recommended to protect this route with a password

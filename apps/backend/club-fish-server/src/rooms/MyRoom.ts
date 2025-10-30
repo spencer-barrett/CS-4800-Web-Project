@@ -6,8 +6,12 @@ export class MyRoom extends Room<MyRoomState> {
   state = new MyRoomState();
 
   onCreate (options: any) {
-    this.onMessage("type", (client, message) => {
-      //
+    this.onMessage("chat", (client, message) => {
+      console.log(`chat from ${client.sessionId}: ${message.text}`);
+      this.broadcast("chat", {
+      text: message.text,
+      sender: client.sessionId,
+    });
       // handle "type" message
       //
     });
