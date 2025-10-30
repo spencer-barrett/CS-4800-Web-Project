@@ -13,7 +13,7 @@ export default config({
         /**
          * Define your room handlers:
          */
-        gameServer.define('my_room', MyRoom);
+        const room = gameServer.define("my_room", MyRoom).enableRealtimeListing();
 
     },
 
