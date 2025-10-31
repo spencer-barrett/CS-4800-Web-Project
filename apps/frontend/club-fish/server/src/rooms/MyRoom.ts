@@ -1,5 +1,7 @@
 import { Room, Client } from "@colyseus/core";
 import { MyRoomState, Player } from "./schema/MyRoomState";
+//import { Schema, type} from "@colyseus/schema";
+
 
 export class MyRoom extends Room<MyRoomState> {
   maxClients = 2;
@@ -14,31 +16,19 @@ export class MyRoom extends Room<MyRoomState> {
     this.state.players;
 
     //handle player input
-    this.onMessage("movement", (client: Client, payload: { left: boolean, right: boolean, up: boolean, down: boolean}) => {
+    this.onMessage("movement", (client: Client, payload: { x: number, y: number}) => {
       //get ref to the player who sent the message
       const player = this.state.players.get(client.sessionId)
-      const velocity = 2;
-      console.log(`Client ${client.sessionId} sent move: left=${payload.left}, right=${payload.right}`);
-      // if (payload.left) {
-      //   player.x -= velocity;
-      //   console.log(client.sessionId, "pressed left")
-      // } else if (payload.right) {
-      //   player.x += velocity;
-      // }
-      // if (payload.up) {
-      //   player.y -= velocity;
-      // } else if (payload.down) {
-      //   player.y =+ velocity;
-      // }
-    });
-    // test message, this works!
-    this.onMessage("hi", (client: Client, message: { x: number, y: number }) => {
-      console.log(`Client ${client.sessionId} sent move: x=${message.x}, y=${message.y}`);
-
-      // Here you would typically update the room's state based on the received x and y
-      // For example:
-      // this.state.players.get(client.sessionId).x = message.x;
-      // this.state.players.get(client.sessionId).y = message.y;
+      console.log(`Client ${client.sessionId} sent desired movement: left=${payload.x}, right=${payload.y}`);
+      player.x = payload.x;
+      player.y = payload.y;
+      
+      //now broadcast this movement to all clients
+      this.broadcast("someone-moved", {
+        id: client.sessionId,
+        x: payload.x,
+        y: payload.y
+      });
     });
 
   }
@@ -58,6 +48,11 @@ export class MyRoom extends Room<MyRoomState> {
     // place player in the map of players by its sessionID
     // client.sessionId is unique per connection
     this.state.players.set(client.sessionId, player);
+
+    //broadcast player joining
+    this.broadcast("someone-joined", client.sessionId, { except: client});
+
+    
 
   }
 
