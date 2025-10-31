@@ -15,10 +15,11 @@ export class MyRoom extends Room<MyRoomState> {
     this.setPrivate(false);
     this.onMessage("chat", (client, message) => {
       console.log(`chat from ${client.sessionId}: ${message.text}`);
-      this.broadcast("chat", {
+      const payload = {
         text: message.text,
-        sender: client.sessionId,
-      });
+        sender: message.sender,
+      };
+      this.broadcast("chat", payload)
       // handle "type" message
       //
     });
