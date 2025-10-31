@@ -26,20 +26,20 @@ export class MyRoom extends Room<MyRoomState> {
     });
 
     //handle player input
-    this.onMessage("movement", (client: Client, payload: { x: number, y: number}) => {
-      //get ref to the player who sent the message
-      const player = this.state.players.get(client.sessionId)
-      console.log(`Client ${client.sessionId} sent desired movement: left=${payload.x}, right=${payload.y}`);
-      player.x = payload.x;
-      player.y = payload.y;
-      
-      //now broadcast this movement to all clients
-      this.broadcast("someone-moved", {
-        id: client.sessionId,
-        x: payload.x,
-        y: payload.y
-      });
-    });
+  this.onMessage("movement", (client, message: { x: number; y: number }) => {
+  const player = this.state.players.get(client.sessionId);
+  if (!player) return;
+
+  player.x = message.x;
+  player.y = message.y;
+
+  this.broadcast("someone-moved", {
+    id: client.sessionId,
+    x: message.x,
+    y: message.y,
+  }, { except: client });
+});
+
 
     //send leave message back to client so it can access it's own id
     this.onMessage("i-joined", (client: Client, message: any) => {
