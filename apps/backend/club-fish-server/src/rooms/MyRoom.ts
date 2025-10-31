@@ -6,11 +6,13 @@ export class MyRoom extends Room<MyRoomState> {
   state = new MyRoomState();
   static instance: MyRoom | null = null;
   onCreate(options: any) {
-    if (MyRoom.instance) {
-      throw new Error("Room already exists");
-    }
-    MyRoom.instance = this;
     console.log("MyRoom created!");
+
+    // keep room alive even with 0 clients
+    this.autoDispose = false;
+
+    // optional: mark as public and searchable
+    this.setPrivate(false);
     this.onMessage("chat", (client, message) => {
       console.log(`chat from ${client.sessionId}: ${message.text}`);
       this.broadcast("chat", {
