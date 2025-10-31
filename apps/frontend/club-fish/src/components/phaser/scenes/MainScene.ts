@@ -1,17 +1,29 @@
 import Phaser from "phaser";
 import { Math as pMath } from "phaser";
 import Pointer = Phaser.Input.Pointer;
+import { MainRoom } from "@/types/rooms";
+import { Client, Room } from "colyseus.js"
+import { room, playerEntities } from "./BootScene"
+//import { room } from "@/hooks/useChatMessages";
 const { Vector2 } = pMath;
 
 export class MainScene extends Phaser.Scene {
+  //private room!: MainRoom;
+  client = new Client("ws://localhost:2567");
+
+  private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
+  // client = new Client("ws://localhost:2567");
+  myId = "";
 
   fish!: Phaser.GameObjects.Image;
   private bodyColor = "#60cbfcff";
   target = new Vector2();
 
-  init(data: { bodyColor?: string }) {
+  init(data: { room: MainRoom; bodyColor?: string }) {
     console.log("MainScene: init", data);
-    if (data?.bodyColor) this.bodyColor = data.bodyColor;
+    //room = data.room;
+    this.bodyColor = data.bodyColor ?? this.bodyColor;
+    this.myId = room.sessionId;
   }
 
   constructor() {
@@ -19,7 +31,13 @@ export class MainScene extends Phaser.Scene {
   }
 
   create() {
+
+    //custom cursor
+    this.input.setDefaultCursor('url(assets/cursor-small.cur), pointer')
+
     console.log("MainScene: create started");
+    console.log("Connected to main room:", room.roomId);
+    room.onMessage("chat", (msg) => console.log(" asd", msg));
     const { width, height } = this.scale;
 
     console.log("Ocean exists?", this.textures.exists("ocean"));
@@ -44,12 +62,58 @@ export class MainScene extends Phaser.Scene {
 
       // Start moving our cat towards the target
       this.physics.moveToObject(this.fish, this.target, 200);
+
+      //send this data to server
+      room.send("movement", { x: worldX, y: worldY, k: key })
     });
 
 
     console.log("MainScene: create finished");
 
+    //from phaser branch
+    //send server message that "I" joined to recieve my id in return
+    room.send("i-joined", key);
 
+
+
+    //receive broadcast messages from server, looking for new players,
+    room.onMessage("someone-joined", (payload) => {
+      // console.log("message recieved from the server");
+      // console.log(sessionId);
+      //keep reference of new player
+
+      const entity = this.physics.add.image(width * 0.5, height * 0.5, key).setScale(0.5); //set to payload.key 
+      console.log("not working: ", payload.key); //
+      playerEntities[payload.id] = entity;
+
+    });
+
+
+    // //try using broadcast messages from server to listen for position changes
+    // // message.id => sessionId
+    // var test = "someone-moved";
+    room.onMessage("someone-moved", (message) => {
+      console.log("hi", message.id);
+      //check if player exists yet
+      if (playerEntities[message.id] == null && (message.id != this.myId)) {
+        const entity = this.physics.add.image(width * 0.5, height * 0.5, key).setScale(0.5);
+        console.log("is working: ", key); //
+        playerEntities[message.id] = entity;
+      }
+      console.log("sprite to move:", message.id, message.x, message.y);
+      this.tweens.add({
+        targets: playerEntities[message.id],
+        x: message.x,
+        y: message.y,
+        duration: 3000,
+        ease: 'Power1',
+      });
+    });
+
+    room.onMessage("someone-left", (id) => {
+      playerEntities[id].destroy();
+      playerEntities[id] = null;
+    })
   }
 
   update() {
