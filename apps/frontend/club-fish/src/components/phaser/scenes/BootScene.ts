@@ -5,11 +5,8 @@ import { MainRoom } from "@/types/rooms";
 import { Client, Room } from "colyseus.js"
 //import { room } from "@/hooks/useChatMessages";
 export let room: MainRoom = await networkManager.connectMainRoom();
-export let playerEntities: {[sessionId: string]: any} = {};
+export const playerEntities: {[sessionId: string]: any} = {};
 
-interface playerDatamessage {
-  
-}
 
 export class BootScene extends Phaser.Scene {
   client = new Client("ws://localhost:2567");
