@@ -9,7 +9,7 @@ const { Vector2 } = pMath;
 
 export class MainScene extends Phaser.Scene {
   //private room!: MainRoom;
-  client = new Client("ws://localhost:2567");
+  // client = new Client("ws://localhost:2567");
 
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
   // client = new Client("ws://localhost:2567");
