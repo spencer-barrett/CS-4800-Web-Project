@@ -42,15 +42,26 @@ export class MyRoom extends Room<MyRoomState> {
 
 
 
-    this.onMessage("i-joined", (client, message) => {
-      const player = this.state.players.get(client.sessionId);
-      if (!player) return;
+    this.onMessage("i-joined", (client, message: { color?: string }) => {
+  const player = this.state.players.get(client.sessionId);
+  if (!player) return;
 
-      player.color = message.color ?? "#60cbfcff";
+  // 1) finalize player properties
+  player.color = message.color ?? "#60cbfcff";
 
-      const payload = { id: client.sessionId, color: player.color };
-      this.broadcast("someone-joined", payload, { except: client });
-    });
+  // 2) send existing players to this client
+  const existingPlayers: { id: string; color: string }[] = [];
+  this.state.players.forEach((p, id) => {
+    if (id !== client.sessionId) {
+      existingPlayers.push({ id, color: p.color ?? "#60cbfcff" });
+    }
+  });
+  client.send("existing-players", existingPlayers);
+
+  // 3) notify everyone else that this client joined
+  const payload = { id: client.sessionId, color: player.color };
+  this.broadcast("someone-joined", payload, { except: client });
+});
 
     this.onMessage("i-left", (client: Client, message: any) => {
       this.broadcast("someone-left", client.sessionId)
@@ -62,19 +73,11 @@ export class MyRoom extends Room<MyRoomState> {
     const player = new Player();
     player.color = "#60cbfcff"; // default until i-joined sets it
     this.state.players.set(client.sessionId, player);
-
-
-    const existingPlayers: { id: string; color: string }[] = [];
-    this.state.players.forEach((p, id) => {
-      if (id !== client.sessionId) {
-        existingPlayers.push({ id, color: p.color ?? "#60cbfcff" });
-      }
-    });
-    client.send("existing-players", existingPlayers);
-
-    const payload = { id: client.sessionId, color: player.color };
-    this.broadcast("someone-joined", payload, { except: client });
   }
+
+
+  
+
   onLeave(client: Client, consented: boolean) {
     console.log(client.sessionId, "left!");
     this.state.players.delete(client.sessionId);
