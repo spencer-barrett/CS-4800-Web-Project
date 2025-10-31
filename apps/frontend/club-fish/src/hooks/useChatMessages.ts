@@ -1,3 +1,4 @@
+import { networkManager } from "@/lib/colyseus/networkController";
 import { auth, db } from "@/lib/firebase/clientApp";
 import { ChatMessage } from "@/types/chat-message";
 import { UserProfile } from "@/types/user-profile";
@@ -8,6 +9,25 @@ import { useEffect, useRef, useState } from "react";
 export default function useChatMessages() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+
+    useEffect(() => {
+        const room = networkManager.getMainRoom();
+        if (!room) {
+            console.warn("Chat hook: no main room connected yet");
+            return;
+        }
+
+        const handleIncoming = (msg: ChatMessage) => {
+            setMessages((prev) => [...prev, msg]);
+        };
+
+        room.onMessage("chat", handleIncoming);
+
+        return () => {
+            room.removeAllListeners();
+        };
+    }, []);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -26,9 +46,17 @@ export default function useChatMessages() {
 
         const sender = profile?.displayName ?? "Anonymous";
 
-        setMessages((prev) => [...prev, { text, sender }]);
-    };
+        const message: ChatMessage = { text, sender };
 
+        const room = networkManager.getMainRoom();
+        if (!room) {
+            console.warn("Chat hook: tried to send before room was ready");
+            return;
+        }
+
+        room.send("chat", message);
+        // setMessages((prev) => [...prev, message]);
+    };
     return {
         messages,
         sendMessage,
