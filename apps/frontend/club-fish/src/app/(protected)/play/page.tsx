@@ -9,7 +9,8 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import CharacterCreateOverlay from "@/components/game-ui/CharacterCreateOverlay";
-import ChatWindowOverlay from "@/components/game-ui/ChatWindow";
+import {ChatWindow} from "@/components/chat/ChatWindow";
+import { useUserGameData } from "@/hooks/useUserGameData";
 
 
 // import PhaserCanvas to prevent SSR issues with Phaser
@@ -33,7 +34,7 @@ function MainHudOverlay() {
 
     return (
         <>
-            <ChatWindowOverlay/>
+            <ChatWindow />
             <div className="absolute bottom-3 right-3 space-x-2" style={{ pointerEvents: "none" }}>
                 <Button size="sm" variant="secondary" onClick={() => setShowMenu((v) => !v)} style={{ pointerEvents: "auto" }}>
        
@@ -65,38 +66,11 @@ function MainHudOverlay() {
  */
 function PlayPage() {
     const params = useSearchParams();
-    const [initialScene, setInitialScene] = useState<SceneKey | null>(null);
     const onboarding = params.get("onboarding");
-    const [bodyColor, setBodyColor] = useState("");
+    const { loading, initialScene, bodyColor } = useUserGameData(onboarding);
+    
 
-    useEffect(() => {
-        const unsub = onAuthStateChanged(auth, async (user) => {
-            try {
-                if (onboarding) {
-                    setInitialScene("CharacterCreate");
-                    return;
-                }
-                if (!user) {
-                    setInitialScene("CharacterCreate");
-                    return;
-                }
-
-                // Fetch user document from Firestore to check character status
-                const ref = doc(db, "users", user.uid);
-                const snap = await getDoc(ref);
-                const hasCharacter = !!snap.data()?.hasCharacter;
-                setBodyColor(snap.data()?.bodyColor ?? "#60cbfcff");
-
-                // Route to main scene if character exists, otherwise to character creation
-                setInitialScene(hasCharacter ? "MainScene" : "CharacterCreate");
-            } catch (e) {
-                console.error("onboarding check failed:", e);
-                setInitialScene("CharacterCreate");
-            }
-        });
-
-        return () => unsub();
-    }, [onboarding]);
+   
 
     /**
      * Sign out handler that logs the user out of Firebase authentication
@@ -129,7 +103,7 @@ function PlayPage() {
     );
 
     // loading state
-    if (!initialScene) {
+    if (loading || !initialScene) {
         return (
             <div className="flex h-[calc(100vh-60px)] items-center justify-center">
                 <div className="rounded-xl bg-black/60 text-white px-4 py-2">Loading…</div>
