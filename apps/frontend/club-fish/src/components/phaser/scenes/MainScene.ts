@@ -11,7 +11,6 @@ export class MainScene extends Phaser.Scene {
 
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
   // client = new Client("ws://localhost:2567");
-  // joined = false;
   myId = "";
 
   fish!: Phaser.GameObjects.Image;
@@ -21,7 +20,8 @@ export class MainScene extends Phaser.Scene {
   init(data: { room: MainRoom; bodyColor?: string }) {
     console.log("MainScene: init", data);
     this.room = data.room;
-    if (data?.bodyColor) this.bodyColor = data.bodyColor;
+    this.bodyColor = data.bodyColor ?? this.bodyColor;
+    this.myId = this.room.sessionId;
   }
 
   constructor() {
@@ -62,7 +62,7 @@ export class MainScene extends Phaser.Scene {
       this.physics.moveToObject(this.fish, this.target, 200);
 
       //send this data to server
-      this.room.send("movement", {x: worldX, y: worldY})
+      this.room.send("movement", { x: worldX, y: worldY })
     });
 
 
@@ -82,19 +82,19 @@ export class MainScene extends Phaser.Scene {
       // console.log("message recieved from the server");
       // console.log(sessionId);
       //keep reference of new player
-      
+
       const entity = this.physics.add.image(width * 0.5, height * 0.5, `${payload.key}`).setScale(0.5); //set to payload.key 
       console.log("not working: ", payload.key); //
       playerEntities[payload.id] = entity;
-      
+
     });
-    
+
 
     //try using broadcast messages from server to listen for position changes
     // message.id => sessionId
     this.room.onMessage("someone-moved", (message) => {
       //check if player exists yet
-      if (playerEntities[message.id] == null && (message.id != this.myId)){
+      if (playerEntities[message.id] == null && (message.id != this.myId)) {
         const entity = this.physics.add.image(width * 0.5, height * 0.5, 'fish-#60fc75ff').setScale(0.5);
         console.log("is working: ", key); //
         playerEntities[message.id] = entity;

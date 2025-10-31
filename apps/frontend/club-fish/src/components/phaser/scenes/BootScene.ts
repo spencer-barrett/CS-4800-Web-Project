@@ -2,7 +2,8 @@ import Phaser from "phaser";
 import { renderCharacterSVG, svgToDataURL } from "@/components/svg/char-forward";
 import { networkManager } from "@/lib/colyseus/networkController";
 import { MainRoom } from "@/types/rooms";
-export const playerEntities: {[sessionId: string]: any} = {};
+import { Client, Room } from "colyseus.js"
+export let playerEntities: {[sessionId: string]: any} = {};
 
 export class BootScene extends Phaser.Scene {
   constructor() { super("boot"); }
