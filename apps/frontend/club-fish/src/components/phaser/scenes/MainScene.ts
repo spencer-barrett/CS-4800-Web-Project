@@ -10,8 +10,8 @@ export class MainScene extends Phaser.Scene {
   private room!: MainRoom;
 
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
-  client = new Client("ws://localhost:2567");
-  joined = false;
+  // client = new Client("ws://localhost:2567");
+  // joined = false;
   myId = "";
 
   fish!: Phaser.GameObjects.Image;
