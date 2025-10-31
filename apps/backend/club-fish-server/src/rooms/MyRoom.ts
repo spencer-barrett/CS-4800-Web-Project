@@ -26,16 +26,8 @@ export class MyRoom extends Room<MyRoomState> {
     });
 
     //handle player input
-    this.onMessage("movement", (client: Client) => {
+    this.onMessage("movement", (client: Client, payload: { x: number, y: number}) => {
       //get ref to the player who sent the message
-
-      const payload = {
-        x: this.state.players.get(client.sessionId)?.x,
-        y: this.state.players.get(client.sessionId)?.y
-      }
-
-
-
       const player = this.state.players.get(client.sessionId);
       console.log(`Client ${client.sessionId} sent desired movement: left=${payload.x}, right=${payload.y}`);
       player.x = payload.x;
