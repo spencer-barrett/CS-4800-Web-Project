@@ -4,7 +4,8 @@ import { ChatMessage } from "@/types/chat-message";
 import { UserProfile } from "@/types/user-profile";
 import { getDoc, doc } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
-
+import { room } from "@/components/phaser/scenes/BootScene";
+//export let room = networkManager.getMainRoom();
 
 export default function useChatMessages() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);

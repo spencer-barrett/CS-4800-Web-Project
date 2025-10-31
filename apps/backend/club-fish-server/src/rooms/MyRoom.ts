@@ -2,14 +2,18 @@ import { Room, Client } from "@colyseus/core";
 import { MyRoomState, Player } from "./schema/MyRoomState";
 
 export class MyRoom extends Room<MyRoomState> {
-  maxClients = 4;
   state = new MyRoomState();
-  static instance: MyRoom | null = null;
   onCreate(options: any) {
+    this.maxClients = 4;
     console.log("MyRoom created!");
 
     // keep room alive even with 0 clients
     this.autoDispose = false;
+    this.onMessage("type", (client, message) => {
+      //
+      // handle "type" message
+      //
+    });
     this.state.players;
 
     // optional: mark as public and searchable
@@ -26,23 +30,26 @@ export class MyRoom extends Room<MyRoomState> {
     });
 
     //handle player input
-    this.onMessage("movement", (client: Client, payload: { x: number, y: number}) => {
+    this.onMessage("movement", (client, payload: { x: number, y: number, k: string}) => {
       //get ref to the player who sent the message
       const player = this.state.players.get(client.sessionId);
-      console.log(`Client ${client.sessionId} sent desired movement: left=${payload.x}, right=${payload.y}`);
+      console.log(`Client ${client.sessionId} sent desired movement: x=${payload.x}, y=${payload.y}`);
       player.x = payload.x;
       player.y = payload.y;
-      
-      //now broadcast this movement to all clients
-      this.broadcast("someone-moved", {
+
+      const toSend = {
         id: client.sessionId,
         x: payload.x,
-        y: payload.y
-      });
+        y: payload.y,
+        key: payload.k
+      };
+      
+      //now broadcast this movement to all clients
+      this.broadcast("someone-moved", toSend);
     });
 
     //send leave message back to client so it can access it's own id
-    this.onMessage("i-joined", (client: Client, message: any) => {
+    this.onMessage("i-joined", (client, message) => {
       client.send("your-id", client.sessionId)
       console.log("key color", message)
       //broadcast player joining
@@ -52,7 +59,7 @@ export class MyRoom extends Room<MyRoomState> {
       };
       this.broadcast("someone-joined", payload, { except: client});
     });
-    this.onMessage("i-left", (client: Client, message: any) => {
+    this.onMessage("i-left", (client) => {
       this.broadcast("someone-left", client.sessionId)
     });
   }

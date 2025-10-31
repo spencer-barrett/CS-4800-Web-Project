@@ -3,9 +3,16 @@ import { renderCharacterSVG, svgToDataURL } from "@/components/svg/char-forward"
 import { networkManager } from "@/lib/colyseus/networkController";
 import { MainRoom } from "@/types/rooms";
 import { Client, Room } from "colyseus.js"
+//import { room } from "@/hooks/useChatMessages";
+export let room: MainRoom = await networkManager.connectMainRoom();
 export let playerEntities: {[sessionId: string]: any} = {};
 
+interface playerDatamessage {
+  
+}
+
 export class BootScene extends Phaser.Scene {
+  client = new Client("ws://localhost:2567");
   constructor() { super("boot"); }
 
   preload() {
@@ -15,7 +22,14 @@ export class BootScene extends Phaser.Scene {
   }
 
   async create(data: { targetScene?: string; bodyColor?: string }) {
-    const room: MainRoom = await networkManager.connectMainRoom();
+    //const room: MainRoom = await networkManager.connectMainRoom();
+    try {
+      room = await this.client.joinOrCreate("my_room")
+      console.log("Joined successfully!");
+      
+    } catch (e) {
+      console.error(e);
+    } 
     console.log("BootScene: create started", data);
 
     const targetScene = data.targetScene || "MainScene";
