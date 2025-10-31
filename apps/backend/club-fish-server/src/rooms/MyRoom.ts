@@ -26,32 +26,32 @@ export class MyRoom extends Room<MyRoomState> {
     });
 
     //handle player input
-  this.onMessage("movement", (client, message: { x: number; y: number }) => {
-  const player = this.state.players.get(client.sessionId);
-  if (!player) return;
+    this.onMessage("movement", (client, message: { x: number; y: number }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
 
-  player.x = message.x;
-  player.y = message.y;
+      player.x = message.x;
+      player.y = message.y;
 
-  this.broadcast("someone-moved", {
-    id: client.sessionId,
-    x: message.x,
-    y: message.y,
-  }, { except: client });
-});
-
-
-    //send leave message back to client so it can access it's own id
-    this.onMessage("i-joined", (client: Client, message: any) => {
-      client.send("your-id", client.sessionId)
-      console.log("key color", message)
-      //broadcast player joining
-      const payload = {
+      this.broadcast("someone-moved", {
         id: client.sessionId,
-        key: message
-      };
-      this.broadcast("someone-joined", payload, { except: client});
+        x: message.x,
+        y: message.y,
+      }, { except: client });
     });
+
+
+
+    this.onMessage("i-joined", (client, message) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
+
+      player.color = message.color ?? "#60cbfcff";
+
+      const payload = { id: client.sessionId, color: player.color };
+      this.broadcast("someone-joined", payload, { except: client });
+    });
+
     this.onMessage("i-left", (client: Client, message: any) => {
       this.broadcast("someone-left", client.sessionId)
     });
@@ -60,9 +60,21 @@ export class MyRoom extends Room<MyRoomState> {
   onJoin(client: Client, options: any) {
     console.log(client.sessionId, "joined!");
     const player = new Player();
+    player.color = "#60cbfcff"; // default until i-joined sets it
     this.state.players.set(client.sessionId, player);
-  }
 
+
+    const existingPlayers: { id: string; color: string }[] = [];
+    this.state.players.forEach((p, id) => {
+      if (id !== client.sessionId) {
+        existingPlayers.push({ id, color: p.color ?? "#60cbfcff" });
+      }
+    });
+    client.send("existing-players", existingPlayers);
+
+    const payload = { id: client.sessionId, color: player.color };
+    this.broadcast("someone-joined", payload, { except: client });
+  }
   onLeave(client: Client, consented: boolean) {
     console.log(client.sessionId, "left!");
     this.state.players.delete(client.sessionId);
