@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type Phaser from "phaser";
+import Phaser from "phaser";
+import minigameRPS from "./scenes/minigameRPS";
 
 type Props = { width?: number; height?: number; parentClassName?: string };
 
@@ -39,7 +40,7 @@ export default function PhaserCanvas({
                         }
                     }
                 },
-                scene: [BootScene, MainScene],
+                scene: [BootScene, MainScene, minigameRPS],
             });
         })();
 

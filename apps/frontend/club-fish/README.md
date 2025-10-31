@@ -12,9 +12,9 @@ A minimal Next.js project using the App Router, TypeScript, and Tailwind-ready c
 1) Install Deps
 ` npm install `
 
-2) Start the development server `npm run dev`
+3) Start the development server `npm run dev`
 
-3) Navigate to http://localhost:3000
+4) Navigate to http://localhost:3000
 
 ## Project Structure
 ```
