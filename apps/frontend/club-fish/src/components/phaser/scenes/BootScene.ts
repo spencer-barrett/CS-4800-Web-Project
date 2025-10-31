@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 import { renderCharacterSVG, svgToDataURL } from "@/components/svg/char-forward";
+import { networkManager } from "@/lib/colyseus/networkController";
+import { MainRoom } from "@/types/rooms";
 
 export class BootScene extends Phaser.Scene {
   constructor() { super("boot"); }
@@ -10,7 +12,8 @@ export class BootScene extends Phaser.Scene {
     this.load.image("bg", "/gradient.png");
   }
 
-  create(data: { targetScene?: string; bodyColor?: string }) {
+  async create(data: { targetScene?: string; bodyColor?: string }) {
+    const room: MainRoom = await networkManager.connectMainRoom();
     console.log("BootScene: create started", data);
 
     const targetScene = data.targetScene || "MainScene";
@@ -25,19 +28,19 @@ export class BootScene extends Phaser.Scene {
       if (this.textures.exists(key)) this.textures.remove(key);
       this.textures.addImage(key, img);
 
-      this.scene.start(targetScene, { bodyColor });
+      this.scene.start(targetScene, { room, bodyColor });
     };
 
     img.onerror = (e) => {
       console.error(" Failed to decode SVG", e);
-      this.scene.start(targetScene, { bodyColor });
+      this.scene.start(data.targetScene, { room, bodyColor: data.bodyColor });
     };
 
     img.src = dataUrl;
   }
 
   update(time: number, delta: number) {
-      super.update(time, delta);
+    super.update(time, delta);
 
 
   }

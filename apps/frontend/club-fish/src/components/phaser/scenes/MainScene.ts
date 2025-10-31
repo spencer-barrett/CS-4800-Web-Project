@@ -1,16 +1,19 @@
 import Phaser from "phaser";
 import { Math as pMath } from "phaser";
 import Pointer = Phaser.Input.Pointer;
+import { MainRoom } from "@/types/rooms";
 const { Vector2 } = pMath;
 
 export class MainScene extends Phaser.Scene {
+  private room!: MainRoom;
 
   fish!: Phaser.GameObjects.Image;
   private bodyColor = "#60cbfcff";
   target = new Vector2();
 
-  init(data: { bodyColor?: string }) {
+  init(data: { room: MainRoom; bodyColor?: string }) {
     console.log("MainScene: init", data);
+    this.room = data.room;
     if (data?.bodyColor) this.bodyColor = data.bodyColor;
   }
 
@@ -20,6 +23,8 @@ export class MainScene extends Phaser.Scene {
 
   create() {
     console.log("MainScene: create started");
+    console.log("Connected to main room:", this.room.roomId);
+    this.room.onMessage("chat", (msg) => console.log(" asd", msg));
     const { width, height } = this.scale;
 
     console.log("Ocean exists?", this.textures.exists("ocean"));
