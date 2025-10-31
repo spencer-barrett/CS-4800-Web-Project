@@ -1,5 +1,4 @@
 "use client";
-import ChatWindowOverlay from "@/components/game-ui/ChatWindow";
 import { Button } from "@/components/ui/button";
 import { FieldSet, FieldGroup, Field } from "@/components/ui/field";
 import Connect from "@/lib/colyseus/client";
