@@ -9,8 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import CharacterCreateOverlay from "@/components/game-ui/CharacterCreateOverlay";
-import {ChatWindow} from "@/components/chat/ChatWindow";
-import { useUserGameData } from "@/hooks/useUserGameData";
+import ChatWindowOverlay from "@/components/game-ui/ChatWindow";
 
 
 // import PhaserCanvas to prevent SSR issues with Phaser
@@ -29,16 +28,70 @@ type SceneKey = "MainScene" | "CharacterCreate";
  * 
  * TODO: Implement entire bottom UI bar and menus
  */
-function MainHudOverlay() {
+function MainHudOverlay({ changeScene }: { changeScene: (scene: SceneKey) => void }) {
     const [showMenu, setShowMenu] = useState(false);
+    // const [showShop, setShowShop] = useState(false); // commented out for now
+    const [showMinigames, setShowMinigames] = useState(false);
+    const [showFriendsList, setShowFriendsList] = useState(false);
+    const [showPrivateRoom, setShowPrivateRoom] = useState(false);
+
 
     return (
         <>
-            <ChatWindow />
-            <div className="absolute bottom-3 right-3 space-x-2" style={{ pointerEvents: "none" }}>
-                <Button size="sm" variant="secondary" onClick={() => setShowMenu((v) => !v)} style={{ pointerEvents: "auto" }}>
-       
+            <ChatWindowOverlay/>
 
+            {/* Block-style bar: rectangular, subtle border and shadow */}
+            <div
+                className="absolute bottom-3 right-3 flex items-stretch gap-0 bg-black/75 rounded-md px-1 py-1 border border-white/10 shadow-sm"
+                style={{ pointerEvents: "none" }}
+            >
+                <Button
+                    size="sm"
+                    variant="secondary"
+                    //onClick={() => changeScene("CharacterCreate")}
+                    style={{ pointerEvents: "auto" }}
+                    className="rounded-none px-3 py-1 text-sm"
+                >
+                    Shop
+                </Button>
+
+                <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setShowMinigames((v) => !v)}
+                    style={{ pointerEvents: "auto" }}
+                    className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
+                >
+                    Minigames
+                </Button>
+
+                <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setShowPrivateRoom((v) => !v)}
+                    style={{ pointerEvents: "auto" }}
+                    className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
+                >
+                    Private Room
+                </Button>
+
+                <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setShowFriendsList((v) => !v)}
+                    style={{ pointerEvents: "auto" }}
+                    className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
+                >
+                    Friend's List
+                </Button>
+
+                <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setShowMenu((v) => !v)}
+                    style={{ pointerEvents: "auto" }}
+                    className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
+                >
                     Menu
                 </Button>
             </div>
@@ -53,6 +106,21 @@ function MainHudOverlay() {
                     </div>
                 </div>
             )}
+
+            {/* Shop modal commented out — re-enable by uncommenting and restoring state above
+            {showShop && (
+                <div className="absolute inset-0 grid place-items-center " style={{ pointerEvents: "auto" }}>
+                    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
+                        <h2 className="mb-3 text-xl font-bold">Shop Menu</h2>
+                        <p className="mb-4 text-sm opacity-80">Open shop</p>
+                        <div className="flex gap-2">
+                            <Button onClick={() => setShowShop(false)}>Resume</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            */}
+
         </>
     );
 }
@@ -66,11 +134,38 @@ function MainHudOverlay() {
  */
 function PlayPage() {
     const params = useSearchParams();
+    const [initialScene, setInitialScene] = useState<SceneKey | null>(null);
     const onboarding = params.get("onboarding");
-    const { loading, initialScene, bodyColor } = useUserGameData(onboarding);
-    
+    const [bodyColor, setBodyColor] = useState("");
 
-   
+    useEffect(() => {
+        const unsub = onAuthStateChanged(auth, async (user) => {
+            try {
+                if (onboarding) {
+                    setInitialScene("CharacterCreate");
+                    return;
+                }
+                if (!user) {
+                    setInitialScene("CharacterCreate");
+                    return;
+                }
+
+                // Fetch user document from Firestore to check character status
+                const ref = doc(db, "users", user.uid);
+                const snap = await getDoc(ref);
+                const hasCharacter = !!snap.data()?.hasCharacter;
+                setBodyColor(snap.data()?.bodyColor ?? "#60cbfcff");
+
+                // Route to main scene if character exists, otherwise to character creation
+                setInitialScene(hasCharacter ? "MainScene" : "CharacterCreate");
+            } catch (e) {
+                console.error("onboarding check failed:", e);
+                setInitialScene("CharacterCreate");
+            }
+        });
+
+        return () => unsub();
+    }, [onboarding]);
 
     /**
      * Sign out handler that logs the user out of Firebase authentication
@@ -92,8 +187,8 @@ function PlayPage() {
     const OverlayRenderer = useMemo(
         () => {
             const Component = ({ game, sceneKey }: { game: Phaser.Game | null; sceneKey: string | null }) => {
-                if (sceneKey === "CharacterCreate") return <CharacterCreateOverlay game={game} />;
-                if (sceneKey === "MainScene") return <MainHudOverlay />;
+                if (sceneKey === "CharacterCreate") return <CharacterCreateOverlay game={game}  />;
+                if (sceneKey === "MainScene") return <MainHudOverlay changeScene={(s) => setInitialScene(s as SceneKey)} />;
                 return null;
             };
             Component.displayName = "OverlayRenderer";
@@ -103,7 +198,7 @@ function PlayPage() {
     );
 
     // loading state
-    if (loading || !initialScene) {
+    if (!initialScene) {
         return (
             <div className="flex h-[calc(100vh-60px)] items-center justify-center">
                 <div className="rounded-xl bg-black/60 text-white px-4 py-2">Loading…</div>
