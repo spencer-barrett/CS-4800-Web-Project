@@ -173,7 +173,7 @@ if (typeof window !== "undefined") {
 
 
     // Interpolate other players
-    for (let sessionId in this.playerEntities) {
+    for (const sessionId in this.playerEntities) {
       if (sessionId === this.room.sessionId) {
         continue;
       }
