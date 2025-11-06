@@ -13,14 +13,15 @@ export class NetworkManager {
 
 
   /** Connect to main persistent world room */
-  async connectMainRoom(bodyColor: string): Promise<MainRoom> {
+  async connectMainRoom(bodyColor: string, displayName: string): Promise<MainRoom> {
 
     if (this.mainRoom) return this.mainRoom;
 
     try {
 
       const room = await this.client.joinOrCreate<MyRoomState>("my_room", {
-        bodyColor: bodyColor 
+        bodyColor: bodyColor,
+        displayName: displayName
       });
 
 
@@ -70,6 +71,6 @@ export class NetworkManager {
 
 
 export const networkManager = new NetworkManager(
-  process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "wss://game.fishfish.io"
-  // process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "ws://localhost:2567"
+  // process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "wss://game.fishfish.io"
+  process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "ws://localhost:2567"
 );

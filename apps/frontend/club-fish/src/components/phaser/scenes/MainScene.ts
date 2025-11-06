@@ -16,10 +16,15 @@ export class MainScene extends Phaser.Scene {
     [sessionId: string]: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
   } = {};
 
+  playerNameLabels: {
+    [sessionId: string]: Phaser.GameObjects.Text;
+  } = {};
+
   myId = "";
   private room!: MainRoom;
   fish!: Phaser.GameObjects.Image;
   private bodyColor = "#60cbfcff";
+  private displayName = "anonymous";
 
   target = new Vector2();
 
@@ -34,9 +39,10 @@ export class MainScene extends Phaser.Scene {
     color: "",
   };
 
-  init(data: { room: MainRoom; bodyColor?: string }) {
+  init(data: { room: MainRoom; bodyColor?: string, displayName?: string }) {
     console.log("MainScene: init", data);
     this.bodyColor = data.bodyColor ?? this.bodyColor;
+    this.displayName = data.displayName ?? this.displayName;
     this.inputPayload.color = this.bodyColor;
   }
 
@@ -47,7 +53,7 @@ export class MainScene extends Phaser.Scene {
   async create() {
     //custom cursor
     // this.input.setDefaultCursor("url(assets/cursor-small.cur), pointer");
-    this.room = await networkManager.connectMainRoom(this.bodyColor);
+    this.room = await networkManager.connectMainRoom(this.bodyColor, this.displayName);
 
     room_ = this.room;
     this.myId = this.room.sessionId;
@@ -60,6 +66,7 @@ export class MainScene extends Phaser.Scene {
 
     const key = `fish-${this.bodyColor}`;
     console.log(`Fish texture "${key}" exists?`, this.textures.exists(key));
+    console.log("name: ", this.displayName)
 
     this.add.image(width * 0.5, height * 0.5, "ocean").setOrigin(0.5);
 
@@ -69,6 +76,23 @@ export class MainScene extends Phaser.Scene {
       console.log(`   Is me? ${sessionId === this.room.sessionId}`);
 
       console.log(`   Initial position: (${player.x}, ${player.y})`);
+
+     const nameLabel = this.make.text({
+        x: player.x,
+        y: player.y - 130,
+        add: true,
+        text: player.displayName,
+        style: {
+          align: 'center',
+          backgroundColor: '#363636b7'
+        },
+        padding: {
+          x: 4,
+          y: 2
+        }
+      });
+
+      this.playerNameLabels[sessionId] = nameLabel;
 
       const entity = this.physics.add
         .image(player.x, player.y, player.color)
@@ -107,6 +131,13 @@ export class MainScene extends Phaser.Scene {
         entity.destroy();
         delete this.playerEntities[sessionId];
       }
+
+      const nameLabel = this.playerNameLabels[sessionId];
+      if (nameLabel) {
+        nameLabel.destroy();
+        delete this.playerNameLabels[sessionId];
+      }
+
 
       console.log(`   Remaining players:`, Object.keys(this.playerEntities));
     });
@@ -178,6 +209,17 @@ export class MainScene extends Phaser.Scene {
       if (serverX !== undefined && serverY !== undefined) {
         entity.x = Phaser.Math.Linear(entity.x, serverX, 0.2);
         entity.y = Phaser.Math.Linear(entity.y, serverY, 0.2);
+      }
+    }
+
+    for (const sessionId in this.playerNameLabels) {
+      const entity = this.playerEntities[sessionId];
+      const nameLabel = this.playerNameLabels[sessionId];
+      
+      if (entity && nameLabel) {
+        // Position the name above the player
+        nameLabel.x = entity.x - nameLabel.width / 2;
+        nameLabel.y = entity.y - 100;
       }
     }
   }

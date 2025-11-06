@@ -2,12 +2,10 @@
 
 import { withAuth } from "@/components/auth/authReq";
 import { Button } from "@/components/ui/button";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth, db } from "@/lib/firebase/clientApp";
+import { auth } from "@/lib/firebase/clientApp";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { useMemo, useState } from "react";
 import CharacterCreateOverlay from "@/components/game-ui/CharacterCreateOverlay";
 import {ChatWindow} from "@/components/chat/ChatWindow";
 import { useUserGameData } from "@/hooks/useUserGameData";
@@ -67,7 +65,7 @@ function MainHudOverlay() {
 function PlayPage() {
     const params = useSearchParams();
     const onboarding = params.get("onboarding");
-    const { loading, initialScene, bodyColor } = useUserGameData(onboarding);
+    const { loading, initialScene, bodyColor, displayName } = useUserGameData(onboarding);
     
 
    
@@ -126,7 +124,7 @@ function PlayPage() {
                         initialScene={initialScene}
                         parentClassName="shadow-2xl rounded-xl"
                         renderOverlay={OverlayRenderer}
-                        bootData={{ bodyColor }}
+                        bootData={{ bodyColor, displayName }}
                     />
                 </div>
                 <Button onClick={handleSignOut}>Sign Out!</Button>
