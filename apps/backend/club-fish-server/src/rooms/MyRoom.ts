@@ -19,6 +19,12 @@ export class MyRoom extends Room<MyRoomState> {
       this.broadcast("chat", payload)
     });
 
+    this.onMessage("color", (client, message) => {
+      const player = this.state.players.get(client.sessionId);
+      player.color = message;
+      console.log(player.color);
+    })
+
     this.onMessage(0, (client, payload) => {
       const player = this.state.players.get(client.sessionId);
       console.log(`   Received from ${client.sessionId}: (${payload.x}, ${payload.y})`);
@@ -57,7 +63,10 @@ let elapsedTime = 0;
 
     player.x = (Math.random() * 1100);
     player.y = (Math.random() * 575);
+    const bodyColor = options.bodyColor || "#ff3650"
+    player.color = `fish-${bodyColor}`;
     this.state.players.set(client.sessionId, player);
+    console.log("server color: ", player.color);
   }
 
   onLeave(client: Client, consented: boolean) {
