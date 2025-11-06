@@ -31,11 +31,13 @@ export class MainScene extends Phaser.Scene {
     x: 0,
     y: 0,
     tick: 0,
+    color: ""
   };
 
   init(data: { room: MainRoom; bodyColor?: string }) {
     console.log("MainScene: init", data);
     this.bodyColor = data.bodyColor ?? this.bodyColor;
+    this.inputPayload.color = this.bodyColor;
   }
 
   constructor() {
@@ -46,7 +48,8 @@ export class MainScene extends Phaser.Scene {
   async create() {
     //custom cursor
     // this.input.setDefaultCursor("url(assets/cursor-small.cur), pointer");
-    this.room = await networkManager.connectMainRoom();
+    this.room = await networkManager.connectMainRoom(this.bodyColor);
+    
     room_ = this.room;
     this.myId = this.room.sessionId;
     const $ = getStateCallbacks(this.room);
@@ -58,17 +61,21 @@ export class MainScene extends Phaser.Scene {
 
     const key = `fish-${this.bodyColor}`;
     console.log(`Fish texture "${key}" exists?`, this.textures.exists(key));
+    
 
     this.add.image(width * 0.5, height * 0.5, "ocean").setOrigin(0.5);
 
+    
     $(this.room.state).players.onAdd((player, sessionId) => {
+      
       console.log(`   Player added: ${sessionId}`);
       console.log(`   My ID: ${this.room.sessionId}`);
       console.log(`   Is me? ${sessionId === this.room.sessionId}`);
+      
       console.log(`   Initial position: (${player.x}, ${player.y})`);
-
+    
       const entity = this.physics.add
-        .image(player.x, player.y, key)
+        .image(player.x, player.y, player.color)
         .setScale(0.5);
       this.playerEntities[sessionId] = entity;
 
@@ -76,18 +83,11 @@ export class MainScene extends Phaser.Scene {
         console.log(`      This is MY player`);
         this.currentPlayer = entity;
 
-        this.localRef = this.add.rectangle(0, 0, entity.width, entity.height);
-        this.localRef.setStrokeStyle(1, 0x00ff00);
 
-        this.remoteRef = this.add.rectangle(0, 0, entity.width, entity.height);
-        this.remoteRef.setStrokeStyle(1, 0xff0000);
 
-        $(player).onChange(() => {
-          this.remoteRef.x = player.x;
-          this.remoteRef.y = player.y;
-        });
       } else {
         console.log(`      This is a REMOTE player`);
+        console.log(`   color ${this.room.state.players.get(sessionId)?.color}`);
         entity.setData("serverX", player.x);
         entity.setData("serverY", player.y);
 
@@ -111,13 +111,6 @@ export class MainScene extends Phaser.Scene {
         console.log(`    Destroying entity for ${sessionId}`);
         entity.destroy();
         delete this.playerEntities[sessionId];
-
-        // Also destroy remoteRef if it exists
-        if (this.remoteRef && sessionId === this.myId) {
-          this.remoteRef.destroy();
-          this.localRef.destroy();
-        }
-      } else {
       }
 
       console.log(`   Remaining players:`, Object.keys(this.playerEntities));
@@ -167,7 +160,7 @@ if (typeof window !== "undefined") {
       this.inputPayload.y = this.currentPlayer.y;
       this.inputPayload.tick = this.currentTick;
       console.log(
-        `📤 [${this.room.sessionId}] Sending position: (${this.inputPayload.x}, ${this.inputPayload.y})`
+        `  [${this.room.sessionId}] Sending position: (${this.inputPayload.x}, ${this.inputPayload.y})`
       );
       this.room.send(0, this.inputPayload);
 
@@ -178,8 +171,7 @@ if (typeof window !== "undefined") {
       }
     }
 
-    this.localRef.x = this.currentPlayer.x;
-    this.localRef.y = this.currentPlayer.y;
+
     // Interpolate other players
     for (let sessionId in this.playerEntities) {
       if (sessionId === this.room.sessionId) {

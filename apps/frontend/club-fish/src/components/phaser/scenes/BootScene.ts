@@ -1,11 +1,5 @@
 import Phaser from "phaser";
 import { renderCharacterSVG, svgToDataURL } from "@/components/svg/char-forward";
-import { networkManager } from "@/lib/colyseus/networkController";
-
-import { Client, Room } from "colyseus.js"
-import { MainRoom } from "@/types/myroomstate";
-//import { room } from "@/hooks/useChatMessages";
-
 
 export class BootScene extends Phaser.Scene {
   constructor() { super("boot"); }
@@ -19,33 +13,51 @@ export class BootScene extends Phaser.Scene {
   async create(data: { targetScene?: string; bodyColor?: string }) {
     const targetScene = data.targetScene || "MainScene";
     const bodyColor = data.bodyColor || "#60cbfcff";
+    console.log("body color in boot: ", bodyColor);
+
+     const allColors = [
+    bodyColor, // Current player's color
+    "#fcb360ff", // Orange
+    "#60cbfcff",   // Blue
+    "#60fc75ff",   // Green
+    "#FBEC5D",// Yellow
+    "#ff3650"   // Red Fallback
+    // ... add more colors as needed
+  ];
 
   
   
-  const svg = renderCharacterSVG(bodyColor);
+  let loadedCount = 0;
+  const totalColors = allColors.length;
+  
+  allColors.forEach(color => {
+    const key = `fish-${color}`;
+    const svg = renderCharacterSVG(color);
     const dataUrl = svgToDataURL(svg);
     const img = new Image();
-
-   
-    console.log("BootScene: create started", data);
-
     
-
     img.onload = () => {
-      const key = `fish-${bodyColor}`;
       if (this.textures.exists(key)) this.textures.remove(key);
       this.textures.addImage(key, img);
-
-      this.scene.start(targetScene, {  bodyColor });
+      loadedCount++;
+      
+      // Start scene when all textures are loaded
+      if (loadedCount === totalColors) {
+        this.scene.start(targetScene, { bodyColor });
+      }
     };
-
+    
     img.onerror = (e) => {
-      console.error(" Failed to decode SVG", e);
-      this.scene.start(data.targetScene, { bodyColor: data.bodyColor });
+      console.error(`Failed to load texture for ${color}`, e);
+      loadedCount++;
+      if (loadedCount === totalColors) {
+        this.scene.start(targetScene, { bodyColor });
+      }
     };
-
+    
     img.src = dataUrl;
-  }
+  });
+}
 
  
   update(time: number, delta: number) {
