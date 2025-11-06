@@ -64,9 +64,12 @@ let elapsedTime = 0;
     player.x = (Math.random() * 1100);
     player.y = (Math.random() * 575);
     const bodyColor = options.bodyColor || "#ff3650"
+    const displayName = options.displayName || "anonymous";
     player.color = `fish-${bodyColor}`;
+    player.displayName = displayName;
     this.state.players.set(client.sessionId, player);
     console.log("server color: ", player.color);
+    console.log("server display name: ", player.displayName);
   }
 
   onLeave(client: Client, consented: boolean) {

@@ -10,6 +10,7 @@ export class Player extends Schema {
   @type("number") x: number;
   @type("number") y: number;
   @type("string") color: string;
+  @type("string") displayName: string;
   @type("number") tick: number;
   inputQueue: InputData[] = [];
 }
