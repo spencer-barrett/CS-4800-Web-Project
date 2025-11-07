@@ -1,136 +1,93 @@
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { StoreIcon, Swords, BedSingle, Users, Settings } from "lucide-react";
-import { useState } from "react";
+import { ComponentType, useState } from "react";
 
+type PanelKey = "shop" | "minigames" | "privateRoom" | "friends" | "menu";
+type ButtonConfig = {
+  key: PanelKey;
+  label: string;
+  Icon: ComponentType<{ className?: string }>;
+};
+
+const BUTTONS: ButtonConfig[] = [
+  { key: "shop", label: "Shop", Icon: StoreIcon },
+  { key: "minigames", label: "Minigames", Icon: Swords },
+  { key: "privateRoom", label: "Private Rooms", Icon: BedSingle },
+  { key: "friends", label: "Friends", Icon: Users },
+  { key: "menu", label: "Settings", Icon: Settings },
+];
+
+const ITEM_CONTENT: Record<PanelKey, { title: string; description: string }> = {
+  shop: { title: "Shop Menu", description: "Open shop" },
+  minigames: { title: "MiniGames", description: "Open MiniGames" },
+  privateRoom: { title: "Private Rooms", description: "Open Private Rooms" },
+  friends: { title: "Friends List", description: "Open Friends List" },
+  menu: {
+    title: "Game Menu",
+    description: "Change settings or exit to lobby.",
+  },
+};
 
 export default function MenuBar() {
-        const [showMenu, setShowMenu] = useState(false);
-        const [showShop, setShowShop] = useState(false); // commented out for now
-        const [showMinigames, setShowMinigames] = useState(false);
-        const [showFriendsList, setShowFriendsList] = useState(false);
-        const [showPrivateRoom, setShowPrivateRoom] = useState(false);
+  const [activeItem, setActiveItem] = useState<PanelKey | null>(null);
 
-    return (
-         <>
+  const toggle = (key: PanelKey) =>
+    setActiveItem((current) => (current === key ? null : key));
+  const active = activeItem ? ITEM_CONTENT[activeItem] : null;
 
-            {/* Block-style bar: rectangular, subtle border and shado w */}
-            <div
-                className="absolute bottom-3 right-3 flex items-stretch gap-0 bg-black/75 rounded-md px-1 py-1 border border-white/10 shadow-sm"
-                style={{ pointerEvents: "none" }}
-            >
-                <Button
-                    size="sm"
-                    variant="secondary"
-                    //onClick={() => changeScene("CharacterCreate")}
-                    onClick={() => setShowShop((v) => !v)}
-                    style={{ pointerEvents: "auto" }}
-                    className="rounded-none px-3 py-1 text-sm"
-                >
-                    <StoreIcon />
-                </Button>
+  return (
+    <>
+      {/* Block-style bar: rectangular, subtle border and shado w */}
+      <div
+        className="absolute bottom-3 right-3 flex items-stretch gap-0 bg-black/75 rounded-md px-1 py-1 border border-white/10 shadow-sm"
+        style={{ pointerEvents: "none" }}
+      >
+        {BUTTONS.map(({ key, label, Icon }, i) => (
+          <Tooltip key={key}>
+            <TooltipTrigger asChild>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => toggle(key)}
+                style={{ pointerEvents: "auto" }}
+                className={`rounded-none px-3 py-1 text-sm ${
+                  i > 0 ? "border-l border-white/10" : ""
+                }`}
+              >
+                <Icon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{label}</p>
+            </TooltipContent>
+          </Tooltip>
+        ))}
+      </div>
 
-                <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setShowMinigames((v) => !v)}
-                    style={{ pointerEvents: "auto" }}
-                    className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
-                >
-                    <Swords />
-                </Button>
-
-                <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setShowPrivateRoom((v) => !v)}
-                    style={{ pointerEvents: "auto" }}
-                    className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
-                >
-                    <BedSingle />
-                </Button>
-
-                <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setShowFriendsList((v) => !v)}
-                    style={{ pointerEvents: "auto" }}
-                    className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
-                >
-                    <Users />
-                </Button>
-
-                <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setShowMenu((v) => !v)}
-                    style={{ pointerEvents: "auto" }}
-                    className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
-                >
-                    <Settings />
-                </Button>
+      {active && (
+        <div
+          className="absolute inset-0 grid place-items-center"
+          style={{ pointerEvents: "auto" }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="panel-title"
+        >
+          <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
+            <h2 id="panel-title" className="mb-3 text-xl font-bold">
+              {active.title}
+            </h2>
+            <p className="mb-4 text-sm opacity-80">{active.description}</p>
+            <div className="flex gap-2">
+              <Button onClick={() => setActiveItem(null)}>Resume</Button>
             </div>
-            {showMenu && (
-                <div className="absolute inset-0 grid place-items-center " style={{ pointerEvents: "auto" }}>
-                    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
-                        <h2 className="mb-3 text-xl font-bold">Game Menu</h2>
-                        <p className="mb-4 text-sm opacity-80">Change settings or exit to lobby.</p>
-                        <div className="flex gap-2">
-                            <Button onClick={() => setShowMenu(false)}>Resume</Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Shop modal commented out — re-enable by uncommenting and restoring state above */}
-            {showShop && (
-                <div className="absolute inset-0 grid place-items-center " style={{ pointerEvents: "auto" }}>
-                    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
-                        <h2 className="mb-3 text-xl font-bold">Shop Menu</h2>
-                        <p className="mb-4 text-sm opacity-80">Open shop</p>
-                        <div className="flex gap-2">
-                            <Button onClick={() => setShowShop(false)}>Resume</Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showMinigames && (
-                <div className="absolute inset-0 grid place-items-center " style={{ pointerEvents: "auto" }}>
-                    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
-                        <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
-                        <p className="mb-4 text-sm opacity-80">Open MiniGames</p>
-                        <div className="flex gap-2">
-                            <Button onClick={() => setShowMinigames(false)}>Resume</Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showFriendsList && (
-                <div className="absolute inset-0 grid place-items-center " style={{ pointerEvents: "auto" }}>
-                    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
-                        <h2 className="mb-3 text-xl font-bold">Friends List</h2>
-                        <p className="mb-4 text-sm opacity-80">Open Friends List</p>
-                        <div className="flex gap-2">
-                            <Button onClick={() => setShowFriendsList(false)}>Resume</Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-             {showPrivateRoom && (
-                <div className="absolute inset-0 grid place-items-center " style={{ pointerEvents: "auto" }}>
-                    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
-                        <h2 className="mb-3 text-xl font-bold">Private Rooms</h2>
-                        <p className="mb-4 text-sm opacity-80">Open Private Rooms</p>
-                        <div className="flex gap-2">
-                            <Button onClick={() => setShowPrivateRoom(false)}>Resume</Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-           
-
-        </>
-    )
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
