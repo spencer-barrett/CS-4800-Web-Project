@@ -1,5 +1,5 @@
 import { Client } from "colyseus.js";
-import type { MainRoom, MainRoomState } from "@/types/rooms";
+import type { MyRoomState, MainRoom } from "@/types/myroomstate";
 
 
 
@@ -13,13 +13,15 @@ export class NetworkManager {
 
 
   /** Connect to main persistent world room */
-  async connectMainRoom(): Promise<MainRoom> {
+  async connectMainRoom(bodyColor: string): Promise<MainRoom> {
 
     if (this.mainRoom) return this.mainRoom;
 
     try {
 
-      const room = await this.client.joinOrCreate<MainRoomState>("my_room");
+      const room = await this.client.joinOrCreate<MyRoomState>("my_room", {
+        bodyColor: bodyColor 
+      });
 
 
       this.mainRoom = room;
@@ -69,4 +71,5 @@ export class NetworkManager {
 
 export const networkManager = new NetworkManager(
   process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "wss://game.fishfish.io"
+  // process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "ws://localhost:2567"
 );

@@ -1,15 +1,7 @@
 import Phaser from "phaser";
 import { renderCharacterSVG, svgToDataURL } from "@/components/svg/char-forward";
-import { networkManager } from "@/lib/colyseus/networkController";
-import { MainRoom } from "@/types/rooms";
-import { Client, Room } from "colyseus.js"
-//import { room } from "@/hooks/useChatMessages";
-export let room: MainRoom = await networkManager.connectMainRoom();
-export const playerEntities: {[sessionId: string]: any} = {};
-
 
 export class BootScene extends Phaser.Scene {
-  client = new Client("ws://localhost:2567");
   constructor() { super("boot"); }
 
   preload() {
@@ -19,39 +11,55 @@ export class BootScene extends Phaser.Scene {
   }
 
   async create(data: { targetScene?: string; bodyColor?: string }) {
-    //const room: MainRoom = await networkManager.connectMainRoom();
-    try {
-      room = await this.client.joinOrCreate("my_room")
-      console.log("Joined successfully!");
-      
-    } catch (e) {
-      console.error(e);
-    } 
-    console.log("BootScene: create started", data);
-
     const targetScene = data.targetScene || "MainScene";
     const bodyColor = data.bodyColor || "#60cbfcff";
+    console.log("body color in boot: ", bodyColor);
 
-    const svg = renderCharacterSVG(bodyColor);
+     const allColors = [
+    bodyColor, // Current player's color
+    "#fcb360ff", // Orange
+    "#60cbfcff",   // Blue
+    "#60fc75ff",   // Green
+    "#FBEC5D",// Yellow
+    "#ff3650"   // Red Fallback
+    // ... add more colors as needed
+  ];
+
+  
+  
+  let loadedCount = 0;
+  const totalColors = allColors.length;
+  
+  allColors.forEach(color => {
+    const key = `fish-${color}`;
+    const svg = renderCharacterSVG(color);
     const dataUrl = svgToDataURL(svg);
     const img = new Image();
-
+    
     img.onload = () => {
-      const key = `fish-${bodyColor}`;
       if (this.textures.exists(key)) this.textures.remove(key);
       this.textures.addImage(key, img);
-
-      this.scene.start(targetScene, { room, bodyColor });
+      loadedCount++;
+      
+      // Start scene when all textures are loaded
+      if (loadedCount === totalColors) {
+        this.scene.start(targetScene, { bodyColor });
+      }
     };
-
+    
     img.onerror = (e) => {
-      console.error(" Failed to decode SVG", e);
-      this.scene.start(data.targetScene, { room, bodyColor: data.bodyColor });
+      console.error(`Failed to load texture for ${color}`, e);
+      loadedCount++;
+      if (loadedCount === totalColors) {
+        this.scene.start(targetScene, { bodyColor });
+      }
     };
-
+    
     img.src = dataUrl;
-  }
+  });
+}
 
+ 
   update(time: number, delta: number) {
     super.update(time, delta);
 
