@@ -82,7 +82,7 @@ function MainHudOverlay({ changeScene }: { changeScene: (scene: SceneKey) => voi
                     style={{ pointerEvents: "auto" }}
                     className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
                 >
-                    Friend's List
+                    Friends List
                 </Button>
 
                 <Button
