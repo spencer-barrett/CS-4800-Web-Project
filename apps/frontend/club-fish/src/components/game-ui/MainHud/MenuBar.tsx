@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { StoreIcon, Swords, BedSingle, Users } from "lucide-react";
+import { StoreIcon, Swords, BedSingle, Users, Settings } from "lucide-react";
 import { useState } from "react";
 
 
@@ -66,7 +66,7 @@ export default function MenuBar() {
                     style={{ pointerEvents: "auto" }}
                     className="rounded-none border-l border-white/10 px-3 py-1 text-sm"
                 >
-                    Menu
+                    <Settings />
                 </Button>
             </div>
             {showMenu && (
