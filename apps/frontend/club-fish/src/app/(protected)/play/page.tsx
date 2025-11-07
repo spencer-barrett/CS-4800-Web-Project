@@ -9,7 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import CharacterCreateOverlay from "@/components/game-ui/CharacterCreateOverlay";
-import ChatWindowOverlay from "@/components/game-ui/ChatWindow";
+import {ChatWindow} from "@/components/chat/ChatWindow";
 
 
 // import PhaserCanvas to prevent SSR issues with Phaser
@@ -38,7 +38,7 @@ function MainHudOverlay({ changeScene }: { changeScene: (scene: SceneKey) => voi
 
     return (
         <>
-            <ChatWindowOverlay/>
+            <ChatWindow/>
 
             {/* Block-style bar: rectangular, subtle border and shadow */}
             <div
