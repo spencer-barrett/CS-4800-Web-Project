@@ -40,7 +40,7 @@ function MainHudOverlay({ changeScene }: { changeScene: (scene: SceneKey) => voi
         <>
             <ChatWindow/>
 
-            {/* Block-style bar: rectangular, subtle border and shadow */}
+            {/* Block-style bar: rectangular, subtle border and shado w */}
             <div
                 className="absolute bottom-3 right-3 flex items-stretch gap-0 bg-black/75 rounded-md px-1 py-1 border border-white/10 shadow-sm"
                 style={{ pointerEvents: "none" }}
