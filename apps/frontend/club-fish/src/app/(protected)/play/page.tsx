@@ -17,6 +17,7 @@ import {
   Settings,
 } from "lucide-react";
 import MenuBar from "@/components/game-ui/MainHud/MenuBar";
+import { useUserGameData } from "@/hooks/useUserGameData";
 
 // import PhaserCanvas to prevent SSR issues with Phaser
 const PhaserCanvas = dynamic(() => import("@/components/phaser/PhaserCanvas"), {
