@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/tooltip";
 import { StoreIcon, Swords, BedSingle, Users, Settings } from "lucide-react";
 import { ComponentType, useState } from "react";
+import ShopPanel from "./ShopPanel";
 
 type PanelKey = "shop" | "minigames" | "privateRoom" | "friends" | "menu";
 type ButtonConfig = {
@@ -82,8 +83,14 @@ export default function MenuBar() {
               {active.title}
             </h2>
             <p className="mb-4 text-sm opacity-80">{active.description}</p>
-            <div className="flex gap-2">
-              <Button onClick={() => setActiveItem(null)}>Resume</Button>
+            <div className="mb-4">
+              {activeItem === "shop" ? (
+                <ShopPanel onClose={() => setActiveItem(null)} />
+              ) : (
+                <div className="flex gap-2">
+                  <Button onClick={() => setActiveItem(null)}>Resume</Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
