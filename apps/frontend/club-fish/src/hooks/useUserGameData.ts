@@ -12,6 +12,7 @@ export function useUserGameData(onboardingParam?: string | null): UseUserGameDat
     const [loading, setLoading] = useState(true);
     const [initialScene, setInitialScene] = useState<SceneKey | null>(null);
     const [bodyColor, setBodyColor] = useState("#60cbfcff");
+    const [displayName, setDisplayName] = useState("anonymous");
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, async (user) => {
             try {
@@ -29,6 +30,7 @@ export function useUserGameData(onboardingParam?: string | null): UseUserGameDat
                 const snap = await getDoc(ref);
                 const hasCharacter = !!snap.data()?.hasCharacter;
                 setBodyColor(snap.data()?.bodyColor ?? "#60cbfcff");
+                setDisplayName(snap.data()?.displayName ?? "anonymous");
 
                 // Route to main scene if character exists, otherwise to character creation
                 setInitialScene(hasCharacter ? "MainScene" : "CharacterCreate");
@@ -43,5 +45,5 @@ export function useUserGameData(onboardingParam?: string | null): UseUserGameDat
         return () => unsub();
     }, [onboardingParam]);
 
-    return { loading, initialScene, bodyColor };
+    return { loading, initialScene, bodyColor, displayName };
 }

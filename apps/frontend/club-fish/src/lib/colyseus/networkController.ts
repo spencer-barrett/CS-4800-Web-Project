@@ -13,14 +13,15 @@ export class NetworkManager {
 
 
   /** Connect to main persistent world room */
-  async connectMainRoom(bodyColor: string): Promise<MainRoom> {
+  async connectMainRoom(bodyColor: string, displayName: string): Promise<MainRoom> {
 
     if (this.mainRoom) return this.mainRoom;
 
     try {
 
       const room = await this.client.joinOrCreate<MyRoomState>("my_room", {
-        bodyColor: bodyColor 
+        bodyColor: bodyColor,
+        displayName: displayName
       });
 
 
