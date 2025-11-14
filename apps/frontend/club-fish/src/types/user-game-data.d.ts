@@ -1,7 +1,8 @@
 export type UseUserGameDataResult = {
   loading: boolean;
   initialScene: SceneKey | null;
-  bodyColor: string;
-  displayName: string;
+  playerData: PlayerData | null;
+  setPlayerData: React.Dispatch<React.SetStateAction<PlayerData | null>>;
+  
 };
 export type SceneKey = "MainScene" | "CharacterCreate";

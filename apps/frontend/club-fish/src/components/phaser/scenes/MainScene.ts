@@ -1,9 +1,10 @@
 import Phaser from "phaser";
 import { Math as pMath } from "phaser";
 import Pointer = Phaser.Input.Pointer;
-import { Client, Room, getStateCallbacks } from "colyseus.js";
+import { getStateCallbacks } from "colyseus.js";
 import type { MainRoom } from "@/types/myroomstate";
 import { networkManager } from "@/lib/colyseus/networkController";
+import { PlayerData } from "@/types/player-data";
 const { Vector2 } = pMath;
 
 export let room_: MainRoom;
@@ -23,8 +24,9 @@ export class MainScene extends Phaser.Scene {
   myId = "";
   private room!: MainRoom;
   fish!: Phaser.GameObjects.Image;
-  private bodyColor = "#60cbfcff";
-  private displayName = "anonymous";
+  // private bodyColor = "#60cbfcff";
+  // private displayName = "anonymous";
+  private playerData!: PlayerData;
 
   target = new Vector2();
 
@@ -39,11 +41,10 @@ export class MainScene extends Phaser.Scene {
     color: "",
   };
 
-  init(data: { room: MainRoom; bodyColor?: string, displayName?: string }) {
+  init(data: { room: MainRoom; playerData: PlayerData }) {
     console.log("MainScene: init", data);
-    this.bodyColor = data.bodyColor ?? this.bodyColor;
-    this.displayName = data.displayName ?? this.displayName;
-    this.inputPayload.color = this.bodyColor;
+    this.playerData = data.playerData;
+    this.inputPayload.color = this.playerData.bodyColor;
   }
 
   constructor() {
@@ -53,7 +54,7 @@ export class MainScene extends Phaser.Scene {
   async create() {
     //custom cursor
     // this.input.setDefaultCursor("url(assets/cursor-small.cur), pointer");
-    this.room = await networkManager.connectMainRoom(this.bodyColor, this.displayName);
+    this.room = await networkManager.connectMainRoom(this.playerData);
 
     room_ = this.room;
     this.myId = this.room.sessionId;
@@ -64,9 +65,9 @@ export class MainScene extends Phaser.Scene {
     this.room.onMessage("chat", (msg) => console.log(" asd", msg));
     const { width, height } = this.scale;
 
-    const key = `fish-${this.bodyColor}`;
+    const key = `fish-${this.playerData.bodyColor}`;
     console.log(`Fish texture "${key}" exists?`, this.textures.exists(key));
-    console.log("name: ", this.displayName)
+    console.log("name: ", this.playerData.displayName);
 
     this.add.image(width * 0.5, height * 0.5, "ocean").setOrigin(0.5);
 
@@ -185,9 +186,9 @@ export class MainScene extends Phaser.Scene {
       this.inputPayload.x = this.currentPlayer.x;
       this.inputPayload.y = this.currentPlayer.y;
       this.inputPayload.tick = this.currentTick;
-      console.log(
-        `  [${this.room.sessionId}] Sending position: (${this.inputPayload.x}, ${this.inputPayload.y})`
-      );
+      // console.log(
+      //   `  [${this.room.sessionId}] Sending position: (${this.inputPayload.x}, ${this.inputPayload.y})`
+      // ); 
       this.room.send(0, this.inputPayload);
 
       if (distance < 5) {

@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { renderCharacterSVG, svgToDataURL } from "@/components/svg/char-forward";
+import { PlayerData } from "@/types/player-data";
 
 export class BootScene extends Phaser.Scene {
   constructor() { super("boot"); }
@@ -10,58 +11,65 @@ export class BootScene extends Phaser.Scene {
     this.load.image("bg", "/gradient.png");
   }
 
-  async create(data: { targetScene?: string; bodyColor?: string, displayName?: string }) {
+  async create(data: { targetScene?: string; playerData: PlayerData | null }) {
     const targetScene = data.targetScene || "MainScene";
-    const bodyColor = data.bodyColor || "#60cbfcff";
-    const displayName = data.displayName || "anonymous";
-    console.log("body color in boot: ", bodyColor);
-    console.log("display name in boot: ", displayName);
+    if (!data.playerData) {
+      console.warn("BootScene received null playerData! Using defaults.");
+      data.playerData = {
+        bodyColor: "#60cbfcff",
+        displayName: "anonymous",
+        currency: 0,
+      };
+    }
+    console.log("body color in boot: ", data.playerData.bodyColor);
+    console.log("display name in boot: ", data.playerData.displayName);
+    console.log("currency in boot: ", data.playerData.currency);
 
-     const allColors = [
-    bodyColor, // Current player's color
-    "#fcb360ff", // Orange
-    "#60cbfcff",   // Blue
-    "#60fc75ff",   // Green
-    "#FBEC5D",// Yellow
-    "#ff3650"   // Red Fallback
-    // ... add more colors as needed
-  ];
+    const allColors = [
+      data.playerData.bodyColor, // Current player's color
+      "#fcb360ff", // Orange
+      "#60cbfcff",   // Blue
+      "#60fc75ff",   // Green
+      "#FBEC5D",// Yellow
+      "#ff3650"   // Red Fallback
+      // ... add more colors as needed
+    ];
 
-  
-  
-  let loadedCount = 0;
-  const totalColors = allColors.length;
-  
-  allColors.forEach(color => {
-    const key = `fish-${color}`;
-    const svg = renderCharacterSVG(color);
-    const dataUrl = svgToDataURL(svg);
-    const img = new Image();
-    
-    img.onload = () => {
-      if (this.textures.exists(key)) this.textures.remove(key);
-      this.textures.addImage(key, img);
-      loadedCount++;
-      
-      // Start scene when all textures are loaded
-      if (loadedCount === totalColors) {
-        this.scene.start(targetScene, { bodyColor, displayName });
-      }
-    };
-    
-    img.onerror = (e) => {
-      console.error(`Failed to load texture for ${color}`, e);
-      loadedCount++;
-      if (loadedCount === totalColors) {
-        this.scene.start(targetScene, { bodyColor, displayName });
-      }
-    };
-    
-    img.src = dataUrl;
-  });
-}
 
- 
+
+    let loadedCount = 0;
+    const totalColors = allColors.length;
+
+    allColors.forEach(color => {
+      const key = `fish-${color}`;
+      const svg = renderCharacterSVG(color);
+      const dataUrl = svgToDataURL(svg);
+      const img = new Image();
+
+      img.onload = () => {
+        if (this.textures.exists(key)) this.textures.remove(key);
+        this.textures.addImage(key, img);
+        loadedCount++;
+
+        // Start scene when all textures are loaded
+        if (loadedCount === totalColors) {
+          this.scene.start(targetScene, { playerData: data.playerData });
+        }
+      };
+
+      img.onerror = (e) => {
+        console.error(`Failed to load texture for ${color}`, e);
+        loadedCount++;
+        if (loadedCount === totalColors) {
+          this.scene.start(targetScene, { playerData: data.playerData });
+        }
+      };
+
+      img.src = dataUrl;
+    });
+  }
+
+
   update(time: number, delta: number) {
     super.update(time, delta);
 

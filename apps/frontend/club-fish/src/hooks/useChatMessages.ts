@@ -4,7 +4,6 @@ import { ChatMessage } from "@/types/chat-message";
 import { UserProfile } from "@/types/user-profile";
 import { getDoc, doc } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
-import { room_ } from "@/components/phaser/scenes/MainScene";
 import { MainRoom } from "@/types/myroomstate";
 //export let room_ = networkManager.getMainroom_();
 

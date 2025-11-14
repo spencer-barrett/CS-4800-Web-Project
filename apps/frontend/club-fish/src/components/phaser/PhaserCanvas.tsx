@@ -115,7 +115,7 @@ export default function PhaserCanvas({
                 gameRef.current = null;
             }
         };
-    }, [width, height, initialScene, renderOverlay, bootData]);
+    }, [width, height, initialScene]);
 
     return (
         <div

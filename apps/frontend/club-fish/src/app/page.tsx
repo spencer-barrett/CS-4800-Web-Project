@@ -14,7 +14,9 @@ export default function Home() {
   return (
     <div className="h-[calc(100vh-60px)] md:h-[calc(100vh-72px)] w-full bg-[#29cfb4] bg-cover bg-center relative">
       {/* <div className="absolute top-0 left-0 z-10 bg-background/40 h-svh w-svw backdrop-blur-sm" /> */}
-<img src="/hero.png" className="object-cover h-full w-full absolute top-0 left-0 z-5 "/>
+<Image src="/hero.png" className="object-cover h-full w-full absolute top-0 left-0 z-5 " alt="hero"   width={0}
+  height={0}
+  sizes="100vw"/>
    <div className="flex flex-col justify-center items-center w-full h-full z-20 absolute top-0 left-0">
        
 

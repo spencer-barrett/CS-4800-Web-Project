@@ -4,7 +4,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatInput from "./ChatInput";
 import  MessageBubble  from "./MessageBubble";
 import  useChatMessages  from "@/hooks/useChatMessages";
-import { useEffect, useState } from "react";
 
 export function ChatWindow() {
   const { messages, sendMessage, scrollRef } = useChatMessages();

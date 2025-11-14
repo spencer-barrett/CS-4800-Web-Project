@@ -39,7 +39,7 @@ export function withAuth<P extends { user: User }>(
                     router.replace(`${redirectTo}?next=${next}`);
                 }
             }
-        }, [user, pathname, redirectTo, router]);
+        }, [user, pathname, router]);
 
         if (user === undefined) return <Loading />;
         if (!allowWhen(user)) return null;
