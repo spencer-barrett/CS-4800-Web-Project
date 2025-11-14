@@ -1,5 +1,6 @@
 import { Client } from "colyseus.js";
 import type { MyRoomState, MainRoom } from "@/types/myroomstate";
+import { PlayerData } from "@/types/player-data";
 
 
 
@@ -13,15 +14,16 @@ export class NetworkManager {
 
 
   /** Connect to main persistent world room */
-  async connectMainRoom(bodyColor: string, displayName: string): Promise<MainRoom> {
+  async connectMainRoom(player: PlayerData): Promise<MainRoom> {
 
     if (this.mainRoom) return this.mainRoom;
 
     try {
 
       const room = await this.client.joinOrCreate<MyRoomState>("my_room", {
-        bodyColor: bodyColor,
-        displayName: displayName
+        bodyColor: player.bodyColor,
+        displayName: player.displayName,
+        currency: player.currency
       });
 
 
