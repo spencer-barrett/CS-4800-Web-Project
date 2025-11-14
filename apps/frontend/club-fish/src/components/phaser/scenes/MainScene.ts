@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Math as pMath } from "phaser";
 import Pointer = Phaser.Input.Pointer;
-import { Client, Room, getStateCallbacks } from "colyseus.js";
+import { getStateCallbacks } from "colyseus.js";
 import type { MainRoom } from "@/types/myroomstate";
 import { networkManager } from "@/lib/colyseus/networkController";
 import { PlayerData } from "@/types/player-data";
