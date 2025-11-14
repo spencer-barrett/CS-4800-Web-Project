@@ -12,6 +12,7 @@ export class Player extends Schema {
   @type("string") color: string;
   @type("string") displayName: string;
   @type("number") tick: number;
+  @type("number") currency: number;
   inputQueue: InputData[] = [];
 }
 export class MyRoomState extends Schema {
