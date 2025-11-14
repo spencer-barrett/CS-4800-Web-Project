@@ -6,13 +6,20 @@ import {
 } from "@/components/ui/tooltip";
 import { StoreIcon, Swords, BedSingle, Users, Settings } from "lucide-react";
 import { ComponentType, useState } from "react";
+import { GiNautilusShell } from "react-icons/gi";
 import ShopPanel from "./ShopPanel";
+
+type MenuBarProps = {
+  currency?: number;
+};
 
 type PanelKey = "shop" | "minigames" | "privateRoom" | "friends" | "menu";
 type ButtonConfig = {
   key: PanelKey;
   label: string;
   Icon: ComponentType<{ className?: string }>;
+
+  
 };
 
 const BUTTONS: ButtonConfig[] = [
@@ -34,7 +41,7 @@ const ITEM_CONTENT: Record<PanelKey, { title: string; description: string }> = {
   },
 };
 
-export default function MenuBar() {
+export default function MenuBar({ currency }: MenuBarProps) {
   const [activeItem, setActiveItem] = useState<PanelKey | null>(null);
 
   const toggle = (key: PanelKey) =>
@@ -56,9 +63,8 @@ export default function MenuBar() {
                 variant="secondary"
                 onClick={() => toggle(key)}
                 style={{ pointerEvents: "auto" }}
-                className={`rounded-none px-3 py-1 text-sm ${
-                  i > 0 ? "border-l border-white/10" : ""
-                }`}
+                className={`rounded-none px-3 py-1 text-sm ${i > 0 ? "border-l border-white/10" : ""
+                  }`}
               >
                 <Icon />
               </Button>
@@ -82,10 +88,32 @@ export default function MenuBar() {
             <h2 id="panel-title" className="mb-3 text-xl font-bold">
               {active.title}
             </h2>
-            <p className="mb-4 text-sm opacity-80">{active.description}</p>
             <div className="mb-4">
               {activeItem === "shop" ? (
-                <ShopPanel onClose={() => setActiveItem(null)} />
+                <div className="flex justify-end">
+                  <div className="p-2 bg-black/60 rounded-md text-sm font-[800] flex items-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                    <GiNautilusShell size={24} />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Currency</p>
+                    </TooltipContent>
+                    </Tooltip>
+                    <span>:</span>
+                    <span>{currency}</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm opacity-80">{active.description}</p>
+
+              )}
+
+
+            </div>
+            <div className="mb-4">
+              {activeItem === "shop" ? (
+                <ShopPanel onClose={() => setActiveItem(null)} currency={currency} />
               ) : (
                 <div className="flex gap-2">
                   <Button onClick={() => setActiveItem(null)}>Resume</Button>
