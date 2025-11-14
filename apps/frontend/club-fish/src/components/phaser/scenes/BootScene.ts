@@ -10,10 +10,12 @@ export class BootScene extends Phaser.Scene {
     this.load.image("bg", "/gradient.png");
   }
 
-  async create(data: { targetScene?: string; bodyColor?: string }) {
+  async create(data: { targetScene?: string; bodyColor?: string, displayName?: string }) {
     const targetScene = data.targetScene || "MainScene";
     const bodyColor = data.bodyColor || "#60cbfcff";
+    const displayName = data.displayName || "anonymous";
     console.log("body color in boot: ", bodyColor);
+    console.log("display name in boot: ", displayName);
 
      const allColors = [
     bodyColor, // Current player's color
@@ -43,7 +45,7 @@ export class BootScene extends Phaser.Scene {
       
       // Start scene when all textures are loaded
       if (loadedCount === totalColors) {
-        this.scene.start(targetScene, { bodyColor });
+        this.scene.start(targetScene, { bodyColor, displayName });
       }
     };
     
@@ -51,7 +53,7 @@ export class BootScene extends Phaser.Scene {
       console.error(`Failed to load texture for ${color}`, e);
       loadedCount++;
       if (loadedCount === totalColors) {
-        this.scene.start(targetScene, { bodyColor });
+        this.scene.start(targetScene, { bodyColor, displayName });
       }
     };
     
