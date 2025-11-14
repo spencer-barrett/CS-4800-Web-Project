@@ -13,10 +13,10 @@ export let opponentSelectedCard: string = "None";
 export class minigameRPS extends Phaser.Scene {
     private timerBar!: TimerBar;
     private timerText?: Phaser.GameObjects.Text
-    private initialTime: number = 2 //set back to 10 later
+    private initialTime: number = 5 //set back to 10 later
     private timerEvent!: Phaser.Time.TimerEvent;
     //cards
-    private claw!: Phaser.GameObjects.Sprite //see if ? or ! makes any meaningful difference
+    private claw!: Phaser.GameObjects.Sprite
     private kelp!: Phaser.GameObjects.Sprite
     private coral!: Phaser.GameObjects.Sprite
 
@@ -31,6 +31,7 @@ export class minigameRPS extends Phaser.Scene {
     private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
 
     //selected card, can be Claw, Kelp, Coral, or None
+    sent: boolean = false;
     //public selectedCard: String = "None";
     //public opponentSelectedCard: String = "None";
 
@@ -47,6 +48,7 @@ export class minigameRPS extends Phaser.Scene {
         
     }
     async create(){
+        this.initialTime = 5;
         //const room = await createNonMainRoom(2);
         selectedCard = "None";
         opponentSelectedCard = "None";
@@ -74,7 +76,7 @@ export class minigameRPS extends Phaser.Scene {
 
         this.kelp = this.add.sprite(width*0.5, height*0.5, 'kelp').setScale(0.15).setInteractive()
 
-        this.coral = this.add.sprite(width*0.7, height*0.5, 'coral').setScale(0.18).setInteractive()
+        this.coral = this.add.sprite(width*0.7, height*0.5, 'coral').setScale(0.19).setInteractive()
 
         const originalPosY = this.claw.y
 
@@ -101,8 +103,8 @@ export class minigameRPS extends Phaser.Scene {
 
 
         //mouse hover interactions for the cards. originalPosY = 300
-        this.claw.on('pointerdown', () => {
-            if(this.canClick){
+        this.input.on('pointerdown', (pointer: Pointer) => {
+            if (this.claw.getBounds().contains(this.input.activePointer.x, this.input.activePointer.y)){
                 if (this.claw.y == originalPosY){
                     this.selectCard(this.claw)
                     this.playerSelection.setText("Claw!")
@@ -119,10 +121,8 @@ export class minigameRPS extends Phaser.Scene {
                 if (this.coral.y != originalPosY){
                     this.deselectCard(this.coral)
                 }
-            }                   
-        });
-        this.kelp.on('pointerdown', () => {
-            if(this.canClick){
+            }
+            else if (this.kelp.getBounds().contains(this.input.activePointer.x, this.input.activePointer.y)){
                 if (this.claw.y != originalPosY){
                     this.deselectCard(this.claw)
                 }
@@ -138,11 +138,9 @@ export class minigameRPS extends Phaser.Scene {
                 }
                 if (this.coral.y != originalPosY){
                     this.deselectCard(this.coral)
-                }     
-            }               
-        });
-        this.coral.on('pointerdown', () => {
-            if (this.canClick){
+                }
+            }
+            else if (this.coral.getBounds().contains(this.input.activePointer.x, this.input.activePointer.y)){
                 if (this.claw.y != originalPosY){
                     this.deselectCard(this.claw)
                 }
@@ -159,10 +157,75 @@ export class minigameRPS extends Phaser.Scene {
                     this.playerSelection.setText("Select A Card!")
                     selectedCard = "None"
                 }
-            }                    
-        });
+            }
+        })
+        // this.claw.on('pointerdown', () => {
+        //     if(this.canClick){
+        //         if (this.claw.y == originalPosY){
+        //             this.selectCard(this.claw)
+        //             this.playerSelection.setText("Claw!")
+        //             selectedCard = "Claw"
+        //         }
+        //         else{
+        //             this.deselectCard(this.claw)
+        //             this.playerSelection.setText("Select A Card!")
+        //             selectedCard = "None"
+        //         }
+        //         if (this.kelp.y != originalPosY){
+        //             this.deselectCard(this.kelp)
+        //         }
+        //         if (this.coral.y != originalPosY){
+        //             this.deselectCard(this.coral)
+        //         }
+        //     }                   
+        // });
+        // this.kelp.on('pointerdown', () => {
+        //     if(this.canClick){
+        //         if (this.claw.y != originalPosY){
+        //             this.deselectCard(this.claw)
+        //         }
+        //         if (this.kelp.y == originalPosY){
+        //             this.selectCard(this.kelp)
+        //             this.playerSelection.setText("Kelp!")
+        //             selectedCard = "Kelp"
+        //         }
+        //         else{
+        //             this.deselectCard(this.kelp)
+        //             this.playerSelection.setText("Select A Card!")
+        //             selectedCard = "None"
+        //         }
+        //         if (this.coral.y != originalPosY){
+        //             this.deselectCard(this.coral)
+        //         }     
+        //     }               
+        // });
+        // this.coral.on('pointerdown', () => {
+        //     if (this.canClick){
+        //         if (this.claw.y != originalPosY){
+        //             this.deselectCard(this.claw)
+        //         }
+        //         if (this.kelp.y != originalPosY){
+        //             this.deselectCard(this.kelp)
+        //         }
+        //         if (this.coral.y == originalPosY){
+        //             this.selectCard(this.coral)
+        //             this.playerSelection.setText("Coral!")
+        //             selectedCard = "Coral"
+        //         }
+        //         else{
+        //             this.deselectCard(this.coral)
+        //             this.playerSelection.setText("Select A Card!")
+        //             selectedCard = "None"
+        //         }
+        //     }                    
+        // });
 
         this.cursors = this.input.keyboard?.createCursorKeys()
+
+        //debug
+        // this.events.on('shutdown', () => {
+            
+        // })
     }
 
     private selectCard(c: Phaser.GameObjects.Sprite){
@@ -233,7 +296,9 @@ export class minigameRPS extends Phaser.Scene {
                 }
             }
             //send player choice to the server as a message this.selectedCard
-            room_.send("player_selection", selectedCard)
+            if (this.sent == false){
+                room_.send("player_selection", selectedCard)
+            }
             
         }
     }
@@ -252,6 +317,9 @@ export class minigameRPS extends Phaser.Scene {
             this.scene.start("MainScene")
         }
         if (opponentSelectedCard != "None" && selectedCard != "None"){
+            this.claw.destroy();
+            this.coral.destroy();
+            this.kelp.destroy();
             await new Promise(res => setTimeout(res, 2000)); //wait 2 seconds
             this.scene.start("rps-results");
         }
