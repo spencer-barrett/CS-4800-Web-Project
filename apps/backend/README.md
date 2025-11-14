@@ -1,16 +1,19 @@
-# Golang Websocket Chat Server
-Simple implementation of a websocket chat server written in golang
+# Colyseus Game Server
+Implementation of our game server using the Colyseus framework and using Typescript
 
 ## Requirements
 
-- go 1.18
+- Node.js
+- npm or yarn
+- valid .env file
 
 ## How to Run
 
-`go run main.go`
+`npm run build`
 
-## To connect via "Club-Guppy" Frontend
+`npm start`
 
-1) Run the above command to begin the go server
-2) Start the Next.js development server 
-3) Navigate to: `http://localhost:3000/chat`
+
+
+
+
