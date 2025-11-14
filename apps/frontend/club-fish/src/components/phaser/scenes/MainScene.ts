@@ -18,6 +18,7 @@ export class MainScene extends Phaser.Scene {
 
   myId = "";
   private room!: MainRoom;
+  //room!: MainRoom;
   fish!: Phaser.GameObjects.Image;
   private bodyColor = "#60cbfcff";
 
@@ -32,6 +33,8 @@ export class MainScene extends Phaser.Scene {
     y: 0,
     tick: 0,
   };
+  //TEMPORARY BTUTON FOR RPS 
+  private go_rps!: Phaser.GameObjects.Sprite
 
   init(data: { room: MainRoom; bodyColor?: string }) {
     console.log("MainScene: init", data);
@@ -41,7 +44,6 @@ export class MainScene extends Phaser.Scene {
   constructor() {
     super("MainScene");
   }
-
 
   async create() {
     //custom cursor
@@ -60,6 +62,14 @@ export class MainScene extends Phaser.Scene {
     console.log(`Fish texture "${key}" exists?`, this.textures.exists(key));
 
     this.add.image(width * 0.5, height * 0.5, "ocean").setOrigin(0.5);
+
+    //TEMPORARY BUTTON FOR MOVING TO RPS SCENE
+    this.go_rps = this.add.sprite(width*0.1, height * 0.5, "kelp").setInteractive().setScale(0.1)
+    this.go_rps.on('pointerdown', () => {
+      //this.scene.restart()
+      this.scene.start('rps-helper')
+    })
+    ///////////////
 
     $(this.room.state).players.onAdd((player, sessionId) => {
       console.log(`   Player added: ${sessionId}`);
@@ -207,3 +217,8 @@ if (typeof window !== "undefined") {
     }
   }
 }
+
+export async function createNonMainRoom(size: number): Promise<any> {
+    room_ = await networkManager.connectNonMainRoom(size);
+    console.log(room_.roomId)
+  }

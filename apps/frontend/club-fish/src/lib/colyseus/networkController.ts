@@ -6,6 +6,7 @@ import type { MyRoomState, MainRoom } from "@/types/myroomstate";
 export class NetworkManager {
   private readonly client: Client;
   private mainRoom: MainRoom | null = null;
+  private nonMainRoom: MainRoom | null = null;
 
   constructor(serverUrl: string) {
     this.client = new Client(serverUrl);
@@ -13,13 +14,13 @@ export class NetworkManager {
 
 
   /** Connect to main persistent world room */
-  async connectMainRoom(): Promise<MainRoom> {
+  async connectMainRoom(roomSize?: number): Promise<MainRoom> {
 
     if (this.mainRoom) return this.mainRoom;
 
     try {
 
-      const room = await this.client.joinOrCreate<MyRoomState>("my_room");
+      const room = await this.client.joinOrCreate<MyRoomState>("my_room", { size: roomSize});
 
 
       this.mainRoom = room;
@@ -35,9 +36,29 @@ export class NetworkManager {
       throw err;
     }
   }
+  async connectNonMainRoom(roomSize?: number): Promise<MainRoom> { //create a different type of room later
+    try {
+      const room = await this.client.joinOrCreate<MyRoomState>("rps_room", { size: roomSize});
+
+      this.nonMainRoom = room;
+
+      localStorage.setItem("new_room_id", room.roomId);
+      localStorage.setItem("new_session_id", room.sessionId);
+
+      console.log(`Connected to new room: ${room.roomId}`);
+      return room;
+    } catch (err) {
+      console.error("Failed to join new room:", err);
+      throw err;
+    }
+  }
 
   getMainRoom(): MainRoom | null {
     return this.mainRoom;
+  }
+
+  getNonMainRoom(): MainRoom | null {
+    return this.nonMainRoom;
   }
 
   async leaveMainRoom(): Promise<void> {
@@ -47,6 +68,15 @@ export class NetworkManager {
     localStorage.removeItem("main_room_id");
     localStorage.removeItem("main_session_id");
     console.log("Left main room");
+  }
+
+  async leaveNonMainRoom(): Promise<void> { //set to rps for now
+    if (!this.nonMainRoom) return;
+    await this.nonMainRoom.leave();
+    this.nonMainRoom = null;
+    localStorage.removeItem("rps_room_id");
+    localStorage.removeItem("rps_session_id");
+    console.log("Left rps room");
   }
 
   async sendChatMessage(text: string): Promise<void> {
@@ -63,7 +93,14 @@ export class NetworkManager {
   isConnected(): boolean {
     return this.mainRoom !== null;
   }
+
+  //minigames
+  // async connectMinigameRoom(): Promise<MainRoom> {
+  //   return Room;
+  // }
 }
+
+
 
 
 

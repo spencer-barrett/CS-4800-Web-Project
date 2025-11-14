@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type Phaser from "phaser";
+//import { rpsHelper } from "./scenes/rpsHelper";
+//import minigameRPS from "./scenes/minigameRPS";
 
 type PhaserGameWithCleanup = Phaser.Game & {
     __reactOverlayCleanup?: () => void;
@@ -61,6 +63,9 @@ export default function PhaserCanvas({
             const { BootScene } = await import("./scenes/BootScene");
             const { MainScene } = await import("./scenes/MainScene");
             const { CharacterCreateScene } = await import("./scenes/CharacterCreateScene");
+            const { minigameRPS } = await import("./scenes/minigameRPS");
+            const { rpsHelper } = await import("./scenes/rpsHelper");
+            const { rpsResults } = await import("./scenes/rpsResults");
 
             if (!mounted || !mountRef.current) return;
 
@@ -71,7 +76,7 @@ export default function PhaserCanvas({
                 height,
                 backgroundColor: "#0b1220",
                 physics: { default: "arcade", arcade: { gravity: { y: 0, x: 0 } } },
-                scene: [BootScene, CharacterCreateScene, MainScene],
+                scene: [BootScene, CharacterCreateScene, MainScene, minigameRPS, rpsHelper, rpsResults],
                 callbacks: {
                     preBoot: (g) => g.registry.set("initialScene", initialScene),
                 },
