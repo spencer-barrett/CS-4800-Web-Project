@@ -24,7 +24,7 @@ async function initUserProfile(displayName: string, uid: string): Promise<void> 
     const ref = doc(db, "users", uid);
     await setDoc(
         ref,
-        { hasCharacter: false, createdAt: Date.now(), displayName: displayName } satisfies UserProfile,
+        { hasCharacter: false, createdAt: Date.now(), displayName: displayName, currency: 100 } satisfies UserProfile,
         { merge: true }
     );
 }
