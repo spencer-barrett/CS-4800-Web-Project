@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/clientApp";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import type { UseUserGameDataResult } from "@/types/user-game-data";
 import type { SceneKey } from "@/types/user-game-data";
 import { PlayerData } from "@/types/player-data";
