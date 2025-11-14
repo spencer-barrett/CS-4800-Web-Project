@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardAction, CardDescription } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { Suspense, useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/clientApp";
 import { onAuthStateChanged, type User } from "firebase/auth";
@@ -40,8 +40,8 @@ export function LoginInner() {
     const [confirmPasswordManipulated, setConfirmPasswordManipulated] = useState(false);
     const [errorLogin, setErrorLogin] = useState(false);
     const [errorSignUp, setErrorSignUp] = useState(false);
-    const [authChecked, setAuthChecked] = useState(false);
-    const [user, setUser] = useState<User | null>(null);
+    // const [authChecked, setAuthChecked] = useState(false);
+    // const [user, setUser] = useState<User | null>(null);
     const showDisplayError = displayNameManipulated && displayName.trim() === "";
     const showEmailError = emailManipulated && email.trim() === "";
     const showPasswordError = passwordManipulated && password.trim() === "";
@@ -55,8 +55,8 @@ export function LoginInner() {
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, async (u) => {
-            setUser(u);
-            setAuthChecked(true);
+            // setUser(u);
+            // setAuthChecked(true);
 
 
 
