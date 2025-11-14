@@ -34,12 +34,7 @@ type SceneKey = "MainScene" | "CharacterCreate";
  *
  * TODO: Implement entire bottom UI bar and menus
  */
-function MainHudOverlay({
-  changeScene,
-}: {
-  changeScene: (scene: SceneKey) => void;
-}) {
-
+function MainHudOverlay(){
 
   return (
     <>
