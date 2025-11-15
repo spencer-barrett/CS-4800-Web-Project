@@ -49,6 +49,9 @@ export class BootScene extends Phaser.Scene {
       img.onload = () => {
         if (this.textures.exists(key)) this.textures.remove(key);
         this.textures.addImage(key, img);
+        
+        const tex = this.textures.get(key);
+        tex.setFilter(Phaser.Textures.FilterMode.NEAREST);
         loadedCount++;
 
         // Start scene when all textures are loaded
