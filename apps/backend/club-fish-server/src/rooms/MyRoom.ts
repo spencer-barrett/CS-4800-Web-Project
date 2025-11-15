@@ -61,11 +61,11 @@ let elapsedTime = 0;
     console.log(client.sessionId, "joined!");
     const player = new Player();
 
-    player.x = (Math.random() * 1100);
-    player.y = (Math.random() * 575);
+    player.x = (Math.random() * (800-200) + 200);
+    player.y = (Math.random() * (600-400) + 400);
     const bodyColor = options.bodyColor || "#ff3650"
     const displayName = options.displayName || "anonymous";
-    var currency = options.currency || "0";
+    var currency = options.currency || 0;
     player.color = `fish-${bodyColor}`;
     player.displayName = displayName;
     player.currency = currency;
