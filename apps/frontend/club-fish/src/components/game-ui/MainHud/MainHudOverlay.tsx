@@ -3,14 +3,20 @@
 import { usePlayer } from "@/context/playerContext";
 import { ChatWindow } from "@/components/chat/ChatWindow";
 import MenuBar from "./MenuBar";
+import { useState } from "react";
 
 export default function MainHudOverlay() {
-  const { playerData } = usePlayer();
+  const [showMessage, setShowMessage] = useState<boolean>(false);
+
+    const handleToggleChat = () => {
+    setShowMessage(prev => !prev);
+  };
+
 
   return (
     <>
-      <ChatWindow />
-      <MenuBar currency={playerData?.currency} />
+      <ChatWindow showMessage={showMessage}/>
+      <MenuBar showMessage={showMessage} onToggleChat={handleToggleChat}/>
     </>
   );
 }
