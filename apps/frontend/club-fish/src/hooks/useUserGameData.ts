@@ -19,9 +19,6 @@ export function useUserGameData(
 ): UseUserGameDataResult {
   const [loading, setLoading] = useState(true);
   const [initialScene, setInitialScene] = useState<SceneKey | null>(null);
-  // const [bodyColor, setBodyColor] = useState("#60cbfcff");
-  // const [displayName, setDisplayName] = useState("anonymous");
-  // const [currency, setCurrency] = useState(0);
   const [playerData, setPlayerData] = useState<PlayerData | null>(null);
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
