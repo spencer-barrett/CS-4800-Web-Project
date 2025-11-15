@@ -44,7 +44,7 @@ export class MainScene extends Phaser.Scene {
   init(data: { room: MainRoom; playerData: PlayerData }) {
     console.log("MainScene: init", data);
     this.playerData = data.playerData;
-    this.inputPayload.color = this.playerData.bodyColor;
+    this.inputPayload.color = this.playerData.bodyColor ?? "#964B00";;
   }
 
   constructor() {
@@ -80,7 +80,7 @@ export class MainScene extends Phaser.Scene {
 
      const nameLabel = this.make.text({
         x: player.x,
-        y: player.y - 130,
+        y: player.y - 95,
         add: true,
         text: player.displayName,
         style: {
@@ -97,7 +97,8 @@ export class MainScene extends Phaser.Scene {
 
       const entity = this.physics.add
         .image(player.x, player.y, player.color)
-        .setScale(0.5);
+        .setScale(1);
+        console.log("penguin texture size:", entity.width, entity.height);
       this.playerEntities[sessionId] = entity;
 
       if (sessionId === this.room.sessionId) {
@@ -220,7 +221,7 @@ export class MainScene extends Phaser.Scene {
       if (entity && nameLabel) {
         // Position the name above the player
         nameLabel.x = entity.x - nameLabel.width / 2;
-        nameLabel.y = entity.y - 100;
+        nameLabel.y = entity.y - 75;
       }
     }
   }
