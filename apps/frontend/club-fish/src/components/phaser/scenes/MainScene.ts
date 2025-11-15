@@ -44,7 +44,7 @@ export class MainScene extends Phaser.Scene {
   init(data: { room: MainRoom; playerData: PlayerData }) {
     console.log("MainScene: init", data);
     this.playerData = data.playerData;
-    this.inputPayload.color = this.playerData.bodyColor ?? "#964B00";;
+    this.inputPayload.color = this.playerData.bodyColor ?? "#964B00";
   }
 
   constructor() {
@@ -78,27 +78,52 @@ export class MainScene extends Phaser.Scene {
 
       console.log(`   Initial position: (${player.x}, ${player.y})`);
 
-     const nameLabel = this.make.text({
+      const nameLabel = this.make.text({
         x: player.x,
         y: player.y - 95,
         add: true,
         text: player.displayName,
         style: {
-          align: 'center',
-          backgroundColor: '#363636b7'
+          align: "center",
+          backgroundColor: "#363636b7",
         },
         padding: {
           x: 4,
-          y: 2
-        }
+          y: 2,
+        },
       });
 
       this.playerNameLabels[sessionId] = nameLabel;
 
       const entity = this.physics.add
         .image(player.x, player.y, player.color)
-        .setScale(1);
-        console.log("penguin texture size:", entity.width, entity.height);
+        .setScale(1)
+        .setInteractive({ useHandCursor: true });
+
+      entity.on("pointerup", (pointer: Pointer) => {
+        if ((window as any).__overlayOpen) {
+    // console.log("Overlay is open, ignoring click");
+    return;
+  }
+        pointer.event.stopPropagation();
+
+        console.log("Clicked on player:", sessionId);
+        console.log("Player data:", player);
+
+        window.dispatchEvent(
+  new CustomEvent("game:playerClick", {
+    detail: { 
+      sessionId,
+      playerData: {
+        displayName: player.displayName,
+        bodyColor: player.color,
+      }
+    } as { sessionId: string; playerData: { displayName: string; bodyColor: string } },
+  })
+);
+      });
+
+      console.log("penguin texture size:", entity.width, entity.height);
       this.playerEntities[sessionId] = entity;
 
       if (sessionId === this.room.sessionId) {
@@ -140,31 +165,30 @@ export class MainScene extends Phaser.Scene {
         delete this.playerNameLabels[sessionId];
       }
 
-
       console.log(`   Remaining players:`, Object.keys(this.playerEntities));
     });
 
-    // When the user releases the screen...
-    this.input.on("pointerup", (pointer: Pointer) => {
-      // Get the WORLD x and y position of the pointer
+    this.input.on(
+      "pointerup",
+      (pointer: Pointer, gameObjects: Phaser.GameObjects.GameObject[]) => {
+        // If pointer was over any interactive object, skip movement
+        console.log("pointerup overlay flag:", (window as any).__overlayOpen);
+        if ((window as any).__overlayOpen) return;
+        if (gameObjects.length > 0) return;
 
-      if (pointer.leftButtonReleased()) {
-        console.log("Pointer released:", pointer.worldX, pointer.worldY);
-        const { worldX, worldY } = pointer;
+        if (pointer.leftButtonReleased()) {
+          const { worldX, worldY } = pointer;
+          this.target.x = worldX;
+          this.target.y = worldY;
 
-        this.target.x = worldX;
-        this.target.y = worldY;
-
-        const localEntity = this.playerEntities[this.myId] ?? this.fish;
-        if (localEntity) {
-          this.physics.moveToObject(localEntity, this.target, 200);
-
-          this.isMoving = true;
-        } else {
-          console.warn("No local entity found to move");
+          const localEntity = this.playerEntities[this.myId];
+          if (localEntity) {
+            this.physics.moveToObject(localEntity, this.target, 200);
+            this.isMoving = true;
+          }
         }
       }
-    });
+    );
 
     this.events.emit("world:ready");
 
@@ -189,7 +213,7 @@ export class MainScene extends Phaser.Scene {
       this.inputPayload.tick = this.currentTick;
       // console.log(
       //   `  [${this.room.sessionId}] Sending position: (${this.inputPayload.x}, ${this.inputPayload.y})`
-      // ); 
+      // );
       this.room.send(0, this.inputPayload);
 
       if (distance < 5) {
@@ -217,7 +241,7 @@ export class MainScene extends Phaser.Scene {
     for (const sessionId in this.playerNameLabels) {
       const entity = this.playerEntities[sessionId];
       const nameLabel = this.playerNameLabels[sessionId];
-      
+
       if (entity && nameLabel) {
         // Position the name above the player
         nameLabel.x = entity.x - nameLabel.width / 2;
