@@ -3,62 +3,83 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/clientApp";
-import { doc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  onSnapshot,
+  onSnapshot as onSnapCollection,
+} from "firebase/firestore";
 import type { UseUserGameDataResult } from "@/types/user-game-data";
 import type { SceneKey } from "@/types/user-game-data";
 import { PlayerData } from "@/types/player-data";
+import { InventoryItem } from "@/types/inventory-item";
 
+export function useUserGameData(
+  onboardingParam?: string | null
+): UseUserGameDataResult {
+  const [loading, setLoading] = useState(true);
+  const [initialScene, setInitialScene] = useState<SceneKey | null>(null);
+  // const [bodyColor, setBodyColor] = useState("#60cbfcff");
+  // const [displayName, setDisplayName] = useState("anonymous");
+  // const [currency, setCurrency] = useState(0);
+  const [playerData, setPlayerData] = useState<PlayerData | null>(null);
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user || onboardingParam) {
+        setInitialScene("CharacterCreate");
+        setLoading(false);
+        return;
+      }
 
-export function useUserGameData(onboardingParam?: string | null): UseUserGameDataResult {
-    const [loading, setLoading] = useState(true);
-    const [initialScene, setInitialScene] = useState<SceneKey | null>(null);
-    // const [bodyColor, setBodyColor] = useState("#60cbfcff");
-    // const [displayName, setDisplayName] = useState("anonymous");
-    // const [currency, setCurrency] = useState(0);
-    const [playerData, setPlayerData] = useState<PlayerData | null>(null);
-    useEffect(() => {
-        const unsub = onAuthStateChanged(auth, async (user) => {
-            if (!user || onboardingParam) {
-                setInitialScene("CharacterCreate");
-                setLoading(false);
-                return;
-            }
+      // Fetch user document from Firestore to check character status
+      const ref = doc(db, "users", user.uid);
+      const inventoryRef = collection(db, "users", user.uid, "inventory");
+      const unsubDoc = onSnapshot(
+        ref,
+        (snap) => {
+          const data = snap.data();
 
+          if (!data) return;
 
-            // Fetch user document from Firestore to check character status
-            const ref = doc(db, "users", user.uid);
-            const unsubDoc = onSnapshot(
-                ref,
-                (snap) => {
-                    const data = snap.data();
+          setPlayerData((prev) => ({
+            ...prev,
+            bodyColor: data.bodyColor ?? "#60cbfcff",
+            displayName: data.displayName ?? "anonymous",
+            currency: data.currency ?? 0,
+          }));
 
-                    if (!data) return;
+          const hasCharacter = !!data.hasCharacter;
+          setInitialScene(hasCharacter ? "MainScene" : "CharacterCreate");
 
-                    setPlayerData({
-                        bodyColor: data.bodyColor ?? "#60cbfcff",
-                        displayName: data.displayName ?? "anonymous",
-                        currency: data.currency ?? 0,
-                    });
+          setLoading(false);
+        },
+        (error) => {
+          console.error("Failed fetching user data:", error);
+          setInitialScene("CharacterCreate");
+          setLoading(false);
+        }
+      );
 
-                    const hasCharacter = !!data.hasCharacter;
-                    setInitialScene(hasCharacter ? "MainScene" : "CharacterCreate");
+      const unsubInv = onSnapCollection(inventoryRef, (snap) => {
+        const items: InventoryItem[] = snap.docs.map((d) => ({
+          id: d.id,
+          ...(d.data() as Omit<InventoryItem, "id">),
+        }));
 
-                    setLoading(false);
-                },
-                (error) => {
-                    console.error("Failed fetching user data:", error);
-                    setInitialScene("CharacterCreate");
-                    setLoading(false);
-                }
-            );
+        setPlayerData((prev) => ({
+          ...(prev ?? {}),
+          inventory: items,
+        }));
+      });
 
-            return () => unsubDoc();
-        });
+      return () => {
+        unsubDoc();
+        unsubInv();
+      };
+    });
 
+    return () => unsub();
+  }, [onboardingParam]);
 
-
-        return () => unsub();
-    }, [onboardingParam]);
-
-    return { loading, initialScene, playerData, setPlayerData };
+  return { loading, initialScene, playerData, setPlayerData };
 }
