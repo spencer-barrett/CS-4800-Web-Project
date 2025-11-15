@@ -13,7 +13,7 @@ import {
   MessageSquareText,
   CircleUserRound
 } from "lucide-react";
-import { ComponentType, useState } from "react";
+import { ComponentType, useEffect, useState } from "react";
 import ShopOverlay from "./Shop/ShopOverlay";
 import ProfileOverlay from "./Profile/ProfileOverlay";
 
@@ -107,6 +107,10 @@ export default function MenuBar({
     onToggleChat?.();
     console.log("clicked!!: ", showMessage);
   };
+
+    useEffect(() => {
+    (window as any).__overlayOpen = activeItem !== null;
+  }, [activeItem]);
 
   const toggle = (key: PanelKey) =>
     setActiveItem((current) => (current === key ? null : key));
