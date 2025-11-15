@@ -28,7 +28,7 @@ export class NetworkManager {
 
 
       this.mainRoom = room;
-
+      player.sessionId = this.mainRoom.sessionId;
 
       localStorage.setItem("main_room_id", room.roomId);
       localStorage.setItem("main_session_id", room.sessionId);
