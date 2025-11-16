@@ -5,5 +5,5 @@ export type PlayerData = {
     displayName?: string;
     currency?: number;
     inventory?: InventoryItem[];
-    sessionId: string;
+    sessionId?: string;
 }
