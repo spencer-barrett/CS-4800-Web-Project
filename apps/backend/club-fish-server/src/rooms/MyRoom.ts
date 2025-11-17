@@ -7,7 +7,11 @@ export class MyRoom extends Room<MyRoomState> {
 
   onCreate(options: any) {
     this.maxClients = 4;
-    console.log("MyRoom created!");
+    if (options.size) {
+      this.maxClients = options.size
+      console.log("room size set to:", this.maxClients)
+    }
+    console.log(`${this.roomName} created!`);
 
     
     this.onMessage("chat", (client, message) => {
@@ -18,6 +22,14 @@ export class MyRoom extends Room<MyRoomState> {
       };
       this.broadcast("chat", payload)
     });
+
+    //minigame messages
+    //rps 
+    this.onMessage("player_selection", (client, selection) => {
+      console.log(`rps move from ${client.sessionId}: ${selection}`);
+
+      this.broadcast("opponent move", selection, { except: client})
+    })
 
     this.onMessage(0, (client, payload) => {
       const player = this.state.players.get(client.sessionId);
@@ -58,6 +70,12 @@ let elapsedTime = 0;
     player.x = (Math.random() * 1100);
     player.y = (Math.random() * 575);
     this.state.players.set(client.sessionId, player);
+
+    //for rps
+    if (this.clients.length === this.maxClients) {
+      //broadcast that room is full to initiate minigames
+      this.broadcast("roomIsFull", "test msg");
+    }
   }
 
   onLeave(client: Client, consented: boolean) {

@@ -14,6 +14,7 @@ export default config({
          * Define your room handlers:
          */
         const room = gameServer.define("my_room", MyRoom).enableRealtimeListing();
+        gameServer.define("rps_room", MyRoom).enableRealtimeListing();
 
     },
 
