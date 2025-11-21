@@ -61,18 +61,27 @@ export default function PhaserCanvas({
             const { BootScene } = await import("./scenes/BootScene");
             const { MainScene } = await import("./scenes/MainScene");
             const { CharacterCreateScene } = await import("./scenes/CharacterCreateScene");
+            const { minigameRPS } = await import("./scenes/minigameRPS");
+            const { rpsHelper } = await import("./scenes/rpsHelper");
+            const { rpsResults } = await import("./scenes/rpsResults");
+            const { dmListener } = await import("./scenes/dmListener");
             const {PrivateScene} = await import("./scenes/PrivateScene");
 
             if (!mounted || !mountRef.current) return;
 
             const game = new Phaser.Game({
                 type: Phaser.AUTO,
-                parent: mountRef.current,
-                width,
-                height,
+                scale: {
+                    parent: mountRef.current,
+                    width,
+                    height,
+                    mode: Phaser.Scale.FIT,
+                    autoCenter: Phaser.Scale.CENTER_BOTH
+                },
                 backgroundColor: "#0b1220",
                 physics: { default: "arcade", arcade: { gravity: { y: 0, x: 0 } } },
-                scene: [BootScene, CharacterCreateScene, MainScene, PrivateScene],
+                scene: [BootScene, CharacterCreateScene, MainScene, minigameRPS, rpsHelper, rpsResults, dmListener, PrivateScene],
+                transparent: true,
                 callbacks: {
                     preBoot: (g) => g.registry.set("initialScene", initialScene),
                 },
@@ -130,8 +139,12 @@ export default function PhaserCanvas({
             <div
                 style={{
                     position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
                     inset: 0,
-                    zIndex: 10,
+                    zIndex: 999,
                     display: "grid",
                     placeItems: "center",
                     pointerEvents: "none",

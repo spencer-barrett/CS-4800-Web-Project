@@ -8,6 +8,7 @@ import { PlayerData } from "@/types/player-data";
 const { Vector2 } = pMath;
 
 export let room_: MainRoom;
+//export let room_dmRouting: MainRoom;
 export class MainScene extends Phaser.Scene {
   currentPlayer!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
   localRef!: Phaser.GameObjects.Rectangle;
@@ -22,6 +23,7 @@ export class MainScene extends Phaser.Scene {
   } = {};
 
   myId = "";
+  //myDmId = "";
   private room!: MainRoom;
   fish!: Phaser.GameObjects.Image;
   // private bodyColor = "#60cbfcff";
@@ -40,6 +42,10 @@ export class MainScene extends Phaser.Scene {
     tick: 0,
     color: "",
   };
+
+  //TEMPORARY BTUTON FOR RPS /////////////////////
+  private go_rps!: Phaser.GameObjects.Sprite/////////////
+  ////////////////////////////////////////////
   private returnFromPrivate!: boolean;
 
   init(data: {
@@ -58,6 +64,19 @@ export class MainScene extends Phaser.Scene {
   }
 
   async create() {
+    //custom cursor
+    // this.input.setDefaultCursor("url(assets/cursor-small.cur), pointer");
+
+    //connect to dm routing room, this should be done in a background scene actually. 
+
+    // this.dmRoutingRoom = await networkManager.connectNonMainRoom("dmRouting", 300);
+    // room_dmRouting = this.dmRoutingRoom;
+    // //this.myDmId = this.dmRoutingRoom.sessionId; //this should be the same id for all rooms anyways
+    // const dmCallbacks = getStateCallbacks(this.dmRoutingRoom);
+    // console.log("Connected to dm routing room:", this.dmRoutingRoom.roomId);
+
+
+    //connect to main room
     this.room = await networkManager.connectMainRoom(this.playerData);
 
     room_ = this.room;
@@ -71,7 +90,11 @@ export class MainScene extends Phaser.Scene {
       (window as any).__currentUserId = this.playerData.userId; // Persistent user ID
     }
 
-    // this.room.onMessage("chat", (msg) => console.log(" asd", msg));
+    //launch background scene to listen for dms globally
+    // this.scene.launch('dms', this.playerData);
+    // this.scene.moveAbove('MainScene', 'dms');
+
+    this.room.onMessage("chat", (msg) => console.log(" asd", msg));
     const { width, height } = this.scale;
 
     const key = `fish-${this.playerData.bodyColor}`;
@@ -80,6 +103,13 @@ export class MainScene extends Phaser.Scene {
 
     this.add.image(width * 0.5, height * 0.5, "ocean").setOrigin(0.5);
 
+    //TEMPORARY BUTTON FOR MOVING TO RPS SCENE
+    // this.go_rps = this.add.sprite(width*0.1, height * 0.5, "kelp").setInteractive().setScale(0.1)
+    // this.go_rps.on('pointerdown', () => {
+    //   //this.scene.restart()
+    //   this.scene.start('rps-helper')
+    // })
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     this.events.once("shutdown", () => {
       if (this.room) {
         this.room.leave();
@@ -277,3 +307,7 @@ export class MainScene extends Phaser.Scene {
     }
   }
 }
+export async function createNonMainRoom(type: string, size: number): Promise<any> {
+    room_ = await networkManager.connectNonMainRoom(type, size);
+    console.log(room_.roomId)
+  }

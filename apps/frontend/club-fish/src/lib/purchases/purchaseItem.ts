@@ -12,6 +12,43 @@ export type PurchaseResult =
     | { success: true }
     | { success: false; reason: "not-authenticated" | "not-found" | "insufficient-funds" | "unknown" };
 
+export async function addCurrency(amount: number): Promise<PurchaseResult> {
+    const user = auth.currentUser;
+    if (!user) {
+        return { success: false, reason: "not-authenticated" };
+    }
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const userRef = doc(db, "users", user.uid);
+
+            const userDoc = await transaction.get(userRef);
+
+
+            const userData = userDoc.data() as {
+                currency: number;
+            } | undefined;
+
+            const userCurrency = userData?.currency ?? 0;
+
+            // add the reward currency
+            transaction.update(userRef, {
+                currency: userCurrency + amount,
+
+            });
+        });
+
+        return { success: true };
+    } catch (error) {
+        if (error instanceof Error) {
+
+        }
+        console.error("adding currency failed:", error);
+        return { success: false, reason: "unknown" };
+    }
+    
+}
+
 export async function purchaseItem(itemId: string): Promise<PurchaseResult> {
     const user = auth.currentUser;
     if (!user) {
