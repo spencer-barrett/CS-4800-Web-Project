@@ -44,6 +44,9 @@ export class rpsResults extends Phaser.Scene {
             this.opponentCard = this.add.sprite(width*0.7, height*0.5, this.opponent).setScale(0.15)
         }
 
+		this.gameStatus = this.determineWinner();
+
+
         this.resultsText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.9, `You ${this.gameStatus}!`, {
 			fontSize: '42px',
 			color: '#ffffffff'
