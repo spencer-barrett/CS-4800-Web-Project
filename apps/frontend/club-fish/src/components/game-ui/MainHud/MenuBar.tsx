@@ -61,7 +61,7 @@ const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
     <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
     <p className="text-sm opacity-80 mb-4">Minigames coming soon.</p>
     <div className="flex gap-2">
-            <Button onClick={goToBattle}>Battle</Button>
+            <Button onClick={() => {goToBattle(); onClose();}}>Battle</Button>
       <Button onClick={onClose}>Close</Button>
     </div>
   </div>
