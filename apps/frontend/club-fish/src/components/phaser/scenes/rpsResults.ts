@@ -29,6 +29,8 @@ export class rpsResults extends Phaser.Scene {
         this.player = selectedCard.toLowerCase();
         this.opponent = opponentSelectedCard.toLowerCase();
 
+        this.gameStatus = this.determineWinner();
+
         //testing
         console.log(opponentSelectedCard);
 
@@ -44,7 +46,7 @@ export class rpsResults extends Phaser.Scene {
             this.opponentCard = this.add.sprite(width*0.7, height*0.5, this.opponent).setScale(0.15)
         }
 
-        this.resultsText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.9, `You ${this.gameStatus}!`, {
+        this.resultsText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.8, `You ${this.gameStatus}!`, {
 			fontSize: '42px',
 			color: '#ffffffff'
 		})
@@ -61,10 +63,6 @@ export class rpsResults extends Phaser.Scene {
 		}).setOrigin(0.5)
 
         await new Promise(res => setTimeout(res, 2000)); //wait 2 seconds
-        //award them currency here if the won
-        //
-        //
-        //////////////////////////
 
         //return to lobby
         this.resultsText.setText("Returning to lobby...")

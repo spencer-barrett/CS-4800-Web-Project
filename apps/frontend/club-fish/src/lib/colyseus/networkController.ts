@@ -176,6 +176,6 @@ async joinPrivateRoomByUserId(
 
 
 export const networkManager = new NetworkManager(
-  process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "wss://game.fishfish.io"
-  // process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "ws://localhost:2567"
+  // process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "wss://game.fishfish.io"
+  process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "ws://localhost:2567"
 );
