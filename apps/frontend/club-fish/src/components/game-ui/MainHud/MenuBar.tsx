@@ -44,6 +44,7 @@ const goToBattle = () => {
 
     game.scene.stop("MainScene");
     game.scene.start("rps-helper");  
+  onClose();
   };
 
 const BUTTONS: ButtonConfig[] = [
