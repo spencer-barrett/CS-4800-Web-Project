@@ -13,7 +13,9 @@ export default config({
         /**
          * Define your room handlers:
          */
-        const room = gameServer.define("my_room", MyRoom).enableRealtimeListing();
+        gameServer.define("my_room", MyRoom).enableRealtimeListing();
+        gameServer.define("private_room", MyRoom)
+        .filterBy(['roomName']);
 
     },
 

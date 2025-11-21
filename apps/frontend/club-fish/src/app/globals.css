@@ -12,6 +12,82 @@ body {
 
 }
 
+.inner-border-br {
+  position: relative;
+}
+
+.inner-border-br::after {
+  content: "";
+  position: absolute;
+
+  /* pull the BR border inward so it doesn't sit directly under TL border */
+  top: 2px;
+  left: 2px;
+  right: 0;
+  bottom: 0;
+
+  border-right: 2px solid #0C322E;
+  border-bottom: 2px solid #0C322E;
+
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+
+.inner-border-tl {
+  position: relative;
+}
+
+.inner-border-tl::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-top: 2px solid #1B746C;
+  border-left: 2px solid #1B746C;
+
+  pointer-events: none; 
+  border-radius: inherit;
+}
+
+.hud-frame {
+  position: relative;
+  border-radius: 22px;
+
+  /* darkest */
+  border: 4px solid #072825;
+}
+
+/* lightest */
+.hud-frame::after {
+  content: "";
+  position: absolute;
+
+  inset: -1px;
+  border-radius: inherit;
+
+  border-top: 3px solid #1B746C;
+  border-left: 3px solid #1B746C;
+
+  pointer-events: none;
+}
+
+/* mid-tone */
+.hud-frame::before {
+  content: "";
+  position: absolute;
+
+  inset: -1px;
+  border-radius: inherit;
+
+  border-right: 3px solid #0C322E;
+  border-bottom: 3px solid #0C322E;
+
+  pointer-events: none;
+}
+
+
+
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

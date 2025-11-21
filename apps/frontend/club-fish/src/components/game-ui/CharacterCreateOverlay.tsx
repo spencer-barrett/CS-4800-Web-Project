@@ -31,8 +31,8 @@ export default function CharacterCreateOverlay({ game }: { game: Phaser.Game | n
                     <CardTitle>Create Your Fish!</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col w-full grow">
-                    <div className="flex flex-col bg-[#d6d6d6] w-full grow items-center justify-center w-full">
-                        <CharacterForward bodyColor={bodyColor} />
+                    <div className="flex flex-col bg-[#d6d6d6] grow items-center justify-center w-full">
+                        <CharacterForward bodyColor={bodyColor} size={300}/>
 
                     </div>
                     <div className="mt-4 flex flex-col">

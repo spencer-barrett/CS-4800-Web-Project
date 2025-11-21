@@ -4,16 +4,17 @@ import type { ShopItem } from "@/types/shop-item";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase/clientApp";
 import { purchaseItem } from "@/lib/purchases/purchaseItem";
+import { usePlayer } from "@/context/playerContext";
 
 type ShopPanelProps = {
   onClose: () => void;
-  currency?: number;
 };
 
-export default function ShopPanel({ onClose, currency }: ShopPanelProps) {
+export default function ShopPanel({ onClose }: ShopPanelProps) {
   const [hats, setHats] = useState<ShopItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const {playerData} = usePlayer();
 
   useEffect(() => {
     const hatsRef = collection(db, "items", "accessories", "hats");
@@ -98,7 +99,7 @@ export default function ShopPanel({ onClose, currency }: ShopPanelProps) {
               <div className="text-xs opacity-80">{it.description}</div>
             </div>
             <div className="flex items-center gap-3">
-              {(currency ?? 0) < it.price ? (
+              {(playerData?.currency ?? 0) < it.price ? (
                 <>
                   <div className="font-mono text-red-500">{it.price}</div>
                   <Button size="sm" disabled>Buy</Button>

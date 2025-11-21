@@ -3,20 +3,24 @@ import * as React from "react";
 
 type CharProps = React.SVGProps<SVGSVGElement> & {
   bodyColor?: string;
+  size?: number;
 };
 
 export function CharacterForward({  
 bodyColor = "#cc1800",
+size = 80,
   ...props}: CharProps) {
     return (
         
 <svg
  {...props}
    version="1.1"
-   width="267.979"
-   height="309.245"
+
+   width={size}
+   height={size * (309.245 / 267.979)}
    id="svg112"
    xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 267.979 309.245"
     style={
         {
 
@@ -1101,6 +1105,6 @@ export function svgToDataURL(svg: string) {
 }
 
 
-export function renderCharacterSVG(bodyColor: string) {
+export function renderCharacterSVG(bodyColor: string | undefined) {
   return renderToStaticMarkup(<CharacterForward bodyColor={bodyColor} />);
 }

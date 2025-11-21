@@ -36,7 +36,8 @@ export async function purchaseItem(itemId: string): Promise<PurchaseResult> {
 
             const itemData = itemDoc.data() as {
                 price: number;
-            } | undefined;
+                name: string;
+            };
 
             const userCurrency = userData?.currency ?? 0;
             const itemPrice = itemData?.price ?? 0;
@@ -56,6 +57,7 @@ export async function purchaseItem(itemId: string): Promise<PurchaseResult> {
             transaction.set(newItemRef, {
                 itemId,
                 itemPrice,
+                name: itemData.name,
                 acquiredAt: serverTimestamp(),
             });
         });

@@ -9,6 +9,7 @@ export class BootScene extends Phaser.Scene {
     console.log("BootScene: preload started");
     this.load.image("ocean", "/assets/background.png");
     this.load.image("bg", "/gradient.png");
+    this.load.image("priv", "private.png");
   }
 
   async create(data: { targetScene?: string; playerData: PlayerData | null }) {
@@ -49,6 +50,9 @@ export class BootScene extends Phaser.Scene {
       img.onload = () => {
         if (this.textures.exists(key)) this.textures.remove(key);
         this.textures.addImage(key, img);
+        
+        const tex = this.textures.get(key);
+        tex.setFilter(Phaser.Textures.FilterMode.NEAREST);
         loadedCount++;
 
         // Start scene when all textures are loaded

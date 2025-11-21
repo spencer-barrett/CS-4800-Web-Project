@@ -39,7 +39,7 @@ function GameRenderer() {
     () => {
       const Component = ({ game, sceneKey }: { game: Phaser.Game | null; sceneKey: string | null }) => {
         if (sceneKey === "CharacterCreate") return <CharacterCreateOverlay game={game} />;
-        if (sceneKey === "MainScene") return <MainHudOverlay />;
+        if (sceneKey === "MainScene" || "PrivateScene") return <MainHudOverlay />;
         return null;
       };
       Component.displayName = "OverlayRenderer";
@@ -65,18 +65,18 @@ function GameRenderer() {
   }
 
   return (
-    <div className="flex sm:h-[calc(100vh-72px)] h-[calc(100vh-60px)] bg-purple-300">
+    <div className="flex sm:h-[calc(100vh-72px)] h-[calc(100vh-60px)] bg-[#27A59B]">
       <div className="flex flex-col w-full h-full items-center justify-center">
 
 
-        <div className="w-[1200px] h-[675px] bg-black mb-6">
+        <div className="w-[1200px] h-[675px] bg-black mb-6 rounded-md">
           {/*phaser canvas */}
           <PhaserCanvas
             key={initialScene}
             width={1200}
             height={675}
             initialScene={initialScene}
-            parentClassName="shadow-2xl rounded-xl"
+            parentClassName="shadow-2xl rounded-md"
             renderOverlay={OverlayRenderer}
             bootData={{ playerData }}
           />

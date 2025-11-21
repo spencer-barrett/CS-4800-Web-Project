@@ -39,7 +39,7 @@ type Props = {
 export default function PhaserCanvas({
     width = 1200,
     height = 675,
-    parentClassName = "w-fit h-fit",
+    parentClassName = "w-fit h-fit, rounded-md",
     initialScene = "MainScene",
     renderOverlay,
     bootData
@@ -61,6 +61,7 @@ export default function PhaserCanvas({
             const { BootScene } = await import("./scenes/BootScene");
             const { MainScene } = await import("./scenes/MainScene");
             const { CharacterCreateScene } = await import("./scenes/CharacterCreateScene");
+            const {PrivateScene} = await import("./scenes/PrivateScene");
 
             if (!mounted || !mountRef.current) return;
 
@@ -71,12 +72,13 @@ export default function PhaserCanvas({
                 height,
                 backgroundColor: "#0b1220",
                 physics: { default: "arcade", arcade: { gravity: { y: 0, x: 0 } } },
-                scene: [BootScene, CharacterCreateScene, MainScene],
+                scene: [BootScene, CharacterCreateScene, MainScene, PrivateScene],
                 callbacks: {
                     preBoot: (g) => g.registry.set("initialScene", initialScene),
                 },
             }) as PhaserGameWithCleanup;
 
+                window.PhaserGame = game;
             gameRef.current = game;
 
             const sm = game.scene;
@@ -120,9 +122,9 @@ export default function PhaserCanvas({
     return (
         <div
             className={parentClassName}
-            style={{ width, height, position: "relative" }}
+            style={{ width, height, position: "relative", overflow: "hidden" }}
         >
-            <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
+            <div ref={mountRef} style={{ width: "100%", height: "100%" }} className="!rounded-md" />
 
 
             <div
