@@ -9,6 +9,7 @@ export class BootScene extends Phaser.Scene {
     console.log("BootScene: preload started");
     this.load.image("ocean", "/assets/background.png");
     this.load.image("bg", "/gradient.png");
+    this.load.image("priv", "private.png");
   }
 
   async create(data: { targetScene?: string; playerData: PlayerData | null }) {
