@@ -13,6 +13,8 @@ export default config({
         /**
          * Define your room handlers:
          */
+        const room2 = gameServer.define("rps_room", MyRoom).enableRealtimeListing();
+        const room3 = gameServer.define("dmRouting_room", MyRoom).enableRealtimeListing();
         gameServer.define("my_room", MyRoom).enableRealtimeListing();
         gameServer.define("private_room", MyRoom)
         .filterBy(['roomName']);

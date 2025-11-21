@@ -7,6 +7,7 @@ import { PlayerData } from "@/types/player-data";
 export class NetworkManager {
   private readonly client: Client;
   private mainRoom: MainRoom | null = null;
+  private nonMainRoom: MainRoom | null = null;
     private privateRoom: MainRoom | null = null;
 
   constructor(serverUrl: string) {
@@ -69,7 +70,7 @@ async joinPrivateRoomByUserId(
   }
 
   /** Connect to main persistent world room */
-  async connectMainRoom(player: PlayerData): Promise<MainRoom> {
+  async connectMainRoom(player: PlayerData, roomSize?: number): Promise<MainRoom> {
 
     if (this.mainRoom) {
     console.log("Reusing existing main room connection");
@@ -79,6 +80,7 @@ async joinPrivateRoomByUserId(
     try {
 
       const room = await this.client.joinOrCreate<MyRoomState>("my_room", {
+        size: roomSize,
         bodyColor: player.bodyColor,
         displayName: player.displayName,
         currency: player.currency,
@@ -100,8 +102,29 @@ async joinPrivateRoomByUserId(
     }
   }
 
+  async connectNonMainRoom(type: string, roomSize?: number, player?: PlayerData): Promise<MainRoom> { //create a different type of room later
+    try {
+      const room = await this.client.joinOrCreate<MyRoomState>(type+"_room", { size: roomSize});
+
+      this.nonMainRoom = room;
+
+      localStorage.setItem("new_room_id", room.roomId);
+      localStorage.setItem("new_session_id", room.sessionId);
+
+      console.log(`Connected to new room: ${room.roomId}`);
+      return room;
+    } catch (err) {
+      console.error("Failed to join new room:", err);
+      throw err;
+    }
+  }
+
   getMainRoom(): MainRoom | null {
     return this.mainRoom;
+  }
+
+  getNonMainRoom(): MainRoom | null {
+    return this.nonMainRoom;
   }
 
  async leaveMainRoom(): Promise<void> {
@@ -113,6 +136,15 @@ async joinPrivateRoomByUserId(
     console.log("Left main room");
   }
 
+  async leaveNonMainRoom(): Promise<void> { //set to rps for now
+    if (!this.nonMainRoom) return;
+    await this.nonMainRoom.leave();
+    this.nonMainRoom = null;
+    localStorage.removeItem("rps_room_id");
+    localStorage.removeItem("rps_session_id");
+    console.log("Left rps room");
+  }
+  
   async leavePrivateRoom(): Promise<void> {
   if (!this.privateRoom) {
     console.log("No private room to leave");
