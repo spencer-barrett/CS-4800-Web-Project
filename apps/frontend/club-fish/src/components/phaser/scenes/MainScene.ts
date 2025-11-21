@@ -93,11 +93,11 @@ export class MainScene extends Phaser.Scene {
     this.add.image(width * 0.5, height * 0.5, "ocean").setOrigin(0.5);
 
     //TEMPORARY BUTTON FOR MOVING TO RPS SCENE
-    this.go_rps = this.add.sprite(width*0.1, height * 0.5, "kelp").setInteractive().setScale(0.1)
-    this.go_rps.on('pointerdown', () => {
-      //this.scene.restart()
-      this.scene.start('rps-helper')
-    })
+    // this.go_rps = this.add.sprite(width*0.1, height * 0.5, "kelp").setInteractive().setScale(0.1)
+    // this.go_rps.on('pointerdown', () => {
+    //   //this.scene.restart()
+    //   this.scene.start('rps-helper')
+    // })
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     $(this.room.state).players.onAdd((player, sessionId) => {

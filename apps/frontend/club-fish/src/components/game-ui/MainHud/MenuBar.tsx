@@ -31,6 +31,14 @@ type ButtonConfig = {
 
 type PanelComponentProps = { onClose: () => void };
 
+const goToBattle = () => {
+    const game = (window as any).PhaserGame;
+    if (!game) return;
+
+    game.scene.stop("MainScene");
+    game.scene.start("rps-helper");  
+  };
+
 const BUTTONS: ButtonConfig[] = [
   { key: "shop", label: "Shop", Icon: StoreIcon },
   { key: "profile", label: "Profile", Icon: CircleUserRound},
@@ -41,12 +49,14 @@ const BUTTONS: ButtonConfig[] = [
 ];
 
 const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
+  
   <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
     <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
     <p className="text-sm opacity-80 mb-4">
       Minigames coming soon.
     </p>
     <div className="flex gap-2">
+            <Button onClick={goToBattle}>Battle</Button>
       <Button onClick={onClose}>Close</Button>
     </div>
   </div>

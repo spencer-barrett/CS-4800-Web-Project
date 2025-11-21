@@ -86,6 +86,7 @@ export default function PhaserCanvas({
                 },
             }) as PhaserGameWithCleanup;
 
+            (window as any).PhaserGame = game; // added to access in MenuBar.tsx
             gameRef.current = game;
 
             const sm = game.scene;
