@@ -21,6 +21,12 @@ export class BootScene extends Phaser.Scene {
   }
 
   async create(data: { targetScene?: string; playerData: PlayerData | null }) {
+    //trying to make scene scale, not working yet
+    this.scale.displaySize.setAspectRatio( 1200/675 );
+    this.scale.refresh();
+
+    
+
     const targetScene = data.targetScene || "MainScene";
     if (!data.playerData) {
       console.warn("BootScene received null playerData! Using defaults.");
@@ -66,6 +72,8 @@ export class BootScene extends Phaser.Scene {
         // Start scene when all textures are loaded
         if (loadedCount === totalColors) {
           this.scene.start(targetScene, { playerData: data.playerData });
+          //this.scene.launch('dms', { playerData: data.playerData });
+          //this.scene.stop();
         }
       };
 

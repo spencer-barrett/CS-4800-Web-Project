@@ -48,7 +48,7 @@ export class minigameRPS extends Phaser.Scene {
         
     }
     async create(){
-        this.initialTime = 5;
+        this.initialTime = 10;
         //const room = await createNonMainRoom(2);
         selectedCard = "None";
         opponentSelectedCard = "None";

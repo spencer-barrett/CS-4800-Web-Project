@@ -43,9 +43,9 @@ export class NetworkManager {
     }
   }
 
-  async connectNonMainRoom(roomSize?: number): Promise<MainRoom> { //create a different type of room later
+  async connectNonMainRoom(type: string, roomSize?: number, player?: PlayerData): Promise<MainRoom> { //create a different type of room later
     try {
-      const room = await this.client.joinOrCreate<MyRoomState>("rps_room", { size: roomSize});
+      const room = await this.client.joinOrCreate<MyRoomState>(type+"_room", { size: roomSize});
 
       this.nonMainRoom = room;
 

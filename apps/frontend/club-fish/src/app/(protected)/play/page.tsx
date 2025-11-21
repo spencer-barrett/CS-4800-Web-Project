@@ -69,12 +69,12 @@ function GameRenderer() {
       <div className="flex flex-col w-full h-full items-center justify-center">
 
 
-        <div className="w-[1200px] h-[675px] bg-black mb-6 rounded-md">
+        <div className="max-w-[1200px] w-full aspect-video bg-black mb-6 rounded-md">
           {/*phaser canvas */}
           <PhaserCanvas
             key={initialScene}
-            width={1200}
-            height={675}
+            // width={1200}
+            // height={675}
             initialScene={initialScene}
             parentClassName="shadow-2xl rounded-md"
             renderOverlay={OverlayRenderer}

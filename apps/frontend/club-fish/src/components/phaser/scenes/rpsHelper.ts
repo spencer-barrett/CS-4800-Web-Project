@@ -8,7 +8,7 @@ export class rpsHelper extends Phaser.Scene {
         super({key : 'rps-helper'})
     }
     async create() {
-        const room = await createNonMainRoom(2);
+        const room = await createNonMainRoom("rps", 2);
         room_.removeAllListeners();
         room_.onMessage("roomIsFull", (msg) => {
             console.log("room is full, starting rps:", msg);

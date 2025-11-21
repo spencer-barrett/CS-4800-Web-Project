@@ -15,6 +15,7 @@ export default config({
          */
         const room = gameServer.define("my_room", MyRoom).enableRealtimeListing();
         const room2 = gameServer.define("rps_room", MyRoom).enableRealtimeListing();
+        const room3 = gameServer.define("dmRouting_room", MyRoom).enableRealtimeListing();
 
     },
 
