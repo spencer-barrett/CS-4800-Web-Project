@@ -13,6 +13,7 @@ export class Player extends Schema {
   @type("string") displayName: string;
   @type("number") tick: number;
   @type("number") currency: number;
+  @type("string") userId: string;
   inputQueue: InputData[] = [];
 }
 export class MyRoomState extends Schema {
