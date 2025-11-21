@@ -6,4 +6,5 @@ export type PlayerData = {
     currency?: number;
     inventory?: InventoryItem[];
     sessionId?: string;
+    userId?: string;
 }

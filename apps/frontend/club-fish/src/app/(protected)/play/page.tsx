@@ -39,7 +39,7 @@ function GameRenderer() {
     () => {
       const Component = ({ game, sceneKey }: { game: Phaser.Game | null; sceneKey: string | null }) => {
         if (sceneKey === "CharacterCreate") return <CharacterCreateOverlay game={game} />;
-        if (sceneKey === "MainScene" || "dms") return <MainHudOverlay />;
+        if (sceneKey === "MainScene" || "PrivateScene" || "dms") return <MainHudOverlay />;
         return null;
       };
       Component.displayName = "OverlayRenderer";

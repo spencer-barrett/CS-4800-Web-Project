@@ -11,18 +11,25 @@ import {
   Users,
   Settings,
   MessageSquareText,
-  CircleUserRound
+  CircleUserRound,
 } from "lucide-react";
 import { ComponentType, useEffect, useState } from "react";
 import ShopOverlay from "./Shop/ShopOverlay";
 import ProfileOverlay from "./Profile/ProfileOverlay";
+import { usePlayer } from "@/context/playerContext";
 
 type MenuBarProps = {
   showMessage?: boolean;
   onToggleChat?: () => void;
 };
 
-type PanelKey = "shop" | "profile" | "minigames" | "privateRoom" | "friends" | "menu";
+type PanelKey =
+  | "shop"
+  | "profile"
+  | "minigames"
+  | "privateRoom"
+  | "friends"
+  | "menu";
 type ButtonConfig = {
   key: PanelKey;
   label: string;
@@ -41,7 +48,7 @@ const goToBattle = () => {
 
 const BUTTONS: ButtonConfig[] = [
   { key: "shop", label: "Shop", Icon: StoreIcon },
-  { key: "profile", label: "Profile", Icon: CircleUserRound},
+  { key: "profile", label: "Profile", Icon: CircleUserRound },
   { key: "minigames", label: "Minigames", Icon: Swords },
   { key: "privateRoom", label: "Private Room", Icon: BedSingle },
   { key: "friends", label: "Friends", Icon: Users },
@@ -52,9 +59,7 @@ const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
   
   <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
     <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
-    <p className="text-sm opacity-80 mb-4">
-      Minigames coming soon.
-    </p>
+    <p className="text-sm opacity-80 mb-4">Minigames coming soon.</p>
     <div className="flex gap-2">
             <Button onClick={goToBattle}>Battle</Button>
       <Button onClick={onClose}>Close</Button>
@@ -62,24 +67,53 @@ const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
   </div>
 );
 
-const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
-  <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
-    <h2 className="mb-3 text-xl font-bold">Private Rooms</h2>
-    <p className="text-sm opacity-80 mb-4">
-      Private room UI goes here.
-    </p>
-    <div className="flex gap-2">
-      <Button onClick={onClose}>Close</Button>
+const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
+  const { playerData } = usePlayer();
+  const userId = playerData?.userId;
+
+  const handleJoinMyOwnRoom = () => {
+    if (!userId) {
+      console.error("User ID not found!");
+      return;
+    }
+    const game = window.PhaserGame;
+
+    if (game) {
+      game.scene.stop("MainScene");
+      game.scene.start("PrivateScene", { playerData, targetSessionId: userId });
+    }
+    onClose();
+  };
+
+  const handleReturnToMain = () => {
+    const game = window.PhaserGame;
+
+    if (game) {
+      game.scene.stop("PrivateScene");
+      game.scene.start("MainScene", { playerData });
+    }
+    onClose();
+  };
+
+  return (
+    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
+      <h2 className="mb-3 text-xl font-bold">Private Rooms</h2>
+      <p className="text-sm opacity-80 mb-4">
+        Create your own private room for others to join
+      </p>
+      <div className="flex gap-2">
+        <Button onClick={handleJoinMyOwnRoom}>Go to my Bowl</Button>
+        <Button onClick={handleReturnToMain}>Return to Hub</Button>
+        <Button onClick={onClose}>Close</Button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const FriendsOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
   <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
     <h2 className="mb-3 text-xl font-bold">Friends List</h2>
-    <p className="text-sm opacity-80 mb-4">
-      Friends list UI goes here.
-    </p>
+    <p className="text-sm opacity-80 mb-4">Friends list UI goes here.</p>
     <div className="flex gap-2">
       <Button onClick={onClose}>Close</Button>
     </div>
@@ -89,9 +123,7 @@ const FriendsOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
 const SettingsOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
   <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
     <h2 className="mb-3 text-xl font-bold">Game Menu</h2>
-    <p className="text-sm opacity-80 mb-4">
-      Change settings or exit to lobby.
-    </p>
+    <p className="text-sm opacity-80 mb-4">Change settings or exit to lobby.</p>
     <div className="flex gap-2">
       <Button onClick={onClose}>Resume</Button>
     </div>
@@ -99,18 +131,15 @@ const SettingsOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
 );
 
 const PANEL_COMPONENTS: Record<PanelKey, React.FC<PanelComponentProps>> = {
-  shop:        ShopOverlay,
-  profile:     ProfileOverlay,
-  minigames:   MinigamesOverlay,
+  shop: ShopOverlay,
+  profile: ProfileOverlay,
+  minigames: MinigamesOverlay,
   privateRoom: PrivateRoomOverlay,
-  friends:     FriendsOverlay,
-  menu:        SettingsOverlay,
+  friends: FriendsOverlay,
+  menu: SettingsOverlay,
 };
 
-export default function MenuBar({
-  showMessage,
-  onToggleChat,
-}: MenuBarProps) {
+export default function MenuBar({ showMessage, onToggleChat }: MenuBarProps) {
   const [activeItem, setActiveItem] = useState<PanelKey | null>(null);
 
   const handleClick = () => {
@@ -118,13 +147,13 @@ export default function MenuBar({
     console.log("clicked!!: ", showMessage);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     (window as any).__overlayOpen = activeItem !== null;
   }, [activeItem]);
 
   const toggle = (key: PanelKey) =>
     setActiveItem((current) => (current === key ? null : key));
-    const ActivePanel = activeItem ? PANEL_COMPONENTS[activeItem] : null;
+  const ActivePanel = activeItem ? PANEL_COMPONENTS[activeItem] : null;
 
   return (
     <>
@@ -140,18 +169,17 @@ export default function MenuBar({
           {/* <div className="w-[40%] bg-white/60 h-full mr-auto">
 
         </div> */}
-          <div className="cursor-pointer" >
-            
+          <div className="cursor-pointer">
             <Tooltip>
               <TooltipTrigger asChild>
-            <MessageSquareText
-              onClick={() => handleClick()}
-              style={{ pointerEvents: "auto" }}
-            />
-            </TooltipTrigger>
-            <TooltipContent className="mb-1">
-              <p>Show/Hide Messages</p>
-            </TooltipContent>
+                <MessageSquareText
+                  onClick={() => handleClick()}
+                  style={{ pointerEvents: "auto" }}
+                />
+              </TooltipTrigger>
+              <TooltipContent className="mb-1">
+                <p>Show/Hide Messages</p>
+              </TooltipContent>
             </Tooltip>
           </div>
           {BUTTONS.map(({ key, label, Icon }, i) => (

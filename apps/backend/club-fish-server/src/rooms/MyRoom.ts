@@ -78,9 +78,11 @@ let elapsedTime = 0;
     const bodyColor = options.bodyColor || "#ff3650"
     const displayName = options.displayName || "anonymous";
     var currency = options.currency || 0;
+      const userId = options.userId || client.sessionId; // ADD THIS
     player.color = `fish-${bodyColor}`;
     player.displayName = displayName;
     player.currency = currency;
+    player.userId = userId;
     this.state.players.set(client.sessionId, player);
     console.log("server color: ", player.color);
     console.log("server display name: ", player.displayName);
@@ -90,6 +92,7 @@ let elapsedTime = 0;
       //broadcast that room is full to initiate minigames
       this.broadcast("roomIsFull", "test msg");
     }
+      console.log("server userId: ", player.userId); // ADD THIS
   }
 
   onLeave(client: Client, consented: boolean) {

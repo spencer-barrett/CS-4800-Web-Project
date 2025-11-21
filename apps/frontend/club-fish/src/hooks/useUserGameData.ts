@@ -43,6 +43,7 @@ export function useUserGameData(
             bodyColor: data.bodyColor ?? "#60cbfcff",
             displayName: data.displayName ?? "anonymous",
             currency: data.currency ?? 0,
+            userId: user.uid,
           }));
 
           const hasCharacter = !!data.hasCharacter;
