@@ -9,6 +9,15 @@ export class BootScene extends Phaser.Scene {
     console.log("BootScene: preload started");
     this.load.image("ocean", "/assets/background.png");
     this.load.image("bg", "/gradient.png");
+
+    //minigameRPS assets
+    this.load.image('rps-bg', 'assets/rps-bg2.png') //replace asset later
+    this.load.spritesheet('kelp', 'assets/kelp.png', { frameWidth: 1000, frameHeight: 1000})
+    this.load.spritesheet('claw', 'assets/claw.png', { frameWidth: 1000, frameHeight: 1000})
+    this.load.spritesheet('coral', 'assets/coral.png', { frameWidth: 1000, frameHeight: 1000})
+
+    //loading screen
+    this.load.image('loading', '/assets/sky.png')
   }
 
   async create(data: { targetScene?: string; playerData: PlayerData | null }) {
