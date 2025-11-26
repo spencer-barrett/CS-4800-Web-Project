@@ -101,6 +101,8 @@ export class rpsResults extends Phaser.Scene {
         //give delay to render
         this.time.delayedCall(500, () => {
             this.scene.start(nextScene)
+            //this.scene.resume(nextScene);
+            //this.scene.stop();
         })
     }
 }

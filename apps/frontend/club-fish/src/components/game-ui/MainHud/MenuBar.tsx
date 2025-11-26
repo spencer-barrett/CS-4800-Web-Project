@@ -35,9 +35,13 @@ const goToBattle = () => {
     const game = (window as any).PhaserGame;
     if (!game) return;
 
-    game.scene.stop("MainScene");
-    game.scene.start("rps-helper");  
+    
+    game.scene.start("rps-helper"); //start also stops the current scene, launch not working right now
+    //game.scene.pause("MainScene");  
   };
+ //toggle between the buttom to go to memory match, and a button to return to the main lobby
+
+
 
 const BUTTONS: ButtonConfig[] = [
   { key: "shop", label: "Shop", Icon: StoreIcon },
@@ -48,19 +52,68 @@ const BUTTONS: ButtonConfig[] = [
   { key: "menu", label: "Settings", Icon: Settings },
 ];
 
-const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
+// const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
   
-  <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
-    <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
-    <p className="text-sm opacity-80 mb-4">
-      Minigames coming soon.
-    </p>
-    <div className="flex gap-2">
-            <Button onClick={goToBattle}>Battle</Button>
-      <Button onClick={onClose}>Close</Button>
+//   <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
+//     <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
+//     <p className="text-sm opacity-80 mb-4">
+//       Play a fish themed game of Rock Paper Scissors with a friend or foe, or a game of Memory Match solo!
+//     </p>
+//     <div className="flex gap-2">
+//             <Button onClick={goToBattle}>Battle</Button>
+//             <div>
+//               {showMemoryMatch ? (
+//                 <Button onClick={goToMemoryMatch}>Memory</Button>
+//               ) : (
+//                 <Button onClick={goToLobby}>Return</Button>
+//               )}
+//             </div>
+//       <Button onClick={onClose}>Close</Button>
+//     </div>
+//   </div>
+// );
+let toggleCounter = 0;
+const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
+  const showMemoryMatch = toggleCounter % 2 === 0;
+
+
+  const goToMemoryMatch = () => {
+    const game = (window as any).PhaserGame;
+    if (!game) return;
+
+    game.scene.start("memoryMatch");
+    toggleCounter += 1;
+    //game.scene.pause("MainScene");
+  }
+  const goToLobby = () => {
+    const game = (window as any).PhaserGame;
+    if (!game) return;
+
+    game.scene.stop("memoryMatch");
+    game.scene.start("MainScene");
+    toggleCounter += 1;
+  }
+
+  return (
+    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
+      <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
+      <p className="text-sm opacity-80 mb-4">
+        Play a fish themed game of Rock Paper Scissors with a friend or foe, or a game of Memory Match solo!
+      </p>
+      <div className="flex gap-2">
+        <Button onClick={goToBattle}>Battle</Button>
+        <div>
+          {showMemoryMatch ? (
+            <Button onClick={goToMemoryMatch}>Memory</Button>
+          ) : (
+            <Button onClick={goToLobby}>Return</Button>
+          )}
+        </div>
+        <Button onClick={onClose}>Close</Button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
   <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">

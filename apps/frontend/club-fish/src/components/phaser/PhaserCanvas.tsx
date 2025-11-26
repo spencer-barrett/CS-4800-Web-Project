@@ -65,6 +65,7 @@ export default function PhaserCanvas({
             const { rpsHelper } = await import("./scenes/rpsHelper");
             const { rpsResults } = await import("./scenes/rpsResults");
             const { dmListener } = await import("./scenes/dmListener");
+            const { minigameMM } = await import ("./scenes/minigameMM");
 
             if (!mounted || !mountRef.current) return;
 
@@ -79,7 +80,7 @@ export default function PhaserCanvas({
                 },
                 backgroundColor: "#0b1220",
                 physics: { default: "arcade", arcade: { gravity: { y: 0, x: 0 } } },
-                scene: [BootScene, CharacterCreateScene, MainScene, minigameRPS, rpsHelper, rpsResults, dmListener],
+                scene: [BootScene, CharacterCreateScene, MainScene, minigameRPS, rpsHelper, rpsResults, dmListener, minigameMM],
                 transparent: true,
                 callbacks: {
                     preBoot: (g) => g.registry.set("initialScene", initialScene),

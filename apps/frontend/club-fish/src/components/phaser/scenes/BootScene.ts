@@ -16,6 +16,11 @@ export class BootScene extends Phaser.Scene {
     this.load.spritesheet('claw', 'assets/claw.png', { frameWidth: 1000, frameHeight: 1000})
     this.load.spritesheet('coral', 'assets/coral.png', { frameWidth: 1000, frameHeight: 1000})
 
+    //memory match assets
+    this.load.image('table', '/assets/card_table.png')
+    //card assets for memory match, free assets by KIN on itch.io
+    this.load.spritesheet('card_back', 'assets/cards/Back_2.png', { frameWidth: 800, frameHeight: 800});
+
     //loading screen
     this.load.image('loading', '/assets/sky.png')
   }
