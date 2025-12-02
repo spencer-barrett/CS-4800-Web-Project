@@ -33,32 +33,25 @@ export class rpsResults extends Phaser.Scene {
         console.log(opponentSelectedCard);
 
         this.add.image(width*0.5, height*0.5, 'rps-bg').setDisplaySize(width, height)
-        if (this.player == "coral"){
-            this.playerCard = this.add.sprite(width*0.3, height*0.5, this.player).setScale(0.19)
-        } else {
-            this.playerCard = this.add.sprite(width*0.3, height*0.5, this.player).setScale(0.15)
-        }
-        if (this.opponent == "coral"){
-            this.opponentCard = this.add.sprite(width*0.7, height*0.5, this.opponent).setScale(0.19)
-        } else {
-            this.opponentCard = this.add.sprite(width*0.7, height*0.5, this.opponent).setScale(0.15)
-        }
+
+        this.playerCard = this.add.sprite(width*0.3, height*0.5, this.player).setScale(0.25)
+        this.opponentCard = this.add.sprite(width*0.7, height*0.5, this.opponent).setScale(0.25)
 
         this.resultsText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.9, `You ${this.gameStatus}!`, {
 			fontSize: '42px',
 			color: '#ffffffff'
-		})
-        this.resultsText.setOrigin(0.5,0.5)
+		}).setShadow(2, 2, '#000000', 4, true, true);
+        this.resultsText.setOrigin(0.5,0.5).setShadow(2, 2, '#000000', 4, true, true);
 
         //set labels above player cards
         this.playerLabel = this.add.text((this.playerCard.x), this.playerCard.y - (this.playerCard.y / 2.5), `You`, {
 			fontSize: '24px',
 			color: '#ffffffff'
-		}).setOrigin(0.5)
+		}).setOrigin(0.5).setShadow(2, 2, '#000000', 4, true, true);
         this.opponentLabel = this.add.text((this.opponentCard.x), this.opponentCard.y - (this.opponentCard.y / 2.5), `Opponent`, {
 			fontSize: '24px',
 			color: '#ffffffff'
-		}).setOrigin(0.5)
+		}).setOrigin(0.5).setShadow(2, 2, '#000000', 4, true, true);
 
         await new Promise(res => setTimeout(res, 2000)); //wait 2 seconds
         //award them currency here if the won

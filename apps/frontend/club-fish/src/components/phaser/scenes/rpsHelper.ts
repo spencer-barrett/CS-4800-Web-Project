@@ -19,7 +19,7 @@ export class rpsHelper extends Phaser.Scene {
         this.waitingText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.5, `Waiting for player 2...`, {
 			fontSize: '48px',
 			color: '#ffffffff'
-		})
+		}).setShadow(2, 2, '#000000', 4, true, true);
         this.waitingText.setOrigin(0.5,0.5)
     }
 }

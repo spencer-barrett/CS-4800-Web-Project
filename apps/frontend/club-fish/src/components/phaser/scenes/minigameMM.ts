@@ -15,11 +15,17 @@ export class minigameMM extends Phaser.Scene {
     private cards: Phaser.GameObjects.Sprite[] = [];
     private flippedCards: Phaser.GameObjects.Sprite[] = [];
 
+    //global vars
+    private pairsLeft = 8;
+
+    private resultsText?: Phaser.GameObjects.Text;
+
     constructor(){
         super("memoryMatch");
     }
 
     async create(){
+        this.pairsLeft = 8;
         // initialize card sprites
         this.cards = [];
         this.flippedCards = [];
@@ -37,7 +43,7 @@ export class minigameMM extends Phaser.Scene {
         this.timerText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.05, `${this.initialTime}`, {
 			fontSize: '32px',
 			color: '#ffffffff'
-		})
+		}).setShadow(2, 2, '#000000', 4, true, true);
         this.timerText.setOrigin(0.5,0.5)
         this.timerEvent = this.time.addEvent({
                 delay: 1000, // 1 second
@@ -139,6 +145,7 @@ export class minigameMM extends Phaser.Scene {
 
                         // Remove from array
                         this.cards = this.cards.filter(c => c !== first && c !== second);
+                        this.pairsLeft -= 1;
                     } else {
                         // NOT MATCH → flip both back
                         this.flipCardBack(first);
@@ -202,11 +209,33 @@ export class minigameMM extends Phaser.Scene {
             this.timerEvent.destroy(); // Stop the timer
             this.timerText?.setText('Time\'s Up!'); // Display a final message
             this.canClick = false //remove residuary click permission
-                
+            
+            this.resultsText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), this.cameras.main.height/2, `You Lost...
+            \nUse Minigame Menu to Return.`, {
+                fontSize: '48px',
+                color: '#ffffffff'
+            })
+            this.resultsText.setOrigin(0.5,0.5).setShadow(2, 2, '#000000', 4, true, true);
         }
     }
 
     async update(){
-        this.timerBar.updateBar();
+        if (this.pairsLeft == 0) {//stop timer and perform win actions (timer stopped by making the update the else condition)
+            //win scene
+            let rewardCalc = Math.floor(this.initialTime / 3) + 3;
+            this.timerEvent.destroy(); // Stop the timer
+            this.timerText?.destroy();
+            this.timerBar.destroy();
+            this.resultsText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), this.cameras.main.height/2, `You Won ${rewardCalc} Shells! 
+            \nUse Minigame Menu to Return.`, {
+                fontSize: '48px',
+                color: '#ffffffff'
+            }).setShadow(2, 2, '#000000', 4, true, true);
+            this.resultsText.setOrigin(0.5,0.5)
+            //reward distribution
+        } else {
+            this.timerBar.updateBar();
+        }
+        
     }
 }
