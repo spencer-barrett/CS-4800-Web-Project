@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import CharacterCreateOverlay from "@/components/game-ui/CharacterCreateOverlay";
 import { PlayerProvider, usePlayer } from "@/context/playerContext";
 import MainHudOverlay from "@/components/game-ui/MainHud/MainHudOverlay";
+import LoadingOverlay from "@/components/loading/LoadingOverlay";
 
 // import PhaserCanvas to prevent SSR issues with Phaser
 const PhaserCanvas = dynamic(() => import("@/components/phaser/PhaserCanvas"), {
@@ -38,8 +39,9 @@ function GameRenderer() {
   const OverlayRenderer = useMemo(
     () => {
       const Component = ({ game, sceneKey }: { game: Phaser.Game | null; sceneKey: string | null }) => {
-              console.log("OverlayRenderer sceneKey:", sceneKey); 
+        console.log("OverlayRenderer sceneKey:", sceneKey);
         if (sceneKey === "CharacterCreate") return <CharacterCreateOverlay game={game} />;
+        if (sceneKey === "LoadingScene") return <LoadingOverlay />;
         if (sceneKey === "MainScene" || sceneKey === "PrivateScene") return <MainHudOverlay />;
         return null;
       };
@@ -58,7 +60,7 @@ function GameRenderer() {
     );
   }
 
- 
+
   if (initialScene === "MainScene" && !playerData) {
     return (<div className="flex h-[calc(100vh-60px)] items-center justify-center">
       <div className="rounded-xl bg-black/60 text-white px-4 py-2">Loading…</div>

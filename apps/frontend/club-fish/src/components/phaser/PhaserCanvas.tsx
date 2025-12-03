@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type Phaser from "phaser";
+import { LoadingScene } from "./scenes/LoadingScene";
 
 type PhaserGameWithCleanup = Phaser.Game & {
     __reactOverlayCleanup?: () => void;
@@ -59,13 +60,14 @@ export default function PhaserCanvas({
         (async () => {
             const Phaser = (await import("phaser")).default;
             const { BootScene } = await import("./scenes/BootScene");
+            const { LoadingScene } = await import("./scenes/LoadingScene");
             const { MainScene } = await import("./scenes/MainScene");
             const { CharacterCreateScene } = await import("./scenes/CharacterCreateScene");
             const { minigameRPS } = await import("./scenes/minigameRPS");
             const { rpsHelper } = await import("./scenes/rpsHelper");
             const { rpsResults } = await import("./scenes/rpsResults");
             const { dmListener } = await import("./scenes/dmListener");
-            const {PrivateScene} = await import("./scenes/PrivateScene");
+            const { PrivateScene } = await import("./scenes/PrivateScene");
 
             if (!mounted || !mountRef.current) return;
 
@@ -80,14 +82,14 @@ export default function PhaserCanvas({
                 },
                 backgroundColor: "#0b1220",
                 physics: { default: "arcade", arcade: { gravity: { y: 0, x: 0 } } },
-                scene: [BootScene, CharacterCreateScene, MainScene, minigameRPS, rpsHelper, rpsResults, dmListener, PrivateScene],
+                scene: [BootScene, LoadingScene, CharacterCreateScene, MainScene, minigameRPS, rpsHelper, rpsResults, dmListener, PrivateScene],
                 transparent: true,
                 callbacks: {
                     preBoot: (g) => g.registry.set("initialScene", initialScene),
                 },
             }) as PhaserGameWithCleanup;
 
-                window.PhaserGame = game;
+            window.PhaserGame = game;
             gameRef.current = game;
 
             const sm = game.scene;
@@ -103,10 +105,17 @@ export default function PhaserCanvas({
             const updateSceneKey = () => {
                 const scenes = sm.getScenes(true) as Phaser.Scene[];
                 if (!scenes.length) return;
+
+                // if LoadingScene is active, always report that
+                const loadingScene = scenes.find(s => s.scene.key === "LoadingScene");
+                if (loadingScene) {
+                    setActiveSceneKey("LoadingScene");
+                    return;
+                }
+
                 const top = scenes[scenes.length - 1];
                 setActiveSceneKey(top.scene.key);
             };
-
             game.events.on(Phaser.Core.Events.POST_STEP, updateSceneKey);
 
             const onUiScene = (key: string) => setActiveSceneKey(key);

@@ -72,6 +72,7 @@ export class PrivateScene extends Phaser.Scene {
         this.playerData,
         this.targetSessionId! // Use the provided session ID as room code
       );
+
     }
 
     room_ = this.room;
@@ -85,12 +86,6 @@ export class PrivateScene extends Phaser.Scene {
 
     this.room.onMessage("chat", (msg) => console.log(" asd", msg));
     const { width, height } = this.scale;
-
-    const key = `fish-${this.playerData.bodyColor}`;
-    // console.log(`Fish texture "${key}" exists?`, this.textures.exists(key));
-    // console.log("name: ", this.playerData.displayName);
-    // this.add.image(width * 0.5, height * 0.5, "priv").setOrigin(0.5);
-
 
     this.add
       .rectangle(width * 0.5, height * 0.5, width, height, 0x00ff00)
@@ -112,10 +107,6 @@ export class PrivateScene extends Phaser.Scene {
 
     $(this.room.state).players.onAdd((player, sessionId) => {
       console.log(`   Player added: ${sessionId}`);
-      //   console.log(`   My ID: ${this.room.sessionId}`);
-      //   console.log(`   Is me? ${sessionId === this.room.sessionId}`);
-
-      //   console.log(`   Initial position: (${player.x}, ${player.y})`);
 
       const nameLabel = this.make.text({
         x: player.x,
@@ -141,7 +132,6 @@ export class PrivateScene extends Phaser.Scene {
 
       entity.on("pointerup", (pointer: Pointer) => {
         if ((window as any).__overlayOpen) {
-          // console.log("Overlay is open, ignoring click");
           return;
         }
         pointer.event.stopPropagation();
@@ -150,11 +140,11 @@ export class PrivateScene extends Phaser.Scene {
         console.log("Player data:", player);
 
         window.onPhaserPlayerClick?.({
-  sessionId,
-  userId: player.userId,
-  displayName: player.displayName,
-  bodyColor: player.color,
-});
+          sessionId,
+          userId: player.userId,
+          displayName: player.displayName,
+          bodyColor: player.color,
+        });
 
       });
 
@@ -163,6 +153,8 @@ export class PrivateScene extends Phaser.Scene {
       if (sessionId === this.room.sessionId) {
         console.log(`      This is MY player`);
         this.currentPlayer = entity;
+        this.events.emit("scene:ready");
+
       } else {
         console.log(`      This is a REMOTE player`);
         console.log(
@@ -252,9 +244,7 @@ export class PrivateScene extends Phaser.Scene {
       this.inputPayload.x = this.currentPlayer.x;
       this.inputPayload.y = this.currentPlayer.y;
       this.inputPayload.tick = this.currentTick;
-      // console.log(
-      //   `  [${this.room.sessionId}] Sending position: (${this.inputPayload.x}, ${this.inputPayload.y})`
-      // );
+
       this.room.send(0, this.inputPayload);
 
       if (distance < 5) {

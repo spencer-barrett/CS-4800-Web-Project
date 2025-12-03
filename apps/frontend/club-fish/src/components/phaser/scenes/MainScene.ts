@@ -43,9 +43,7 @@ export class MainScene extends Phaser.Scene {
     color: "",
   };
 
-  //TEMPORARY BTUTON FOR RPS /////////////////////
-  private go_rps!: Phaser.GameObjects.Sprite/////////////
-  ////////////////////////////////////////////
+
   private returnFromPrivate!: boolean;
 
   init(data: {
@@ -64,52 +62,27 @@ export class MainScene extends Phaser.Scene {
   }
 
   async create() {
-    //custom cursor
-    // this.input.setDefaultCursor("url(assets/cursor-small.cur), pointer");
-
-    //connect to dm routing room, this should be done in a background scene actually. 
-
-    // this.dmRoutingRoom = await networkManager.connectNonMainRoom("dmRouting", 300);
-    // room_dmRouting = this.dmRoutingRoom;
-    // //this.myDmId = this.dmRoutingRoom.sessionId; //this should be the same id for all rooms anyways
-    // const dmCallbacks = getStateCallbacks(this.dmRoutingRoom);
-    // console.log("Connected to dm routing room:", this.dmRoutingRoom.roomId);
-
 
     //connect to main room
     this.room = await networkManager.connectMainRoom(this.playerData);
 
+
     room_ = this.room;
     this.myId = this.room.sessionId;
     const $ = getStateCallbacks(this.room);
-    // console.log("MainScene: create started");
-    // console.log("Connected to main room:", this.room.roomId);
+
 
     if (typeof window !== "undefined") {
       (window as any).__currentSessionId = this.room.sessionId; // Temporary per connection
       (window as any).__currentUserId = this.playerData.userId; // Persistent user ID
     }
 
-    //launch background scene to listen for dms globally
-    // this.scene.launch('dms', this.playerData);
-    // this.scene.moveAbove('MainScene', 'dms');
 
     this.room.onMessage("chat", (msg) => console.log(" asd", msg));
     const { width, height } = this.scale;
 
-    const key = `fish-${this.playerData.bodyColor}`;
-    // console.log(`Fish texture "${key}" exists?`, this.textures.exists(key));
-    // console.log("name: ", this.playerData.displayName);
-
     this.add.image(width * 0.5, height * 0.5, "ocean").setOrigin(0.5);
 
-    //TEMPORARY BUTTON FOR MOVING TO RPS SCENE
-    // this.go_rps = this.add.sprite(width*0.1, height * 0.5, "kelp").setInteractive().setScale(0.1)
-    // this.go_rps.on('pointerdown', () => {
-    //   //this.scene.restart()
-    //   this.scene.start('rps-helper')
-    // })
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     this.events.once("shutdown", () => {
       if (this.room) {
         this.room.leave();
@@ -119,11 +92,6 @@ export class MainScene extends Phaser.Scene {
     });
 
     $(this.room.state).players.onAdd((player, sessionId) => {
-      // console.log(`   Player added: ${sessionId}`);
-      // console.log(`   My ID: ${this.room.sessionId}`);
-      // console.log(`   Is me? ${sessionId === this.room.sessionId}`);
-
-      // console.log(`   Initial position: (${player.x}, ${player.y})`);
 
       const nameLabel = this.make.text({
         x: player.x,
@@ -154,15 +122,13 @@ export class MainScene extends Phaser.Scene {
         }
         pointer.event.stopPropagation();
 
-        // console.log("Clicked on player:", sessionId);
-        // console.log("Player data:", player);
 
         window.onPhaserPlayerClick?.({
-  sessionId,
-  userId: player.userId,
-  displayName: player.displayName,
-  bodyColor: player.color,
-});
+          sessionId,
+          userId: player.userId,
+          displayName: player.displayName,
+          bodyColor: player.color,
+        });
 
       });
 
@@ -172,11 +138,11 @@ export class MainScene extends Phaser.Scene {
       if (sessionId === this.room.sessionId) {
         // console.log(`      This is MY player`);
         this.currentPlayer = entity;
+        this.events.emit("scene:ready");
+
       } else {
-        // console.log(`      This is a REMOTE player`);
-        // console.log(
-        //   `   color ${this.room.state.players.get(sessionId)?.color}`
-        // );
+
+
         entity.setData("serverX", player.x);
         entity.setData("serverY", player.y);
 
@@ -189,11 +155,7 @@ export class MainScene extends Phaser.Scene {
 
     // remove local reference when entity is removed from the server
     $(this.room.state).players.onRemove((player, sessionId) => {
-      // console.log(`   Player removed: ${sessionId}`);
-      // console.log(
-      //   `   Current players in memory:`,
-      //   Object.keys(this.playerEntities)
-      // );
+
 
       const entity = this.playerEntities[sessionId];
       if (entity) {
@@ -208,14 +170,12 @@ export class MainScene extends Phaser.Scene {
         delete this.playerNameLabels[sessionId];
       }
 
-      // console.log(`   Remaining players:`, Object.keys(this.playerEntities));
     });
 
     this.input.on(
       "pointerup",
       (pointer: Pointer, gameObjects: Phaser.GameObjects.GameObject[]) => {
-        // If pointer was over any interactive object, skip movement
-        // console.log("pointerup overlay flag:", (window as any).__overlayOpen);
+
         if ((window as any).__overlayOpen) return;
         if (gameObjects.length > 0) return;
 
@@ -256,9 +216,7 @@ export class MainScene extends Phaser.Scene {
       this.inputPayload.x = this.currentPlayer.x;
       this.inputPayload.y = this.currentPlayer.y;
       this.inputPayload.tick = this.currentTick;
-      // console.log(
-      //   `  [${this.room.sessionId}] Sending position: (${this.inputPayload.x}, ${this.inputPayload.y})`
-      // );
+
       this.room.send(0, this.inputPayload);
 
       if (distance < 5) {
@@ -308,6 +266,6 @@ export class MainScene extends Phaser.Scene {
   }
 }
 export async function createNonMainRoom(type: string, size: number): Promise<any> {
-    room_ = await networkManager.connectNonMainRoom(type, size);
-    console.log(room_.roomId)
-  }
+  room_ = await networkManager.connectNonMainRoom(type, size);
+  console.log(room_.roomId)
+}

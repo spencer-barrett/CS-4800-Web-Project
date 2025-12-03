@@ -80,7 +80,11 @@ const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
 
     if (game) {
       game.scene.stop("MainScene");
-      game.scene.start("PrivateScene", { playerData, targetSessionId: userId });
+      // game.scene.start("PrivateScene", { playerData, targetSessionId: userId });
+       game.scene.start("LoadingScene", {
+  targetScene: "PrivateScene",
+  targetData: { playerData, targetSessionId: userId },
+});
     }
     onClose();
   };
@@ -90,8 +94,13 @@ const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
 
     if (game) {
       game.scene.stop("PrivateScene");
-      game.scene.start("MainScene", { playerData });
+      // game.scene.start("MainScene", { playerData });
+       game.scene.start("LoadingScene", {
+  targetScene: "MainScene",
+  targetData: { playerData, targetSessionId: userId },
+});
     }
+    
     onClose();
   };
 
