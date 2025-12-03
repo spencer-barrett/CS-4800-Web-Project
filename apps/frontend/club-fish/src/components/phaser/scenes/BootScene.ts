@@ -73,8 +73,7 @@ export class BootScene extends Phaser.Scene {
         // Start scene when all textures are loaded
         if (loadedCount === totalColors) {
           this.scene.start(targetScene, { playerData: data.playerData });
-          this.scene.launch('dms', { playerData: data.playerData });
-          //this.scene.stop();
+          this.scene.stop();
         }
       };
 

@@ -32,9 +32,9 @@ export default function MainHudOverlay() {
   // listen for phaser events
   useEffect(() => {
     window.onPhaserPlayerClick = (payload) => {
-      const myId = playerData?.sessionId;
+      const myId = playerData?.userId;
 
-      if (payload.sessionId === myId) {
+      if (payload.userId === myId) {
         // clicked yourself
         setOpenOtherProfile(false);
         setOpenSelfProfile(true);
