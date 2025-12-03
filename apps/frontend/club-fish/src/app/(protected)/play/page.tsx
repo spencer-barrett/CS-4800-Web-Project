@@ -38,8 +38,9 @@ function GameRenderer() {
   const OverlayRenderer = useMemo(
     () => {
       const Component = ({ game, sceneKey }: { game: Phaser.Game | null; sceneKey: string | null }) => {
+              console.log("OverlayRenderer sceneKey:", sceneKey); 
         if (sceneKey === "CharacterCreate") return <CharacterCreateOverlay game={game} />;
-        if (sceneKey === "MainScene" || "PrivateScene" || "dms") return <MainHudOverlay />;
+        if (sceneKey === "MainScene" || sceneKey === "PrivateScene") return <MainHudOverlay />;
         return null;
       };
       Component.displayName = "OverlayRenderer";

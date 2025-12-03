@@ -93,7 +93,7 @@ export default function ProfileOverlay({
                         key={i.id}
                         className="bg-[#1B746C] rounded-sm border-[3px] border-[#0C322E] flex items-center justify-center text-xs text-center px-1 py-2 aspect-square"
                       >
-                        {i.name}
+                        {i.itemId}
                       </div>
                     ))
                   ) : (
