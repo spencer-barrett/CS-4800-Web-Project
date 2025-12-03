@@ -9,12 +9,12 @@ export class NetworkManager {
   private mainRoom: MainRoom | null = null;
   private nonMainRoom: MainRoom | null = null;
     private privateRoom: MainRoom | null = null;
+    private isConnectingMain: boolean = false; 
 
   constructor(serverUrl: string) {
     this.client = new Client(serverUrl);
   }
 
-  // In networkController.ts
  async connectPrivateRoom(player: PlayerData, roomId?: string): Promise<MainRoom> {
     try {
       const room = await this.client.joinOrCreate<MyRoomState>("private_room", {
@@ -33,8 +33,10 @@ export class NetworkManager {
   }
 
 clearMainRoom(): void {
-  this.mainRoom = null;
-  console.log("Cleared main room reference");
+  if (this.mainRoom) {
+      this.mainRoom = null;
+      console.log("Cleared main room reference");
+    }
 }
 
 clearPrivateRoom(): void {
@@ -72,10 +74,22 @@ async joinPrivateRoomByUserId(
   /** Connect to main persistent world room */
   async connectMainRoom(player: PlayerData, roomSize?: number): Promise<MainRoom> {
 
-    if (this.mainRoom) {
-    console.log("Reusing existing main room connection");
-    return this.mainRoom;
-  }
+    if (this.mainRoom && this.mainRoom.connection.isOpen) {
+      console.log("Reusing existing main room connection");
+      return this.mainRoom;
+    }
+
+
+    if (this.isConnectingMain) {
+      console.log("Already connecting to main room, waiting...");
+      // Wait for connection to complete
+      while (this.isConnectingMain) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      if (this.mainRoom) return this.mainRoom;
+    }
+
+    this.isConnectingMain = true;
 
     try {
 
@@ -84,7 +98,7 @@ async joinPrivateRoomByUserId(
         bodyColor: player.bodyColor,
         displayName: player.displayName,
         currency: player.currency,
-        userId: player.userId // ADD THIS
+        userId: player.userId 
       });
 
 
@@ -99,6 +113,8 @@ async joinPrivateRoomByUserId(
     } catch (err) {
       console.error("Failed to join main room:", err);
       throw err;
+    }finally {
+      this.isConnectingMain = false;
     }
   }
 

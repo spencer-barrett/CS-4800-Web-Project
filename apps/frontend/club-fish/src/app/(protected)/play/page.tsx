@@ -10,6 +10,7 @@ import CharacterCreateOverlay from "@/components/game-ui/CharacterCreateOverlay"
 import { PlayerProvider, usePlayer } from "@/context/playerContext";
 import MainHudOverlay from "@/components/game-ui/MainHud/MainHudOverlay";
 import LoadingOverlay from "@/components/loading/LoadingOverlay";
+import { networkManager } from "@/lib/colyseus/networkController";
 
 // import PhaserCanvas to prevent SSR issues with Phaser
 const PhaserCanvas = dynamic(() => import("@/components/phaser/PhaserCanvas"), {
@@ -24,12 +25,21 @@ function GameRenderer() {
 * Sign out handler that logs the user out of Firebase authentication
 */
   const handleSignOut = async () => {
-    try {
-      await auth.signOut();
-    } catch (error) {
-      console.error("Error signing out:", error);
+  try {
+    await networkManager.leaveMainRoom();
+    await networkManager.leavePrivateRoom();
+    await networkManager.leaveNonMainRoom();
+    
+    if (window.PhaserGame) {
+      window.PhaserGame.destroy(true);
+      window.PhaserGame = undefined;
     }
-  };
+    
+    await auth.signOut();
+  } catch (error) {
+    console.error("Error signing out:", error);
+  }
+};
 
   /**
    * Memoized overlay renderer component that displays the appropriate UI

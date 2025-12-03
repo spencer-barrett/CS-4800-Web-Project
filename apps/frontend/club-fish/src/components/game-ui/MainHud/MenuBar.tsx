@@ -17,6 +17,7 @@ import { ComponentType, useEffect, useState } from "react";
 import ShopOverlay from "./Shop/ShopOverlay";
 import ProfileOverlay from "./Profile/ProfileOverlay";
 import { usePlayer } from "@/context/playerContext";
+import FriendsList from "./Friends/FriendsList";
 
 type MenuBarProps = {
   showMessage?: boolean;
@@ -144,7 +145,7 @@ const PANEL_COMPONENTS: Record<PanelKey, React.FC<PanelComponentProps>> = {
   profile: ProfileOverlay,
   minigames: MinigamesOverlay,
   privateRoom: PrivateRoomOverlay,
-  friends: FriendsOverlay,
+  friends: FriendsList,
   menu: SettingsOverlay,
 };
 

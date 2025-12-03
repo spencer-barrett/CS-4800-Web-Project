@@ -2,11 +2,12 @@ import { CharacterForward } from "@/components/svg/char-forward";
 import { Button } from "@/components/ui/button";
 import { usePlayer } from "@/context/playerContext";
 import { Users, Send } from "lucide-react";
+import { sendFriendRequest } from "@/lib/friends/friendService";
 
 type PlayerProfileOverlayProps = {
   sessionId: string;
   onClose: () => void;
-  userId: string; // ADD THIS
+  userId: string;
   playerBodyColor: string;
   playerDisplayName: string;
 };
@@ -21,15 +22,30 @@ export default function PlayerProfileOverlay({
   const bodyColor = playerBodyColor.substring(5);
   const { playerData } = usePlayer();
 
-  const handleJoinTheirRoom = () => {
-    // Join the clicked player's private room using THEIR sessionId
-    const game = window.PhaserGame;
+  // const handleJoinTheirRoom = () => {
+  //   const game = window.PhaserGame;
 
-    if (game) {
-      game.scene.stop("MainScene");
-      game.scene.start("PrivateScene", { playerData, targetSessionId: userId });
+  //   if (game) {
+  //     game.scene.stop("MainScene");
+  //     game.scene.start("PrivateScene", { playerData, targetSessionId: userId });
+  //   }
+  //   onClose();
+  // };
+
+  const handleSendFriendRequest = async () => {
+     if (!playerData?.userId || !playerData?.displayName) return;
+
+     const result = await sendFriendRequest(
+    playerData.userId,
+    playerData.displayName,
+    userId
+  );
+
+    if (result.success) {
+      console.log("Friend request sent!");
+    } else {
+      console.error(result.error);
     }
-    onClose();
   };
 
   return (
@@ -72,26 +88,19 @@ export default function PlayerProfileOverlay({
 
               <div className="flex w-full items-center justify-center py-2 shrink-0">
                 <div className="flex gap-2">
-                  <Button className="!rounded-full hud-frame p-2 bg-[#0c2d30] shadow-sm  cursor-pointer hover:bg-[#144D52] text-white !h-10 !w-10">
+                  <Button className="!rounded-full hud-frame p-2 bg-[#0c2d30] shadow-sm  cursor-pointer hover:bg-[#144D52] text-white !h-10 !w-10"
+                    onClick={handleSendFriendRequest}
+                  >
                     <Users size={16} />
                   </Button>
-                  <Button
+                  {/* <Button
                     className="!rounded-full hud-frame p-2 bg-[#0c2d30] shadow-sm  cursor-pointer hover:bg-[#144D52] text-white !h-10 !w-10"
                     onClick={handleJoinTheirRoom}
                   >
                     {" "}
                     <Send size={16} />
-                  </Button>
+                  </Button> */}
                 </div>
-                {/* <div className="flex gap-2 bg-[#0C322E] p-3 !rounded-4xl hud-frame">
-                  <Image
-                    src="/shell-currency.svg"
-                    width={24}
-                    height={24}
-                    alt="shell"
-                  />
-                  <div className="w-full">Your shells :</div>
-                </div> */}
               </div>
             </div>
           </div>

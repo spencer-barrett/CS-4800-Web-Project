@@ -42,7 +42,7 @@ export class MainScene extends Phaser.Scene {
     tick: 0,
     color: "",
   };
-
+private isReady: boolean = false;
 
   private returnFromPrivate!: boolean;
 
@@ -52,6 +52,17 @@ export class MainScene extends Phaser.Scene {
     returnFromPrivate?: boolean;
   }) {
     // console.log("MainScene: init", data);
+
+    this.isReady = false;
+
+    this.playerEntities = {};
+    this.playerNameLabels = {};
+    this.currentPlayer = undefined!;
+    this.isMoving = false;
+    this.elapsedTime = 0;
+    this.currentTick = 0;
+    this.target = new Vector2();
+
     this.playerData = data.playerData;
     this.returnFromPrivate = data.returnFromPrivate || false;
     this.inputPayload.color = this.playerData.bodyColor ?? "#964B00";
@@ -63,6 +74,8 @@ export class MainScene extends Phaser.Scene {
 
   async create() {
 
+
+    this.game.registry.set("playerData", this.playerData);
     //connect to main room
     this.room = await networkManager.connectMainRoom(this.playerData);
 
@@ -137,8 +150,8 @@ export class MainScene extends Phaser.Scene {
 
       if (sessionId === this.room.sessionId) {
         // console.log(`      This is MY player`);
-        this.currentPlayer = entity;
-        this.events.emit("scene:ready");
+        console.log(`      This is MY player`);
+  this.currentPlayer = entity;
 
       } else {
 

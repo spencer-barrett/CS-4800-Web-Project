@@ -19,11 +19,11 @@ export class rpsResults extends Phaser.Scene {
     gameStatus: string = "";
     winningCard: string = "";
 
-    constructor(){
-        super({key: 'rps-results'});
+    constructor() {
+        super({ key: 'rps-results' });
     }
-    async create(){
-        const {width, height} = this.scale
+    async create() {
+        const { width, height } = this.scale
         this.hasLogged = false; //reset status in case they play multiple games
         //visualize results here and declare winner
         this.player = selectedCard.toLowerCase();
@@ -34,33 +34,33 @@ export class rpsResults extends Phaser.Scene {
         //testing
         console.log(opponentSelectedCard);
 
-        this.add.image(width*0.5, height*0.5, 'rps-bg').setDisplaySize(width, height)
-        if (this.player == "coral"){
-            this.playerCard = this.add.sprite(width*0.3, height*0.5, this.player).setScale(0.19)
+        this.add.image(width * 0.5, height * 0.5, 'rps-bg').setDisplaySize(width, height)
+        if (this.player == "coral") {
+            this.playerCard = this.add.sprite(width * 0.3, height * 0.5, this.player).setScale(0.19)
         } else {
-            this.playerCard = this.add.sprite(width*0.3, height*0.5, this.player).setScale(0.15)
+            this.playerCard = this.add.sprite(width * 0.3, height * 0.5, this.player).setScale(0.15)
         }
-        if (this.opponent == "coral"){
-            this.opponentCard = this.add.sprite(width*0.7, height*0.5, this.opponent).setScale(0.19)
+        if (this.opponent == "coral") {
+            this.opponentCard = this.add.sprite(width * 0.7, height * 0.5, this.opponent).setScale(0.19)
         } else {
-            this.opponentCard = this.add.sprite(width*0.7, height*0.5, this.opponent).setScale(0.15)
+            this.opponentCard = this.add.sprite(width * 0.7, height * 0.5, this.opponent).setScale(0.15)
         }
 
-        this.resultsText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.8, `You ${this.gameStatus}!`, {
-			fontSize: '42px',
-			color: '#ffffffff'
-		})
-        this.resultsText.setOrigin(0.5,0.5)
+        this.resultsText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height * 0.8, `You ${this.gameStatus}!`, {
+            fontSize: '42px',
+            color: '#ffffffff'
+        })
+        this.resultsText.setOrigin(0.5, 0.5)
 
         //set labels above player cards
         this.playerLabel = this.add.text((this.playerCard.x), this.playerCard.y - (this.playerCard.y / 2.5), `You`, {
-			fontSize: '24px',
-			color: '#ffffffff'
-		}).setOrigin(0.5)
+            fontSize: '24px',
+            color: '#ffffffff'
+        }).setOrigin(0.5)
         this.opponentLabel = this.add.text((this.opponentCard.x), this.opponentCard.y - (this.opponentCard.y / 2.5), `Opponent`, {
-			fontSize: '24px',
-			color: '#ffffffff'
-		}).setOrigin(0.5)
+            fontSize: '24px',
+            color: '#ffffffff'
+        }).setOrigin(0.5)
 
         await new Promise(res => setTimeout(res, 2000)); //wait 2 seconds
 
@@ -68,7 +68,7 @@ export class rpsResults extends Phaser.Scene {
         this.resultsText.setText("Returning to lobby...")
         await new Promise(res => setTimeout(res, 2000)); //wait 2 seconds
         this.transitionScene("MainScene");
-        
+
 
     }
     determineWinner(): "won" | "lost" | "tied" {
@@ -77,7 +77,7 @@ export class rpsResults extends Phaser.Scene {
             kelp: "coral",
             coral: "claw"
         };
-        if (this.player === this.opponent){
+        if (this.player === this.opponent) {
             return "tied";
         }
         const playerResult = beats[this.player] === this.opponent ? "won" : "lost"
@@ -85,20 +85,26 @@ export class rpsResults extends Phaser.Scene {
     }
     transitionScene(nextScene: string) {
         this.gameStatus = this.determineWinner();
-        if (this.gameStatus == "won" && !this.hasLogged){
+        if (this.gameStatus == "won" && !this.hasLogged) {
             addCurrency(10);
             console.log("this should only appear once");
             this.hasLogged = true;
         }
-        const {width, height} = this.scale
-        const transitionImage = this.add.image(width*0.5, height*0.5, "loading");
+        const { width, height } = this.scale
+        const transitionImage = this.add.image(width * 0.5, height * 0.5, "loading");
         transitionImage.setDepth(1000);
 
         transitionImage.setDisplaySize(this.sys.game.config.width as number, this.sys.game.config.height as number);
 
-        //give delay to render
-        this.time.delayedCall(500, () => {
-            this.scene.start(nextScene)
-        })
+        if (room_) {
+            room_.leave();
+        }
+
+        const playerData = this.game.registry.get("playerData");
+
+        this.scene.start("LoadingScene", {
+            targetScene: nextScene,
+            targetData: { playerData },
+        });
     }
 }
