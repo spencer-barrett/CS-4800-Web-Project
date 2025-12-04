@@ -52,7 +52,7 @@ function GameRenderer() {
         console.log("OverlayRenderer sceneKey:", sceneKey);
         if (sceneKey === "CharacterCreate") return <CharacterCreateOverlay game={game} />;
         if (sceneKey === "LoadingScene") return <LoadingOverlay />;
-        if (sceneKey === "MainScene" || sceneKey === "PrivateScene") return <MainHudOverlay />;
+        if (sceneKey === "MainScene" || sceneKey === "PrivateScene" || sceneKey === "memoryMatch") return <MainHudOverlay />;
         return null;
       };
       Component.displayName = "OverlayRenderer";

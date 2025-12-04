@@ -43,7 +43,28 @@ const goToBattle = () => {
     const game = (window as any).PhaserGame;
     if (!game) return;
 
+    // Leave MainScene room if active
+    const main = game.scene.getScene("MainScene");
+    if (main?.room) {
+      console.log("Leaving MainRoom before RPS minigame");
+      main.room.leave();
+      (window as any).networkManager?.clearMainRoom?.();
+      main.room = undefined;
+    }
+
+    // Leave PrivateScene room if minigame is launched from there
+    const priv = game.scene.getScene("PrivateScene");
+    if (priv?.room) {
+      console.log("Leaving PrivateRoom before RPS minigame");
+      priv.room.leave();
+      (window as any).networkManager?.clearPrivateRoom?.();
+      priv.room = undefined;
+    }
+
+    // Stop whichever is running
     game.scene.stop("MainScene");
+    game.scene.stop("PrivateScene");
+
     game.scene.start("rps-helper");  
   };
 
@@ -56,17 +77,71 @@ const BUTTONS: ButtonConfig[] = [
   { key: "menu", label: "Settings", Icon: Settings },
 ];
 
-const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
+let toggleCounter = 0;
+const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
+  const showMemoryMatch = toggleCounter % 2 === 0;
+
+
+  const goToMemoryMatch = () => {
+    const game = (window as any).PhaserGame;
+    if (!game) return;
+
+    // --- DISCONNECT FROM CURRENT ROOM ---
+    const main = game.scene.getScene("MainScene");
+    const privateScene = game.scene.getScene("PrivateScene");
+
+    // Main room
+    if (main?.room) {
+      console.log("Leaving MainRoom");
+      main.room.leave();
+      (window as any).networkManager?.clearMainRoom?.();
+      main.room = undefined;
+    }
+
+    // Private room
+    if (privateScene?.room) {
+      console.log("Leaving PrivateRoom");
+      privateScene.room.leave();
+      (window as any).networkManager?.clearPrivateRoom?.();
+      privateScene.room = undefined;
+    }
   
-  <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
-    <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
-    <p className="text-sm opacity-80 mb-4">Minigames coming soon.</p>
-    <div className="flex gap-2">
-            <Button onClick={() => {goToBattle(); onClose();}}>Battle</Button>
-      <Button onClick={onClose}>Close</Button>
+
+    game.scene.stop("MainScene");
+    game.scene.stop("PrivateScene")
+    game.scene.start("memoryMatch");
+    toggleCounter += 1;
+    //game.scene.pause("MainScene");
+  }
+  const goToLobby = () => {
+    const game = (window as any).PhaserGame;
+    if (!game) return;
+
+    game.scene.stop("memoryMatch");
+    game.scene.start("MainScene");
+    toggleCounter += 1;
+  }
+
+  return (
+    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
+      <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
+      <p className="text-sm opacity-80 mb-4">
+        Play a fish themed game of Rock Paper Scissors with a friend or foe, or a game of Memory Match solo!
+      </p>
+      <div className="flex gap-2">
+        <Button onClick={goToBattle}>Battle</Button>
+        <div>
+          {showMemoryMatch ? (
+            <Button onClick={goToMemoryMatch}>Memory</Button>
+          ) : (
+            <Button onClick={goToLobby}>Return</Button>
+          )}
+        </div>
+        <Button onClick={onClose}>Close</Button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
   const { playerData } = usePlayer();

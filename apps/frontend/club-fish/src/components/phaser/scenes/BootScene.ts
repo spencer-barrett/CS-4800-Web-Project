@@ -10,10 +10,23 @@ export class BootScene extends Phaser.Scene {
     this.load.image("ocean", "/assets/background.png");
     this.load.image("bg", "/gradient.png");
     //minigameRPS assets
-    this.load.image('rps-bg', 'assets/rps-bg2.png') //replace asset later
+    this.load.image('rps-bg', 'assets/rps-bg-full.png')
     this.load.spritesheet('kelp', 'assets/kelp.png', { frameWidth: 1000, frameHeight: 1000})
     this.load.spritesheet('claw', 'assets/claw.png', { frameWidth: 1000, frameHeight: 1000})
     this.load.spritesheet('coral', 'assets/coral.png', { frameWidth: 1000, frameHeight: 1000})
+    //memory match assets
+    this.load.image('table', '/assets/card_table.png')
+    //card assets for memory match, free assets by KIN on itch.io
+    this.load.spritesheet('card_back', 'assets/cards/Back_2.png', { frameWidth: 800, frameHeight: 800});
+    this.load.spritesheet('Spades_ACE', 'assets/cards/Spades_ACE.png', { frameWidth: 800, frameHeight: 800});
+    this.load.spritesheet('Spades_K', 'assets/cards/Spades_K.png', { frameWidth: 800, frameHeight: 800});
+    this.load.spritesheet('Spades_Q', 'assets/cards/Spades_Q.png', { frameWidth: 800, frameHeight: 800});
+    this.load.spritesheet('Spades_J', 'assets/cards/Spades_J.png', { frameWidth: 800, frameHeight: 800});
+    this.load.spritesheet('Diamonds_ACE', 'assets/cards/Diamonds_ACE.png', { frameWidth: 800, frameHeight: 800});
+    this.load.spritesheet('Diamonds_K', 'assets/cards/Diamonds_K.png', { frameWidth: 800, frameHeight: 800});
+    this.load.spritesheet('Diamonds_Q', 'assets/cards/Diamonds_Q.png', { frameWidth: 800, frameHeight: 800});
+    this.load.spritesheet('Diamonds_J', 'assets/cards/Diamonds_J.png', { frameWidth: 800, frameHeight: 800});
+
     //loading screen
     this.load.image('loading', '/assets/sky.png')
     this.load.image("priv", "private.png");
