@@ -72,17 +72,21 @@ export default function FriendsList({ onClose }: FriendsListProps) {
     };
 
     const handleVisitBowl = (friendUserId: string) => {
-        const game = window.PhaserGame;
-        if (!game) return;
+    const game = window.PhaserGame;
+    if (!game) return;
 
-        game.scene.stop("MainScene");
-        game.scene.stop("PrivateScene");
-        game.scene.start("LoadingScene", {
-            targetScene: "PrivateScene",
-            targetData: { playerData, targetSessionId: friendUserId },
-        });
-        onClose();
-    };
+    // Set the bowl owner to the friend being visited
+    (window as any).__bowlOwnerId = friendUserId;
+
+    game.scene.stop("MainScene");
+    game.scene.stop("PrivateScene");
+    game.scene.start("LoadingScene", {
+        targetScene: "PrivateScene",
+        targetData: { playerData, targetSessionId: friendUserId },
+    });
+
+    onClose();
+};
 
     const handleOpenDM = (friend: Friend) => {
         setActiveDM(friend);
