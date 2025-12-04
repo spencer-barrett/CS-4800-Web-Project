@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { TimerBar } from './TimerBar'
+import { addCurrency } from '@/lib/purchases/purchaseItem';
 
 export class minigameMM extends Phaser.Scene {
     //timer
@@ -233,6 +234,7 @@ export class minigameMM extends Phaser.Scene {
             }).setShadow(2, 2, '#000000', 4, true, true);
             this.resultsText.setOrigin(0.5,0.5)
             //reward distribution
+            addCurrency(rewardCalc);
         } else {
             this.timerBar.updateBar();
         }
