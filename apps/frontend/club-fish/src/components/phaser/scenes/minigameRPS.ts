@@ -239,7 +239,20 @@ export class minigameRPS extends Phaser.Scene {
             if (this.sent == false){
                 room_.send("player_selection", selectedCard)
             }
-            
+            if (!this.sent) { //in the case that other player has dc'd or something else causing the move to not get sent
+                this.sent = true;
+                room_.send("player_selection", selectedCard);
+
+                // Start a 5-second opponent timeout
+                this.time.delayedCall(5000, () => {
+                    if (opponentSelectedCard === "None") {
+                        console.warn("Opponent did not respond — assigning random move.");
+                        
+                        const random = ["Claw", "Kelp", "Coral"];
+                        opponentSelectedCard = random[Math.floor(Math.random() * 3)];
+                    }
+                });
+            } 
         }
     }
 

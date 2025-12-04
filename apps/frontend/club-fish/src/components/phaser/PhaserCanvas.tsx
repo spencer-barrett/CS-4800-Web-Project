@@ -93,6 +93,21 @@ export default function PhaserCanvas({
             window.PhaserGame = game;
             gameRef.current = game;
 
+            //rps disconnect if player closes tab
+            window.addEventListener("beforeunload", () => {
+                try {
+                    const nm = (window as any).networkManager;
+                    if (nm?.nonMainRoom) {
+                        nm.nonMainRoom.leave(true);
+                    }
+                    if (nm?.mainRoom) {
+                        nm.mainRoom.leave(true);
+                    }
+                } catch (err) {
+                    console.warn("Error during unload disconnect:", err);
+                }
+            });
+
             const sm = game.scene;
             const bootPayload = {
                 targetScene: initialScene,

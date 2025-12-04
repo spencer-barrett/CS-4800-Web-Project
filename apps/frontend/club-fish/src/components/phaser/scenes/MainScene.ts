@@ -102,6 +102,8 @@ private isReady: boolean = false;
         networkManager.clearMainRoom();
         this.room = undefined!;
       }
+      this.playerEntities = {};
+      this.playerNameLabels = {};
     });
 
     $(this.room.state).players.onAdd((player, sessionId) => {
