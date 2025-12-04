@@ -17,6 +17,9 @@ export class BootScene extends Phaser.Scene {
     //loading screen
     this.load.image('loading', '/assets/sky.png')
     this.load.image("priv", "private.png");
+
+    //private room
+    this.load.image("fishtank", "/assets/fishtank.png");
   }
 
   async create(data: { targetScene?: string; playerData: PlayerData | null }) {

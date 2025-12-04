@@ -84,12 +84,16 @@ export class PrivateScene extends Phaser.Scene {
     console.log("PrivateScene: create started");
     console.log("Connected to main room:", this.room.roomId);
 
-    this.room.onMessage("chat", (msg) => console.log(" asd", msg));
     const { width, height } = this.scale;
+    //background image
+    this.add.image(width*0.5, height*0.5, 'fishtank').setDisplaySize(width, height)
 
-    this.add
-      .rectangle(width * 0.5, height * 0.5, width, height, 0x00ff00)
-      .setOrigin(0.5);
+    this.room.onMessage("chat", (msg) => console.log(" asd", msg));
+    
+
+    // this.add
+    //   .rectangle(width * 0.5, height * 0.5, width, height, 0x00ff00)
+    //   .setOrigin(0.5);
 
     this.events.once("shutdown", () => {
       if (this.room) {
@@ -107,6 +111,22 @@ export class PrivateScene extends Phaser.Scene {
 
     $(this.room.state).players.onAdd((player, sessionId) => {
       console.log(`   Player added: ${sessionId}`);
+
+      const { width, height } = this.scale;
+
+      const boundWidth = width * 0.75;
+      const boundHeight = height * 0.60;
+
+      const offsetX = width * 0.12;
+      const offsetY = height * 0.25;
+
+      const spawnMinX = offsetX;
+      const spawnMaxX = offsetX + boundWidth;
+      const spawnMinY = offsetY;
+      const spawnMaxY = offsetY + boundHeight;
+
+      player.x = Phaser.Math.Clamp(player.x, spawnMinX, spawnMaxX);
+      player.y = Phaser.Math.Clamp(player.y, spawnMinY, spawnMaxY);
 
       const nameLabel = this.make.text({
         x: player.x,
@@ -153,6 +173,12 @@ export class PrivateScene extends Phaser.Scene {
       if (sessionId === this.room.sessionId) {
         console.log(`      This is MY player`);
         this.currentPlayer = entity;
+
+        // SET MOVEMENT BOUNDS HERE
+
+        this.physics.world.setBounds(offsetX, offsetY, boundWidth, boundHeight);
+        entity.setCollideWorldBounds(true);
+
         this.events.emit("scene:ready");
 
       } else {
