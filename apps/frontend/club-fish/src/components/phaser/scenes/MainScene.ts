@@ -8,7 +8,6 @@ import { PlayerData } from "@/types/player-data";
 const { Vector2 } = pMath;
 
 export let room_: MainRoom;
-//export let room_dmRouting: MainRoom;
 export class MainScene extends Phaser.Scene {
   currentPlayer!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
   localRef!: Phaser.GameObjects.Rectangle;
@@ -22,12 +21,18 @@ export class MainScene extends Phaser.Scene {
     [sessionId: string]: Phaser.GameObjects.Text;
   } = {};
 
+  playerHats: {
+    [sessionId: string]: Phaser.GameObjects.Image;
+  } = {};
+
+  playerBracelets: {
+    [sessionId: string]: Phaser.GameObjects.Image;
+  } = {};
+
   myId = "";
-  //myDmId = "";
   private room!: MainRoom;
   fish!: Phaser.GameObjects.Image;
-  // private bodyColor = "#60cbfcff";
-  // private displayName = "anonymous";
+
   private playerData!: PlayerData;
 
   target = new Vector2();
@@ -42,7 +47,7 @@ export class MainScene extends Phaser.Scene {
     tick: 0,
     color: "",
   };
-private isReady: boolean = false;
+  private isReady: boolean = false;
 
   private returnFromPrivate!: boolean;
 
@@ -51,12 +56,13 @@ private isReady: boolean = false;
     playerData: PlayerData;
     returnFromPrivate?: boolean;
   }) {
-    // console.log("MainScene: init", data);
 
     this.isReady = false;
 
     this.playerEntities = {};
     this.playerNameLabels = {};
+    this.playerHats = {};
+    this.playerBracelets = {};
     this.currentPlayer = undefined!;
     this.isMoving = false;
     this.elapsedTime = 0;
@@ -86,8 +92,8 @@ private isReady: boolean = false;
 
 
     if (typeof window !== "undefined") {
-      (window as any).__currentSessionId = this.room.sessionId; // Temporary per connection
-      (window as any).__currentUserId = this.playerData.userId; // Persistent user ID
+      (window as any).__currentSessionId = this.room.sessionId;
+      (window as any).__currentUserId = this.playerData.userId;
     }
 
 
@@ -145,13 +151,89 @@ private isReady: boolean = false;
 
       });
 
-      // console.log("penguin texture size:", entity.width, entity.height);
       this.playerEntities[sessionId] = entity;
 
+      // listen for body color changes
+      $(player).listen("color", (newColor, previousColor) => {
+        console.log(`Body color changed for ${sessionId}: ${previousColor} -> ${newColor}`);
+        const entity = this.playerEntities[sessionId];
+        if (!entity) return;
+
+        // Check if texture exists
+        if (this.textures.exists(newColor)) {
+          entity.setTexture(newColor);
+          console.log(`updated ${sessionId} texture to ${newColor}`);
+        } else {
+          console.warn(`Texture ${newColor} not found for player ${sessionId}`);
+        }
+      });
+
+      if (player.equippedHat) {
+        const hatTexture = `hat-${player.equippedHat}`;
+        console.log(`Creating hat for ${sessionId} with texture: ${hatTexture}`);
+        if (this.textures.exists(hatTexture)) {
+          // Create hat at entity position
+          const hat = this.add.image(entity.x, entity.y - 38, hatTexture).setScale(0.8);
+          this.playerHats[sessionId] = hat;
+        } else {
+          console.warn(`Hat texture ${hatTexture} not found`);
+        }
+      }
+
+      $(player).listen("equippedHat", (value, previousValue) => {
+        console.log(`Hat changed for ${sessionId}: ${previousValue} -> ${value}`);
+        const entity = this.playerEntities[sessionId];
+        if (!entity) return;
+
+        const oldHat = this.playerHats[sessionId];
+        if (oldHat) {
+          oldHat.destroy();
+          delete this.playerHats[sessionId];
+        }
+
+        if (value) {
+          const hatTexture = `hat-${value}`;
+          if (this.textures.exists(hatTexture)) {
+            const hat = this.add.image(entity.x, entity.y - 38, hatTexture).setScale(0.8);
+            this.playerHats[sessionId] = hat;
+          }
+        }
+      });
+
+      if (player.equippedBracelet) {
+        const braceletTexture = `bracelet-${player.equippedBracelet}`;
+        console.log(`Creating bracelet for ${sessionId} with texture: ${braceletTexture}`);
+        if (this.textures.exists(braceletTexture)) {
+          // position bracelet on right fin
+          const bracelet = this.add.image(entity.x + 33, entity.y + 15, braceletTexture).setScale(0.8);
+          this.playerBracelets[sessionId] = bracelet;
+        } else {
+          console.warn(`Bracelet texture ${braceletTexture} not found`);
+        }
+      }
+
+      $(player).listen("equippedBracelet", (value, previousValue) => {
+        console.log(`Bracelet changed for ${sessionId}: ${previousValue} -> ${value}`);
+        const entity = this.playerEntities[sessionId];
+        if (!entity) return;
+
+        const oldBracelet = this.playerBracelets[sessionId];
+        if (oldBracelet) {
+          oldBracelet.destroy();
+          delete this.playerBracelets[sessionId];
+        }
+
+        if (value) {
+          const braceletTexture = `bracelet-${value}`;
+          if (this.textures.exists(braceletTexture)) {
+            const bracelet = this.add.image(entity.x + 33, entity.y + 15, braceletTexture).setScale(0.8);
+            this.playerBracelets[sessionId] = bracelet;
+          }
+        }
+      });
+
       if (sessionId === this.room.sessionId) {
-        // console.log(`      This is MY player`);
-        console.log(`      This is MY player`);
-  this.currentPlayer = entity;
+        this.currentPlayer = entity;
 
       } else {
 
@@ -172,7 +254,6 @@ private isReady: boolean = false;
 
       const entity = this.playerEntities[sessionId];
       if (entity) {
-        // console.log(`    Destroying entity for ${sessionId}`);
         entity.destroy();
         delete this.playerEntities[sessionId];
       }
@@ -181,6 +262,18 @@ private isReady: boolean = false;
       if (nameLabel) {
         nameLabel.destroy();
         delete this.playerNameLabels[sessionId];
+      }
+
+      const hat = this.playerHats[sessionId];
+      if (hat) {
+        hat.destroy();
+        delete this.playerHats[sessionId];
+      }
+
+      const bracelet = this.playerBracelets[sessionId];
+      if (bracelet) {
+        bracelet.destroy();
+        delete this.playerBracelets[sessionId];
       }
 
     });
@@ -275,6 +368,31 @@ private isReady: boolean = false;
     while (this.elapsedTime >= this.fixedTimeStep) {
       this.elapsedTime -= this.fixedTimeStep;
       this.fixedTick(_time, this.fixedTimeStep);
+    }
+
+    for (const sessionId in this.playerEntities) {
+      const entity = this.playerEntities[sessionId];
+
+      // update name label
+      const nameLabel = this.playerNameLabels[sessionId];
+      if (nameLabel && entity) {
+        nameLabel.x = entity.x - nameLabel.width / 2;
+        nameLabel.y = entity.y - 75;
+      }
+
+      // update hat position every frame
+      const hat = this.playerHats[sessionId];
+      if (hat && entity) {
+        hat.x = entity.x;
+        hat.y = entity.y - 39;
+      }
+
+      // update bracelet position every frame
+      const bracelet = this.playerBracelets[sessionId];
+      if (bracelet && entity) {
+        bracelet.x = entity.x + 32;
+        bracelet.y = entity.y + 7;
+      }
     }
   }
 }

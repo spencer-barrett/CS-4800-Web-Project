@@ -7,4 +7,5 @@ export type PlayerData = {
     inventory?: InventoryItem[];
     sessionId?: string;
     userId?: string;
+    equippedCosmetics?: EquippedCosmetics;
 }

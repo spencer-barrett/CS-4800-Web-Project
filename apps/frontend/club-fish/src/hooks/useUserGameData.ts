@@ -8,6 +8,7 @@ import {
   doc,
   onSnapshot,
   onSnapshot as onSnapCollection,
+  getDoc,
 } from "firebase/firestore";
 import type { UseUserGameDataResult } from "@/types/user-game-data";
 import type { SceneKey } from "@/types/user-game-data";
@@ -20,15 +21,16 @@ export function useUserGameData(
   const [loading, setLoading] = useState(true);
   const [initialScene, setInitialScene] = useState<SceneKey | null>(null);
   const [playerData, setPlayerData] = useState<PlayerData | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
       if (!user || onboardingParam) {
         setInitialScene("CharacterCreate");
         setLoading(false);
         return;
       }
 
-      // Fetch user document from Firestore to check character status
       const ref = doc(db, "users", user.uid);
       const inventoryRef = collection(db, "users", user.uid, "inventory");
       const unsubDoc = onSnapshot(
@@ -44,6 +46,7 @@ export function useUserGameData(
             displayName: data.displayName ?? "anonymous",
             currency: data.currency ?? 0,
             userId: user.uid,
+            equippedCosmetics: data.equippedCosmetics || {},
           }));
 
           const hasCharacter = !!data.hasCharacter;
@@ -57,6 +60,10 @@ export function useUserGameData(
           setLoading(false);
         }
       );
+
+
+
+
 
       const unsubInv = onSnapCollection(inventoryRef, (snap) => {
         const items: InventoryItem[] = snap.docs.map((d) => ({
@@ -76,8 +83,39 @@ export function useUserGameData(
       };
     });
 
+
+
     return () => unsub();
   }, [onboardingParam]);
 
-  return { loading, initialScene, playerData, setPlayerData };
+  const refreshPlayerData = async () => {
+    if (!currentUser?.uid) {
+      console.log("No user ID, skipping refresh");
+      return;
+    }
+
+    try {
+      const playerDocRef = doc(db, "users", currentUser.uid);
+      const playerDoc = await getDoc(playerDocRef);
+
+      if (playerDoc.exists()) {
+        const data = playerDoc.data();
+        setPlayerData({
+          userId: currentUser.uid,
+          bodyColor: data.bodyColor || "#60cbfcff",
+          displayName: data.displayName || "anonymous",
+          currency: data.currency || 0,
+          equippedCosmetics: data.equippedCosmetics || {},
+          inventory: playerData?.inventory || [],
+        });
+        console.log("Player data refreshed");
+      }
+    } catch (error) {
+      console.error("Error refreshing player data:", error);
+    }
+  };
+
+  return { loading, initialScene, playerData, setPlayerData, refreshPlayerData };
 }
+
+

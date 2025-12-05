@@ -1,0 +1,74 @@
+import { renderToStaticMarkup } from "react-dom/server";
+import * as React from "react";
+
+type HatProps = {
+  hatColor?: string;
+  size?: number;
+  className?: string;
+};
+
+export function TopHat({ hatColor = "#363436", size = 58, className = "" }: HatProps) {
+  const hatId = `tophat-${Math.random().toString(36).substr(2, 9)}`;
+
+  return (
+    <svg
+      id="Layer_2"
+      data-name="Layer 2"
+      xmlns="http://www.w3.org/2000/svg"
+      width={size + 3.5}
+      height={size -2}
+      viewBox="0 0 153.99 122.84"
+      className={className}
+    >
+      <defs>
+        <style>
+          {`
+            .${hatId}-band {
+              fill: ${hatColor};
+            }
+            .${hatId}-band, .${hatId}-brim, .${hatId}-main {
+              stroke: #231f20;
+              stroke-miterlimit: 10;
+            }
+            .${hatId}-brim {
+              fill: #231f20;
+            }
+            .${hatId}-shadow {
+              fill: #2d2a2b;
+            }
+            .${hatId}-main, .${hatId}-highlight {
+              fill: #231f20;
+            }
+          `}
+        </style>
+      </defs>
+      <g id="Layer_5" data-name="Layer 5">
+        <path
+          className={`${hatId}-brim`}
+          d="M142.59,106.53c9.85-6.8,12.59-15.85,9.96-19.87-2.3-3.53-8.96-3.1-10.46-2.97l-13.76,3.19-55.16,3.52-48.23-4.51c-2.2-.61-16.08-4.32-21.85-.5-.42.28-1.21.82-1.82,1.82-2.24,3.7.87,9.16,2.15,11.39,2.24,3.94,5.31,6.56,7.93,8.26,11.66,5.84,35.42,15.79,66.88,15.47,29.79-.31,52.31-9.68,63.85-15.47l.5-.33Z"
+        />
+        <path
+          className={`${hatId}-brim`}
+          d="M130.2,86.45c-2.07-8.03-3.86-17.71-4.51-28.74-1.13-19.06,1.29-35.19,4.25-46.74-13.84-3.33-31.9-6.32-53.51-6.32s-39.68,3.22-53.53,6.55c3.31,11.3,6.4,27.96,4.66,48.16-.86,9.96-2.77,18.66-4.92,25.86l107.56,1.23Z"
+        />
+        <path
+          className={`${hatId}-band`}
+          d="M127.84,76.57c-.11,5.44,4.38,14.22,4.31,19.88-10.62,4.61-32.48,12.01-56.33,11.9-23.2-.11-41.31-6.33-51.82-10.9-.71-.31-4.49-2.2-4.27-2.94,1.3-6,4.96-13.89,5.41-19.01,12.11,3.63,30.69,8.25,51.79,8.31,20.83.06,38.86-3.73,50.92-7.22Z"
+        />
+        <ellipse className={`${hatId}-main`} cx="76.42" cy="11.34" rx="53.78" ry="10.84" />
+        <path
+          className={`${hatId}-highlight`}
+          d="M25.13,75.49c3.22-4.7,6.50-10.21,9.52-16.54,6.99-14.67,9.91-28.34,11.16-38.69-4.37-.44-9.54-1.37-15.16-3.22-2.50-.83-4.79-1.74-6.87-2.68,2.09,8.02,4.05,18.64,4.26,31.18.20,11.91-1.23,22.1-2.91,29.95Z"
+        />
+        <path
+          className={`${hatId}-shadow`}
+          d="M62.18,83.04c10.59-4.93,27.48-14.46,43.17-31.88,12.63-14.03,19.89-28.07,24.02-37.91-12.88,4.41-30.81,8.87-52.42,9.28-11.76.22-22.26-.8-31.14-2.27-1.17,8.81-3.58,20.17-8.71,32.66-3.73,9.07-8.01,16.60-11.97,22.58,4.50,1.59,9.57,3.12,15.16,4.40,8.08,1.84,15.48,2.75,21.89,3.15Z"
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function renderTopHatSVG(hatColor: string | undefined) {
+  return renderToStaticMarkup(<TopHat hatColor={hatColor} />);
+}

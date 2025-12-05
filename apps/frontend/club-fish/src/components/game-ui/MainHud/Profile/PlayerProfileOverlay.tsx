@@ -1,8 +1,14 @@
 import { CharacterForward } from "@/components/svg/char-forward";
 import { Button } from "@/components/ui/button";
 import { usePlayer } from "@/context/playerContext";
-import { Users, Send } from "lucide-react";
+import { Users } from "lucide-react";
 import { sendFriendRequest } from "@/lib/friends/friendService";
+import { BaseballHat } from "@/components/svg/baseball-hat";
+import { TopHat } from "@/components/svg/top-hat";
+import { getHatColorFromId, getHatVariantFromId } from "@/lib/cosmetics/cosmeticHelpers";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase/clientApp";
 
 type PlayerProfileOverlayProps = {
   sessionId: string;
@@ -21,25 +27,48 @@ export default function PlayerProfileOverlay({
 }: PlayerProfileOverlayProps) {
   const bodyColor = playerBodyColor.substring(5);
   const { playerData } = usePlayer();
+  const [equippedHat, setEquippedHat] = useState<string | null>(null);
 
-  // const handleJoinTheirRoom = () => {
-  //   const game = window.PhaserGame;
+  useEffect(() => {
+    const fetchPlayerCosmetics = async () => {
+      try {
+        const playerDoc = await getDoc(doc(db, "users", userId));
+        if (playerDoc.exists()) {
+          const data = playerDoc.data();
+          setEquippedHat(data?.equippedCosmetics?.hat || null);
+        }
+      } catch (error) {
+        console.error("Error fetching player cosmetics:", error);
+      }
+    };
 
-  //   if (game) {
-  //     game.scene.stop("MainScene");
-  //     game.scene.start("PrivateScene", { playerData, targetSessionId: userId });
-  //   }
-  //   onClose();
-  // };
+    fetchPlayerCosmetics();
+  }, [userId]);
+
+  const renderHatPreview = (itemId: string, size: number = 85) => {
+    const variant = getHatVariantFromId(itemId);
+    const color = getHatColorFromId(itemId);
+
+    switch (variant) {
+      case 'tophat':
+        return <TopHat hatColor={color} size={size} />;
+      case 'baseball':
+        return <BaseballHat hatColor={color} size={size} />;
+      case 'cowboy':
+        return <BaseballHat hatColor={color} size={size} />;
+      default:
+        return <BaseballHat hatColor={color} size={size} />;
+    }
+  };
 
   const handleSendFriendRequest = async () => {
-     if (!playerData?.userId || !playerData?.displayName) return;
+    if (!playerData?.userId || !playerData?.displayName) return;
 
-     const result = await sendFriendRequest(
-    playerData.userId,
-    playerData.displayName,
-    userId
-  );
+    const result = await sendFriendRequest(
+      playerData.userId,
+      playerData.displayName,
+      userId
+    );
 
     if (result.success) {
       console.log("Friend request sent!");
@@ -82,24 +111,23 @@ export default function PlayerProfileOverlay({
                 <h2 className="font-[800]">{playerDisplayName}</h2>
               </div>
 
-              <div className="flex flex-1 w-full rounded-xl items-center justify-center bg-gradient-to-b from-[#1B746C] to-[#17645C]">
+              <div className="flex flex-1 w-full rounded-xl items-center justify-center bg-gradient-to-b from-[#1B746C] to-[#17645C] relative">
                 <CharacterForward bodyColor={bodyColor} size={175} />
+                {equippedHat && (
+                  <div className="absolute" style={{ top: '-1%', left: '50%', transform: 'translateX(-50%)' }}>
+                    {renderHatPreview(equippedHat, 100)}
+                  </div>
+                )}
               </div>
 
               <div className="flex w-full items-center justify-center py-2 shrink-0">
                 <div className="flex gap-2">
-                  <Button className="!rounded-full hud-frame p-2 bg-[#0c2d30] shadow-sm  cursor-pointer hover:bg-[#144D52] text-white !h-10 !w-10"
+                  <Button
+                    className="!rounded-full hud-frame p-2 bg-[#0c2d30] shadow-sm cursor-pointer hover:bg-[#144D52] text-white !h-10 !w-10"
                     onClick={handleSendFriendRequest}
                   >
                     <Users size={16} />
                   </Button>
-                  {/* <Button
-                    className="!rounded-full hud-frame p-2 bg-[#0c2d30] shadow-sm  cursor-pointer hover:bg-[#144D52] text-white !h-10 !w-10"
-                    onClick={handleJoinTheirRoom}
-                  >
-                    {" "}
-                    <Send size={16} />
-                  </Button> */}
                 </div>
               </div>
             </div>

@@ -21,6 +21,14 @@ export class PrivateScene extends Phaser.Scene {
     [sessionId: string]: Phaser.GameObjects.Text;
   } = {};
 
+  playerHats: {
+    [sessionId: string]: Phaser.GameObjects.Image;
+  } = {};
+
+  playerBracelets: {
+    [sessionId: string]: Phaser.GameObjects.Image;
+  } = {};
+
   myId = "";
   private room!: MainRoom;
   fish!: Phaser.GameObjects.Image;
@@ -47,6 +55,9 @@ export class PrivateScene extends Phaser.Scene {
     targetSessionId?: string;
   }) {
     this.playerEntities = {};
+    this.playerNameLabels = {};
+    this.playerHats = {};
+    this.playerBracelets = {};
 
     console.log("PrivateScene: init", data.targetSessionId);
     this.playerData = data.playerData;
@@ -62,15 +73,13 @@ export class PrivateScene extends Phaser.Scene {
   }
 
   async create() {
-    this.physics.world.createDebugGraphic();
-    this.physics.world.drawDebug = true;
 
 
     if (!this.room) {
       // Join or create room based on target session ID
       this.room = await networkManager.joinPrivateRoomByUserId(
         this.playerData,
-        this.targetSessionId! // Use the provided session ID as room code
+        this.targetSessionId!
       );
 
     }
@@ -100,6 +109,14 @@ export class PrivateScene extends Phaser.Scene {
         Object.values(this.playerNameLabels).forEach((label) => {
           if (label && !label.scene) return;
           label.destroy();
+        });
+        Object.values(this.playerHats).forEach((hat) => {
+          if (hat && !hat.scene) return;
+          hat.destroy();
+        });
+        Object.values(this.playerBracelets).forEach((bracelet) => {
+          if (bracelet && !bracelet.scene) return;
+          bracelet.destroy();
         });
 
         if (this.room.connection.isOpen) {
@@ -171,18 +188,92 @@ export class PrivateScene extends Phaser.Scene {
 
       this.playerEntities[sessionId] = entity;
 
+      $(player).listen("color", (newColor, previousColor) => {
+        console.log(`[PrivateScene] Body color changed for ${sessionId}: ${previousColor} -> ${newColor}`);
+        const entity = this.playerEntities[sessionId];
+        if (!entity) {
+          console.warn(`[PrivateScene] Entity not found for ${sessionId}`);
+          return;
+        }
+
+        if (this.textures.exists(newColor)) {
+          entity.setTexture(newColor);
+          console.log(`[PrivateScene] Updated ${sessionId} texture to ${newColor}`);
+        } else {
+          console.warn(`[PrivateScene] Texture ${newColor} not found for player ${sessionId}`);
+        }
+      });
+
+      if (player.equippedHat) {
+        const hatTexture = `hat-${player.equippedHat}`;
+        console.log(`Creating hat for ${sessionId} with texture: ${hatTexture}`);
+        if (this.textures.exists(hatTexture)) {
+          const hat = this.add.image(entity.x, entity.y - 39, hatTexture).setScale(0.8);
+          this.playerHats[sessionId] = hat;
+        } else {
+          console.warn(`Hat texture ${hatTexture} not found`);
+        }
+      }
+
+      $(player).listen("equippedHat", (value, previousValue) => {
+        console.log(`Hat changed for ${sessionId}: ${previousValue} -> ${value}`);
+        const entity = this.playerEntities[sessionId];
+        if (!entity) return;
+
+        // remove old hat
+        const oldHat = this.playerHats[sessionId];
+        if (oldHat) {
+          oldHat.destroy();
+          delete this.playerHats[sessionId];
+        }
+
+        // add new hat
+        if (value) {
+          const hatTexture = `hat-${value}`;
+          if (this.textures.exists(hatTexture)) {
+            const hat = this.add.image(entity.x, entity.y - 39, hatTexture).setScale(0.8);
+            this.playerHats[sessionId] = hat;
+          }
+        }
+      });
+
+      // add bracelet rendering
+      if (player.equippedBracelet) {
+        const braceletTexture = `bracelet-${player.equippedBracelet}`;
+        console.log(`Creating bracelet for ${sessionId} with texture: ${braceletTexture}`);
+        if (this.textures.exists(braceletTexture)) {
+          const bracelet = this.add.image(entity.x + 32, entity.y + 7, braceletTexture).setScale(0.8);
+          this.playerBracelets[sessionId] = bracelet;
+        } else {
+          console.warn(`Bracelet texture ${braceletTexture} not found`);
+        }
+      }
+
+      $(player).listen("equippedBracelet", (value, previousValue) => {
+        console.log(`Bracelet changed for ${sessionId}: ${previousValue} -> ${value}`);
+        const entity = this.playerEntities[sessionId];
+        if (!entity) return;
+
+        // remove old bracelet
+        const oldBracelet = this.playerBracelets[sessionId];
+        if (oldBracelet) {
+          oldBracelet.destroy();
+          delete this.playerBracelets[sessionId];
+        }
+
+        // add new bracelet
+        if (value) {
+          const braceletTexture = `bracelet-${value}`;
+          if (this.textures.exists(braceletTexture)) {
+            const bracelet = this.add.image(entity.x + 32, entity.y + 7, braceletTexture).setScale(0.8);
+            this.playerBracelets[sessionId] = bracelet;
+          }
+        }
+      });
+
       if (sessionId === this.room.sessionId) {
         console.log(`      This is MY player`);
         this.currentPlayer = entity;
-
-        // SET MOVEMENT BOUNDS HERE
-
-
-
-        // const worldBoundsGraphic = this.add.graphics();
-        // worldBoundsGraphic.lineStyle(3, 0x00ff00, 1); 
-        // worldBoundsGraphic.strokeRect(offsetX, offsetY, boundWidth, boundHeight);
-
 
         this.physics.world.setBounds(offsetX, offsetY, boundWidth, boundHeight);
         entity.setCollideWorldBounds(true);
@@ -230,13 +321,26 @@ export class PrivateScene extends Phaser.Scene {
         delete this.playerNameLabels[sessionId];
       }
 
+      // destroy hat
+      const hat = this.playerHats[sessionId];
+      if (hat) {
+        hat.destroy();
+        delete this.playerHats[sessionId];
+      }
+
+      // destroy bracelet
+      const bracelet = this.playerBracelets[sessionId];
+      if (bracelet) {
+        bracelet.destroy();
+        delete this.playerBracelets[sessionId];
+      }
+
       console.log(`   Remaining players:`, Object.keys(this.playerEntities));
     });
 
     this.input.on(
       "pointerup",
       (pointer: Pointer, gameObjects: Phaser.GameObjects.GameObject[]) => {
-        // If pointer was over any interactive object, skip movement
         console.log("pointerup overlay flag:", (window as any).__overlayOpen);
         if ((window as any).__overlayOpen) return;
         if (gameObjects.length > 0) return;
@@ -285,7 +389,6 @@ export class PrivateScene extends Phaser.Scene {
     );
 
     if (this.isMoving) {
-      // Send position update every frame while moving
       this.inputPayload.x = this.currentPlayer.x;
       this.inputPayload.y = this.currentPlayer.y;
       this.inputPayload.tick = this.currentTick;
@@ -319,7 +422,6 @@ export class PrivateScene extends Phaser.Scene {
       const nameLabel = this.playerNameLabels[sessionId];
 
       if (entity && nameLabel) {
-        // Position the name above the player
         nameLabel.x = entity.x - nameLabel.width / 2;
         nameLabel.y = entity.y - 75;
       }
@@ -336,6 +438,28 @@ export class PrivateScene extends Phaser.Scene {
     while (this.elapsedTime >= this.fixedTimeStep) {
       this.elapsedTime -= this.fixedTimeStep;
       this.fixedTick(_time, this.fixedTimeStep);
+    }
+
+    for (const sessionId in this.playerEntities) {
+      const entity = this.playerEntities[sessionId];
+
+      const nameLabel = this.playerNameLabels[sessionId];
+      if (nameLabel && entity) {
+        nameLabel.x = entity.x - nameLabel.width / 2;
+        nameLabel.y = entity.y - 75;
+      }
+
+      const hat = this.playerHats[sessionId];
+      if (hat && entity) {
+        hat.x = entity.x;
+        hat.y = entity.y - 39;
+      }
+
+      const bracelet = this.playerBracelets[sessionId];
+      if (bracelet && entity) {
+        bracelet.x = entity.x + 32;
+        bracelet.y = entity.y + 7;
+      }
     }
   }
 }
