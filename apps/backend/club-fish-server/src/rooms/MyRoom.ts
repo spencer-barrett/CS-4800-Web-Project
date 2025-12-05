@@ -6,7 +6,7 @@ export class MyRoom extends Room<MyRoomState> {
   fixedTimeStep = 1000 / 60;
 
   onCreate(options: any) {
-    this.maxClients = options.size ?? 4;
+    this.maxClients = options.size ?? 30;
 
     // Persistent chat
     this.onMessage("chat", (client, message: { text: string; sender: string }) => {
