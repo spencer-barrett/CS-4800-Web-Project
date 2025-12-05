@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Accordion,
   AccordionContent,
@@ -14,10 +13,10 @@ export default function FAQ() {
         <h1 className="text-4xl font-bold text-white text-center mb-8">
           Frequently Asked Questions
         </h1>
-
+        
         <Accordion type="single" collapsible className="w-full space-y-4">
-          <AccordionItem
-            value="item-1"
+          <AccordionItem 
+            value="item-1" 
             className="bg-[#1B746C] border border-[#27A59B] rounded-lg px-6"
           >
             <AccordionTrigger className="text-white hover:text-[#27A59B] text-lg font-semibold hover:no-underline">
@@ -31,8 +30,8 @@ export default function FAQ() {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem
-            value="item-2"
+          <AccordionItem 
+            value="item-2" 
             className="bg-[#1B746C] border border-[#27A59B] rounded-lg px-6"
           >
             <AccordionTrigger className="text-white hover:text-[#27A59B] text-lg font-semibold hover:no-underline">
@@ -41,13 +40,13 @@ export default function FAQ() {
             <AccordionContent className="text-gray-200 text-base">
               Visit the Shop to browse cosmetics like hats, bracelets, and body
               colors. Purchase items with coins you earn from playing minigames,
-              then equip them from your inventory to customize your fish's
+              then equip them from your inventory to customize your fish&apos;s
               appearance!
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem
-            value="item-3"
+          <AccordionItem 
+            value="item-3" 
             className="bg-[#1B746C] border border-[#27A59B] rounded-lg px-6"
           >
             <AccordionTrigger className="text-white hover:text-[#27A59B] text-lg font-semibold hover:no-underline">
@@ -56,12 +55,12 @@ export default function FAQ() {
             <AccordionContent className="text-gray-200 text-base">
               Yes! Add friends through the Friends menu, send them direct
               messages, and create private rooms where only you and your friends
-              can hang out. You can also visit your friends' decorated bowls!
+              can hang out. You can also visit your friends&apos; decorated bowls!
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem
-            value="item-4"
+          <AccordionItem 
+            value="item-4" 
             className="bg-[#1B746C] border border-[#27A59B] rounded-lg px-6"
           >
             <AccordionTrigger className="text-white hover:text-[#27A59B] text-lg font-semibold hover:no-underline">
@@ -74,8 +73,8 @@ export default function FAQ() {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem
-            value="item-5"
+          <AccordionItem 
+            value="item-5" 
             className="bg-[#1B746C] border border-[#27A59B] rounded-lg px-6"
           >
             <AccordionTrigger className="text-white hover:text-[#27A59B] text-lg font-semibold hover:no-underline">

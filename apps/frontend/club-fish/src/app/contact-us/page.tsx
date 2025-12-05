@@ -24,10 +24,9 @@ export default function Contact() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    alert(
-      "Message Sent!\n\nThanks for reaching out! We'll swim back to you soon."
-    );
-
+    alert("Message Sent!\n\nThanks for reaching out! We'll swim back to you soon.");
+    
+  
     setFormData({
       name: "",
       email: "",
@@ -46,23 +45,20 @@ export default function Contact() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start bg-gradient-to-b from-[#0f403c] to-[#1B746C]">
+    <div className="flex flex-col items-center justify-start sm:h-[calc(100vh-72px)] h-[calc(100vh-60px)] bg-gradient-to-b from-[#0f403c] to-[#1B746C] overflow-y-auto">
       <div className="w-full max-w-2xl px-6 py-12">
         <h1 className="text-4xl font-bold text-white text-center mb-2">
           Contact Us
         </h1>
         <p className="text-gray-200 text-center mb-8">
-          Have questions or feedback? We'd love to hear from you!
+          Have questions or feedback? We&apos;d love to hear from you!
         </p>
 
         <Card className="bg-[#1B746C] border-2 border-[#27A59B]">
           <CardHeader>
-            <CardTitle className="text-white text-2xl">
-              Send us a message
-            </CardTitle>
+            <CardTitle className="text-white text-2xl">Send us a message</CardTitle>
             <CardDescription className="text-gray-300">
-              Fill out the form below and we'll get back to you as soon as
-              possible.
+              Fill out the form below and we&apos;ll get back to you as soon as possible.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -107,7 +103,7 @@ export default function Contact() {
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
-                  placeholder="What's this about?"
+                  placeholder="What&apos;s this about?"
                   required
                   className="bg-[#0f403c] border-[#27A59B] text-white placeholder:text-gray-400 focus:border-[#27A59B] focus:ring-[#27A59B]"
                 />
@@ -122,7 +118,7 @@ export default function Contact() {
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  placeholder="Tell us what's on your mind..."
+                  placeholder="Tell us what&apos;s on your mind..."
                   required
                   rows={6}
                   className="bg-[#0f403c] border-[#27A59B] text-white placeholder:text-gray-400 focus:border-[#27A59B] focus:ring-[#27A59B] resize-none"
@@ -138,9 +134,14 @@ export default function Contact() {
             </form>
           </CardContent>
         </Card>
+
         <div className="mt-8 text-center space-y-2">
-          <p className="text-gray-300 text-sm">You can also reach us at:</p>
-          <p className="text-white font-semibold">support@clubfish.com</p>
+          <p className="text-gray-300 text-sm">
+            You can also reach us at:
+          </p>
+          <p className="text-white font-semibold">
+            support@clubfish.com
+          </p>
         </div>
       </div>
     </div>
