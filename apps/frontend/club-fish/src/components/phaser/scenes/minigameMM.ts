@@ -181,7 +181,7 @@ export class minigameMM extends Phaser.Scene {
         ];
 
         // duplicate each card to create pairs
-        let cardsPool = [...cardTypes, ...cardTypes]; // 16 total
+        const cardsPool = [...cardTypes, ...cardTypes]; // 16 total
 
         // shuffle the array
         for (let i = cardsPool.length - 1; i > 0; i--) {
@@ -223,7 +223,7 @@ export class minigameMM extends Phaser.Scene {
     async update(){
         if (this.pairsLeft == 0) {//stop timer and perform win actions (timer stopped by making the update the else condition)
             //win scene
-            let rewardCalc = Math.floor(this.initialTime / 3) + 3;
+            const rewardCalc = Math.floor(this.initialTime / 3) + 3;
             this.timerEvent.destroy(); // Stop the timer
             this.timerText?.destroy();
             this.timerBar.destroy();

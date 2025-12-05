@@ -6,11 +6,12 @@ import { auth } from "@/lib/firebase/clientApp";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import CharacterCreateOverlay from "@/components/game-ui/CharacterCreateOverlay";
+import CharacterCreateOverlay from "@/components/game-ui/CharacterCreation/CharacterCreateOverlay";
 import { PlayerProvider, usePlayer } from "@/context/playerContext";
 import MainHudOverlay from "@/components/game-ui/MainHud/MainHudOverlay";
 import LoadingOverlay from "@/components/loading/LoadingOverlay";
 import { networkManager } from "@/lib/colyseus/networkController";
+import PrivateRoomOverlay from "@/components/game-ui/PrivateRoom/PrivateRoomOverlay";
 
 // import PhaserCanvas to prevent SSR issues with Phaser
 const PhaserCanvas = dynamic(() => import("@/components/phaser/PhaserCanvas"), {
@@ -25,21 +26,21 @@ function GameRenderer() {
 * Sign out handler that logs the user out of Firebase authentication
 */
   const handleSignOut = async () => {
-  try {
-    await networkManager.leaveMainRoom();
-    await networkManager.leavePrivateRoom();
-    await networkManager.leaveNonMainRoom();
-    
-    if (window.PhaserGame) {
-      window.PhaserGame.destroy(true);
-      window.PhaserGame = undefined;
+    try {
+      await networkManager.leaveMainRoom();
+      await networkManager.leavePrivateRoom();
+      await networkManager.leaveNonMainRoom();
+
+      if (window.PhaserGame) {
+        window.PhaserGame.destroy(true);
+        window.PhaserGame = undefined;
+      }
+
+      await auth.signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
     }
-    
-    await auth.signOut();
-  } catch (error) {
-    console.error("Error signing out:", error);
-  }
-};
+  };
 
   /**
    * Memoized overlay renderer component that displays the appropriate UI
@@ -52,7 +53,13 @@ function GameRenderer() {
         console.log("OverlayRenderer sceneKey:", sceneKey);
         if (sceneKey === "CharacterCreate") return <CharacterCreateOverlay game={game} />;
         if (sceneKey === "LoadingScene") return <LoadingOverlay />;
-        if (sceneKey === "MainScene" || sceneKey === "PrivateScene" || sceneKey === "memoryMatch") return <MainHudOverlay />;
+        if (sceneKey === "MainScene" || sceneKey === "memoryMatch") return <MainHudOverlay />;
+        if (sceneKey === "PrivateScene") {
+          return <>
+            <MainHudOverlay />
+            <PrivateRoomOverlay game={game} />
+          </>
+        }
         return null;
       };
       Component.displayName = "OverlayRenderer";
