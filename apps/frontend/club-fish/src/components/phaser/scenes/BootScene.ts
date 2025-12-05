@@ -33,6 +33,9 @@ export class BootScene extends Phaser.Scene {
 
     //private room
     this.load.image("fishtank", "/assets/fishtank.png");
+
+    //music
+    this.load.audio("main-theme", "/audio/beach_BK.mp3");
   }
 
   async create(data: { targetScene?: string; playerData: PlayerData | null }) {
