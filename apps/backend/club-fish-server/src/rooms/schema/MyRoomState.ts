@@ -14,6 +14,8 @@ export class Player extends Schema {
   @type("number") tick: number;
   @type("number") currency: number;
   @type("string") userId: string;
+  @type("string") equippedHat: string = "";
+  @type("string") equippedBracelet: string = ""; 
   inputQueue: InputData[] = [];
 }
 export class MyRoomState extends Schema {

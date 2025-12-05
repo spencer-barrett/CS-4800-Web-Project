@@ -26,22 +26,18 @@ export default function MainHudOverlay() {
   useEffect(() => {
     const isAnyOverlayOpen = openSelfProfile || openOtherProfile;
     (window as any).__overlayOpen = isAnyOverlayOpen;
-    console.log("Overlay flag:", isAnyOverlayOpen);
   }, [openSelfProfile, openOtherProfile]);
 
-  // listen for phaser events
   useEffect(() => {
     window.onPhaserPlayerClick = (payload) => {
       const myId = playerData?.userId;
 
       if (payload.userId === myId) {
-        // clicked yourself
         setOpenOtherProfile(false);
         setOpenSelfProfile(true);
         return;
       }
 
-      // clicked someone else
       setSelectedPlayer({
         sessionId: payload.sessionId,
         userId: payload.userId,

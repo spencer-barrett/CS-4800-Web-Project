@@ -1,7 +1,9 @@
 export type InventoryItem = {
-  id: string;          
-  itemId: string;     
-  itemPrice: number;   
+  id: string;
+  itemId: string;
   name: string;
-  acquiredAt: Date | string | number;
+  itemPrice?: number;
+  acquiredAt?: any; 
+  category?: 'hat' | 'color' | 'bracelet';
+  colorHex?: string; 
 };

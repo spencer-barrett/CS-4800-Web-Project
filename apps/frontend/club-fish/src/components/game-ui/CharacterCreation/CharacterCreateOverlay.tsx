@@ -1,26 +1,54 @@
 "use client";
 import { useState } from "react";
-import { CharacterForward } from "../svg/char-forward";
-import { Button } from "../ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
+import { CharacterForward } from "../../svg/char-forward";
+import { Button } from "../../ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "../../ui/card";
 import { db, auth } from "@/lib/firebase/clientApp";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-
 
 export default function CharacterCreateOverlay({ game }: { game: Phaser.Game | null }) {
     const [bodyColor, setBodyColor] = useState("#fcb360ff");
     const router = useRouter();
 
+    const getColorInfo = (color: string) => {
+        const colorMap: Record<string, { itemId: string; name: string }> = {
+            "#fcb360ff": { itemId: "colors-orange", name: "Orange Fish" },
+            "#60cbfcff": { itemId: "colors-blue", name: "Blue Fish" },
+            "#60fc75ff": { itemId: "colors-green", name: "Green Fish" },
+            "#FBEC5D": { itemId: "colors-yellow", name: "Yellow Fish" },
+        };
+        return colorMap[color] || { itemId: "colors-orange", name: "Orange Fish" };
+    };
+
     const updateColor = async () => {
         if (!auth.currentUser) return;
         const userRef = doc(db, "users", auth.currentUser.uid);
+
         try {
-            console.log("here")
-            await updateDoc(userRef, { "bodyColor": bodyColor, hasCharacter: true });
+            console.log("Creating character with color:", bodyColor);
+
+            await updateDoc(userRef, {
+                bodyColor: bodyColor,
+                hasCharacter: true
+            });
+
+            const colorInfo = getColorInfo(bodyColor);
+            const inventoryRef = collection(db, "users", auth.currentUser.uid, "inventory");
+
+            await addDoc(inventoryRef, {
+                itemId: colorInfo.itemId,
+                name: colorInfo.name,
+                category: "color",
+                colorHex: bodyColor,
+                itemPrice: 0,
+                acquiredAt: serverTimestamp(),
+            });
+
+
             router.replace("/play");
         } catch (e) {
-            console.error("Failed to update color", e);
+            console.error("Failed to create character", e);
         }
     }
 
@@ -32,8 +60,7 @@ export default function CharacterCreateOverlay({ game }: { game: Phaser.Game | n
                 </CardHeader>
                 <CardContent className="flex flex-col w-full grow">
                     <div className="flex flex-col bg-[#d6d6d6] grow items-center justify-center w-full">
-                        <CharacterForward bodyColor={bodyColor} size={300}/>
-
+                        <CharacterForward bodyColor={bodyColor} size={300} />
                     </div>
                     <div className="mt-4 flex flex-col">
                         <div className="grid grid-cols-2 gap-3 mb-2">
@@ -48,7 +75,6 @@ export default function CharacterCreateOverlay({ game }: { game: Phaser.Game | n
                     </div>
                 </CardContent>
             </Card>
-
         </div>
     );
 }

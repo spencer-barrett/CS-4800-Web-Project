@@ -10,6 +10,7 @@ type PlayerContextValue = {
   initialScene: SceneKey | null;
   playerData: PlayerData | null;
   setPlayerData: React.Dispatch<React.SetStateAction<PlayerData | null>>;
+  refreshPlayerData?: () => Promise<void>;
 };
 
 const PlayerContext = createContext<PlayerContextValue | undefined>(undefined);
@@ -21,12 +22,12 @@ export function PlayerProvider({
   children: ReactNode;
   onboardingParam?: string | null;
 }) {
-  const { loading, initialScene, playerData, setPlayerData } =
+  const { loading, initialScene, playerData, setPlayerData, refreshPlayerData } =
     useUserGameData(onboardingParam);
 
   return (
     <PlayerContext.Provider
-      value={{ loading, initialScene, playerData, setPlayerData }}
+      value={{ loading, initialScene, playerData, setPlayerData, refreshPlayerData }}
     >
       {children}
     </PlayerContext.Provider>

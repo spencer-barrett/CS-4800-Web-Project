@@ -72,11 +72,11 @@ export class minigameRPS extends Phaser.Scene {
         
 
         //create playing cards
-        this.claw = this.add.sprite(width*0.3, height*0.5, 'claw').setScale(0.15).setInteractive()
+        this.claw = this.add.sprite(width*0.3, height*0.5, 'claw').setScale(0.25).setInteractive()
 
-        this.kelp = this.add.sprite(width*0.5, height*0.5, 'kelp').setScale(0.15).setInteractive()
+        this.kelp = this.add.sprite(width*0.5, height*0.5, 'kelp').setScale(0.25).setInteractive()
 
-        this.coral = this.add.sprite(width*0.7, height*0.5, 'coral').setScale(0.19).setInteractive()
+        this.coral = this.add.sprite(width*0.7, height*0.5, 'coral').setScale(0.25).setInteractive()
 
         const originalPosY = this.claw.y
 
@@ -85,7 +85,7 @@ export class minigameRPS extends Phaser.Scene {
         this.timerText = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.05, `${this.initialTime}`, {
 			fontSize: '32px',
 			color: '#ffffffff'
-		})
+		}).setShadow(2, 2, '#000000', 4, true, true);
         this.timerText.setOrigin(0.5,0.5)
         this.timerEvent = this.time.addEvent({
                 delay: 1000, // 1 second
@@ -98,7 +98,7 @@ export class minigameRPS extends Phaser.Scene {
         this.playerSelection = this.add.text((this.cameras.main.worldView.x + this.cameras.main.width / 2), height*0.85, "Select A Card!", {
 			fontSize: '32px',
 			color: '#ffffffff'
-		})
+		}).setShadow(2, 2, '#000000', 4, true, true);
         this.playerSelection.setOrigin(0.5,0.5)
 
 

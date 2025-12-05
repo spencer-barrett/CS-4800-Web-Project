@@ -17,6 +17,7 @@ import { ComponentType, useEffect, useState } from "react";
 import ShopOverlay from "./Shop/ShopOverlay";
 import ProfileOverlay from "./Profile/ProfileOverlay";
 import { usePlayer } from "@/context/playerContext";
+import FriendsList from "./Friends/FriendsList";
 
 type MenuBarProps = {
   showMessage?: boolean;
@@ -42,7 +43,28 @@ const goToBattle = () => {
     const game = (window as any).PhaserGame;
     if (!game) return;
 
+    // Leave MainScene room if active
+    const main = game.scene.getScene("MainScene");
+    if (main?.room) {
+      console.log("Leaving MainRoom before RPS minigame");
+      main.room.leave();
+      (window as any).networkManager?.clearMainRoom?.();
+      main.room = undefined;
+    }
+
+    // Leave PrivateScene room if minigame is launched from there
+    const priv = game.scene.getScene("PrivateScene");
+    if (priv?.room) {
+      console.log("Leaving PrivateRoom before RPS minigame");
+      priv.room.leave();
+      (window as any).networkManager?.clearPrivateRoom?.();
+      priv.room = undefined;
+    }
+
+    // Stop whichever is running
     game.scene.stop("MainScene");
+    game.scene.stop("PrivateScene");
+
     game.scene.start("rps-helper");  
   };
 
@@ -55,44 +77,126 @@ const BUTTONS: ButtonConfig[] = [
   { key: "menu", label: "Settings", Icon: Settings },
 ];
 
-const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
+let toggleCounter = 0;
+const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
+  const showMemoryMatch = toggleCounter % 2 === 0;
+
+
+  const goToMemoryMatch = () => {
+    const game = (window as any).PhaserGame;
+    if (!game) return;
+
+    // --- DISCONNECT FROM CURRENT ROOM ---
+    const main = game.scene.getScene("MainScene");
+    const privateScene = game.scene.getScene("PrivateScene");
+
+    // Main room
+    if (main?.room) {
+      console.log("Leaving MainRoom");
+      main.room.leave();
+      (window as any).networkManager?.clearMainRoom?.();
+      main.room = undefined;
+    }
+
+    // Private room
+    if (privateScene?.room) {
+      console.log("Leaving PrivateRoom");
+      privateScene.room.leave();
+      (window as any).networkManager?.clearPrivateRoom?.();
+      privateScene.room = undefined;
+    }
   
-  <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
-    <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
-    <p className="text-sm opacity-80 mb-4">Minigames coming soon.</p>
-    <div className="flex gap-2">
-            <Button onClick={() => {goToBattle(); onClose();}}>Battle</Button>
-      <Button onClick={onClose}>Close</Button>
+
+    game.scene.stop("MainScene");
+    game.scene.stop("PrivateScene")
+    game.scene.start("memoryMatch");
+    toggleCounter += 1;
+    //game.scene.pause("MainScene");
+  }
+  const goToLobby = () => {
+    const game = (window as any).PhaserGame;
+    if (!game) return;
+
+    game.scene.stop("memoryMatch");
+    game.scene.start("MainScene");
+    toggleCounter += 1;
+  }
+
+  return (
+    <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
+      <h2 className="mb-3 text-xl font-bold">MiniGames</h2>
+      <p className="text-sm opacity-80 mb-4">
+        Play a fish themed game of Rock Paper Scissors with a friend or foe, or a game of Memory Match solo!
+      </p>
+      <div className="flex gap-2">
+        <Button onClick={goToBattle}>Battle</Button>
+        <div>
+          {showMemoryMatch ? (
+            <Button onClick={goToMemoryMatch}>Memory</Button>
+          ) : (
+            <Button onClick={goToLobby}>Return</Button>
+          )}
+        </div>
+        <Button onClick={onClose}>Close</Button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
   const { playerData } = usePlayer();
   const userId = playerData?.userId;
+
+  // Track the owner of the bowl we're currently in
+  const [bowlOwnerId, setBowlOwnerId] = useState<string | null>(
+    (window as any).__bowlOwnerId || null
+  );
+
+  // Only show decorate if the player is the owner
+  const isOwner = bowlOwnerId === userId;
 
   const handleJoinMyOwnRoom = () => {
     if (!userId) {
       console.error("User ID not found!");
       return;
     }
-    const game = window.PhaserGame;
 
-    if (game) {
-      game.scene.stop("MainScene");
-      game.scene.start("PrivateScene", { playerData, targetSessionId: userId });
-    }
-    onClose();
+    const game = window.PhaserGame;
+    if (!game) return;
+
+    // Set global bowl owner
+    (window as any).__bowlOwnerId = userId;
+    setBowlOwnerId(userId);
+
+    // Start PrivateScene
+    game.scene.stop("MainScene");
+    game.scene.start("LoadingScene", {
+      targetScene: "PrivateScene",
+      targetData: { playerData, targetSessionId: userId },
+    });
   };
 
   const handleReturnToMain = () => {
     const game = window.PhaserGame;
+    if (!game) return;
 
-    if (game) {
-      game.scene.stop("PrivateScene");
-      game.scene.start("MainScene", { playerData });
-    }
-    onClose();
+    // Clear global bowl owner
+    (window as any).__bowlOwnerId = null;
+    setBowlOwnerId(null);
+
+    // Go back to MainScene
+    game.scene.stop("PrivateScene");
+    game.scene.start("LoadingScene", {
+      targetScene: "MainScene",
+      targetData: { playerData, targetSessionId: userId },
+    });
+
+    onClose(); // Close overlay
+  };
+
+  const handleDecorate = () => {
+    console.log("Entering decorate mode...");
+    // TODO: Add decorate logic here
   };
 
   return (
@@ -102,13 +206,70 @@ const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
         Create your own private room for others to join
       </p>
       <div className="flex gap-2">
-        <Button onClick={handleJoinMyOwnRoom}>Go to my Bowl</Button>
+        {/* Show "Go to my Bowl" or "Decorate" based on ownership */}
+        {!isOwner ? (
+          <Button onClick={handleJoinMyOwnRoom}>Go to my Bowl</Button>
+        ) : (
+          <Button onClick={handleDecorate}>Decorate</Button>
+        )}
+
         <Button onClick={handleReturnToMain}>Return to Hub</Button>
         <Button onClick={onClose}>Close</Button>
       </div>
     </div>
   );
 };
+// const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
+//   const { playerData } = usePlayer();
+//   const userId = playerData?.userId;
+
+//   const handleJoinMyOwnRoom = () => {
+//     if (!userId) {
+//       console.error("User ID not found!");
+//       return;
+//     }
+//     const game = window.PhaserGame;
+
+//     if (game) {
+//       game.scene.stop("MainScene");
+//       // game.scene.start("PrivateScene", { playerData, targetSessionId: userId });
+//        game.scene.start("LoadingScene", {
+//   targetScene: "PrivateScene",
+//   targetData: { playerData, targetSessionId: userId },
+// });
+//     }
+//     onClose();
+//   };
+
+//   const handleReturnToMain = () => {
+//     const game = window.PhaserGame;
+
+//     if (game) {
+//       game.scene.stop("PrivateScene");
+//       // game.scene.start("MainScene", { playerData });
+//        game.scene.start("LoadingScene", {
+//   targetScene: "MainScene",
+//   targetData: { playerData, targetSessionId: userId },
+// });
+//     }
+    
+//     onClose();
+//   };
+
+//   return (
+//     <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
+//       <h2 className="mb-3 text-xl font-bold">Private Rooms</h2>
+//       <p className="text-sm opacity-80 mb-4">
+//         Create your own private room for others to join
+//       </p>
+//       <div className="flex gap-2">
+//         <Button onClick={handleJoinMyOwnRoom}>Go to my Bowl</Button>
+//         <Button onClick={handleReturnToMain}>Return to Hub</Button>
+//         <Button onClick={onClose}>Close</Button>
+//       </div>
+//     </div>
+//   );
+// };
 
 const FriendsOverlay: React.FC<PanelComponentProps> = ({ onClose }) => (
   <div className="w-[420px] rounded-xl border border-white/10 bg-black/70 p-6 text-white backdrop-blur">
@@ -135,7 +296,7 @@ const PANEL_COMPONENTS: Record<PanelKey, React.FC<PanelComponentProps>> = {
   profile: ProfileOverlay,
   minigames: MinigamesOverlay,
   privateRoom: PrivateRoomOverlay,
-  friends: FriendsOverlay,
+  friends: FriendsList,
   menu: SettingsOverlay,
 };
 
