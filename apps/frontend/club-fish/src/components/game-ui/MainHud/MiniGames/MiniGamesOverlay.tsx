@@ -58,12 +58,41 @@ const MinigamesOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
     onClose();
   };
 
-  const goToLobby = () => {
+  const goToLobby = async () => {
     const game = (window as any).PhaserGame;
     if (!game) return;
 
+    // Fetch fresh playerData from Firestore
+    const { auth, db } = await import("@/lib/firebase/clientApp");
+    const { doc, getDoc } = await import("firebase/firestore");
+    
+    if (!auth.currentUser) {
+      console.error("No authenticated user");
+      return;
+    }
+
+    const userDocRef = doc(db, "users", auth.currentUser.uid);
+    const userDoc = await getDoc(userDocRef);
+    
+    if (!userDoc.exists()) {
+      console.error("User document not found");
+      return;
+    }
+
+    const freshPlayerData = {
+      bodyColor: userDoc.data().bodyColor,
+      displayName: userDoc.data().displayName,
+      currency: userDoc.data().currency,
+      userId: auth.currentUser.uid,
+      inventory: userDoc.data().inventory || [],
+      equippedCosmetics: userDoc.data().equippedCosmetics || {},
+    };
+
+    // Update game registry with fresh data
+    game.registry.set("playerData", freshPlayerData);
+
     game.scene.stop("memoryMatch");
-    game.scene.start("MainScene");
+    game.scene.start("MainScene", { playerData: freshPlayerData });
     toggleCounter += 1;
     onClose();
   };
