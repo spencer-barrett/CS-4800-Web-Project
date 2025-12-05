@@ -22,8 +22,6 @@ export class minigameRPS extends Phaser.Scene {
     private playerSelection!: Phaser.GameObjects.Text
     private opponentSelection!: Phaser.GameObjects.Text
 
-    //just for resetting the scene with shift, no game functionality yet
-    private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
 
     //selected card, can be Claw, Kelp, Coral, or None
     sent: boolean = false;
@@ -155,8 +153,6 @@ export class minigameRPS extends Phaser.Scene {
             }
         })
 
-        this.cursors = this.input.keyboard?.createCursorKeys()
-
         //debug
         // this.events.on('shutdown', () => {
             
@@ -235,8 +231,6 @@ export class minigameRPS extends Phaser.Scene {
 
     async update() {
         this.timerBar.updateBar();
-
-        if (!this.cursors) return;
 
         // Only proceed if both choices are ready
         if (selectedCard !== "None" && opponentSelectedCard !== "None" && this.initialTime <= 0) {
