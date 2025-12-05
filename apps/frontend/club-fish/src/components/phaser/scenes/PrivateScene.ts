@@ -272,7 +272,6 @@ export class PrivateScene extends Phaser.Scene {
       });
 
       if (sessionId === this.room.sessionId) {
-        console.log(`      This is MY player`);
         this.currentPlayer = entity;
 
         this.physics.world.setBounds(offsetX, offsetY, boundWidth, boundHeight);
@@ -281,16 +280,21 @@ export class PrivateScene extends Phaser.Scene {
         this.events.emit("scene:ready");
 
       } else {
-        console.log(`      This is a REMOTE player`);
-        console.log(
-          `   color ${this.room.state.players.get(sessionId)?.color}`
-        );
+
         entity.setData("serverX", player.x);
         entity.setData("serverY", player.y);
+        console.log(`[PRIV] Initial pos for ${sessionId}: (${player.x}, ${player.y})`);
 
+        let changeCount = 0;
         $(player).onChange(() => {
+          changeCount++;
           entity.setData("serverX", player.x);
           entity.setData("serverY", player.y);
+          
+          // Log first 10 changes to see if it's working
+          if (changeCount <= 10) {
+            console.log(`[PRIV] onChange #${changeCount} for ${sessionId}: (${player.x}, ${player.y})`);
+          }
         });
       }
     });
@@ -370,7 +374,6 @@ export class PrivateScene extends Phaser.Scene {
   fixedTick(time: number, delta: number) {
     if (!this.room) return;
     if (!this.currentPlayer) return;
-    if (!this.currentPlayer.body) return;
     this.currentTick++;
 
     const body = this.currentPlayer.body as Phaser.Physics.Arcade.Body;

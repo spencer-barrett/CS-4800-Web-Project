@@ -2,6 +2,10 @@ import Phaser from 'phaser'
 import { room_ } from './MainScene';
 import { selectedCard, opponentSelectedCard, minigameRPS } from './minigameRPS';
 import { addCurrency } from '@/lib/purchases/purchaseItem';
+import { networkManager } from '@/lib/colyseus/networkController';
+import { doc, getDoc } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase/clientApp';
+
 export class rpsResults extends Phaser.Scene {
 
     private resultsText?: Phaser.GameObjects.Text
@@ -15,6 +19,7 @@ export class rpsResults extends Phaser.Scene {
     private opponentLabel!: Phaser.GameObjects.Text
 
     private hasLogged = false;
+    private hasTransitioned = false;
 
     gameStatus: string = "";
     winningCard: string = "";
@@ -22,15 +27,17 @@ export class rpsResults extends Phaser.Scene {
     constructor() {
         super({ key: 'rps-results' });
     }
-    async create() {
+
+    create() {
         const { width, height } = this.scale
-        this.hasLogged = false; //reset status in case they play multiple games
+        this.hasLogged = false;
+        this.hasTransitioned = false;
+
         //visualize results here and declare winner
         this.player = selectedCard.toLowerCase();
         this.opponent = opponentSelectedCard.toLowerCase();
 
-        //testing
-        console.log(opponentSelectedCard);
+        console.log("Results - Player:", this.player, "Opponent:", this.opponent);
 
         this.add.image(width * 0.5, height * 0.5, 'rps-bg').setDisplaySize(width, height)
 
@@ -55,59 +62,137 @@ export class rpsResults extends Phaser.Scene {
             color: '#ffffffff'
         }).setOrigin(0.5).setShadow(2, 2, '#000000', 4, true, true);
 
-        await new Promise(res => setTimeout(res, 2000)); //wait 2 seconds
-        //award them currency here if the won
-        //
-        //
-        //////////////////////////
+        // Award currency if won 
+        if (this.gameStatus === "won" && !this.hasLogged) {
+            addCurrency(10);
+            console.log("Player won! Added 10 currency");
+            this.hasLogged = true;
+        }
 
-        //return to lobby
-        this.resultsText.setText("Returning to lobby...")
-        await new Promise(res => setTimeout(res, 2000)); //wait 2 seconds
-        this.transitionScene("MainScene");
+        // Use Phaser timers instead of async/await
+        this.time.delayedCall(2000, () => {
+            this.resultsText?.setText("Returning to lobby...");
 
-
+            // Start transition after another delay
+            this.time.delayedCall(1000, () => {
+                this.startTransition();
+            });
+        });
     }
+
+    startTransition() {
+        if (this.hasTransitioned) {
+            console.log("[RPS] Already transitioned, skipping...");
+            return;
+        }
+
+        this.hasTransitioned = true;
+        console.log("[RPS] Starting transition");
+
+        // Clean up RPS room
+        console.log("[RPS] Cleaning up RPS room");
+        if (room_ && room_.connection.isOpen) {
+            room_.leave().then(() => {
+                console.log("[RPS] Successfully left RPS room");
+            }).catch((err) => {
+                console.error("[RPS] Error leaving room:", err);
+            });
+        }
+
+        networkManager.leaveNonMainRoom().catch(err => {
+            console.error("[RPS] Error clearing non-main room:", err);
+        });
+
+        // Fetch fresh player data and transition via LoadingScene
+        this.fetchFreshPlayerData().then((freshPlayerData) => {
+            this.time.delayedCall(500, () => {
+                const privateRoom = networkManager.getPrivateRoom();
+
+                console.log("[RPS] Fresh playerData:", freshPlayerData);
+
+                // Stop RPS scenes
+                this.scene.stop('rps-results');
+                this.scene.stop('rps');
+
+                if (privateRoom && privateRoom.connection.isOpen) {
+                    console.log("[RPS] Returning to PrivateScene with fresh data via LoadingScene");
+                    this.scene.start("LoadingScene", {
+                        targetScene: "PrivateScene",
+                        targetData: {
+                            room: privateRoom,
+                            playerData: freshPlayerData
+                        }
+                    });
+                } else {
+                    console.log("[RPS] Returning to MainScene with fresh data via LoadingScene");
+                    this.scene.start("LoadingScene", {
+                        targetScene: "MainScene",
+                        targetData: {
+                            playerData: freshPlayerData
+                        }
+                    });
+                }
+            });
+        }).catch((err) => {
+            console.error("[RPS] Error fetching fresh playerData:", err);
+            const oldPlayerData = this.game.registry.get("playerData");
+            this.scene.stop('rps-results');
+            this.scene.stop('rps');
+            this.scene.start("LoadingScene", {
+                targetScene: "MainScene",
+                targetData: {
+                    playerData: oldPlayerData
+                }
+            });
+        });
+    }
+
+    async fetchFreshPlayerData() {
+        const user = auth.currentUser;
+        if (!user) {
+            console.error("[RPS] No authenticated user");
+            return this.game.registry.get("playerData");
+        }
+
+        try {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists()) {
+                console.error("[RPS] User document not found");
+                return this.game.registry.get("playerData");
+            }
+
+            const data = userDoc.data();
+            const freshPlayerData = {
+                userId: user.uid,
+                displayName: data.displayName || "Anonymous",
+                bodyColor: data.bodyColor || "#ff3650",
+                currency: data.currency || 0,
+                inventory: data.inventory || [],
+                equippedCosmetics: data.equippedCosmetics || {},
+                sessionId: this.game.registry.get("playerData")?.sessionId
+            };
+
+            this.game.registry.set("playerData", freshPlayerData);
+
+            return freshPlayerData;
+        } catch (error) {
+            console.error("[RPS] Error fetching player data:", error);
+            return this.game.registry.get("playerData");
+        }
+    }
+
     determineWinner(): "won" | "lost" | "tied" {
         const beats: Record<string, string> = {
             claw: "kelp",
             kelp: "coral",
             coral: "claw"
         };
+
         if (this.player === this.opponent) {
             return "tied";
         }
-        const playerResult = beats[this.player] === this.opponent ? "won" : "lost"
+
+        const playerResult = beats[this.player] === this.opponent ? "won" : "lost";
         return playerResult;
-    }
-    transitionScene(nextScene: string) {
-        this.gameStatus = this.determineWinner();
-        if (this.gameStatus == "won" && !this.hasLogged) {
-            addCurrency(10);
-            console.log("this should only appear once");
-            this.hasLogged = true;
-        }
-        const { width, height } = this.scale
-        const transitionImage = this.add.image(width * 0.5, height * 0.5, "loading");
-        transitionImage.setDepth(1000);
-
-        transitionImage.setDisplaySize(this.sys.game.config.width as number, this.sys.game.config.height as number);
-
-        //give delay to render
-        this.time.delayedCall(500, () => {
-            this.scene.start(nextScene)
-            //this.scene.resume(nextScene);
-            //this.scene.stop();
-        })
-
-        if (room_) {
-
-            room_.leave();
-        }
-        const playerData = this.game.registry.get("playerData");
-        this.scene.start("LoadingScene", {
-            targetScene: nextScene,
-            targetData: { playerData },
-        });
     }
 }
