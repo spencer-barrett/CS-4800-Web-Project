@@ -82,7 +82,7 @@ export default function PhaserCanvas({
                     autoCenter: Phaser.Scale.CENTER_BOTH
                 },
                 backgroundColor: "#0b1220",
-                physics: { default: "arcade", arcade: { gravity: { y: 0, x: 0 } } },
+                physics: { default: "arcade", arcade: { gravity: { y: 0, x: 0 },  },  },
                 scene: [BootScene, LoadingScene, CharacterCreateScene, MainScene, minigameRPS, rpsHelper, rpsResults, dmListener, PrivateScene, minigameMM],
                 transparent: true,
                 callbacks: {

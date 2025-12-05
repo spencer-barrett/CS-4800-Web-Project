@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import { CharacterForward } from "../svg/char-forward";
-import { Button } from "../ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
+import { CharacterForward } from "../../svg/char-forward";
+import { Button } from "../../ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "../../ui/card";
 import { db, auth } from "@/lib/firebase/clientApp";
 import { doc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";

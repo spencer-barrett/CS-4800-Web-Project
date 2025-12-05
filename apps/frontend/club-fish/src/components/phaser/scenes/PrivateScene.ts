@@ -24,8 +24,6 @@ export class PrivateScene extends Phaser.Scene {
   myId = "";
   private room!: MainRoom;
   fish!: Phaser.GameObjects.Image;
-  // private bodyColor = "#60cbfcff";
-  // private displayName = "anonymous";
   private playerData!: PlayerData;
 
   target = new Vector2();
@@ -64,8 +62,10 @@ export class PrivateScene extends Phaser.Scene {
   }
 
   async create() {
-    //custom cursor
-    // this.input.setDefaultCursor("url(assets/cursor-small.cur), pointer");
+    this.physics.world.createDebugGraphic();
+    this.physics.world.drawDebug = true;
+
+
     if (!this.room) {
       // Join or create room based on target session ID
       this.room = await networkManager.joinPrivateRoomByUserId(
@@ -86,24 +86,25 @@ export class PrivateScene extends Phaser.Scene {
 
     const { width, height } = this.scale;
     //background image
-    this.add.image(width*0.5, height*0.5, 'fishtank').setDisplaySize(width, height)
+    this.add.image(width * 0.5, height * 0.5, 'fishtank').setDisplaySize(width, height)
 
     this.room.onMessage("chat", (msg) => console.log(" asd", msg));
-    
 
-    // this.add
-    //   .rectangle(width * 0.5, height * 0.5, width, height, 0x00ff00)
-    //   .setOrigin(0.5);
 
     this.events.once("shutdown", () => {
       if (this.room) {
         Object.values(this.playerEntities).forEach((entity) => {
+          if (entity && !entity.scene) return;
           entity.destroy();
         });
         Object.values(this.playerNameLabels).forEach((label) => {
+          if (label && !label.scene) return;
           label.destroy();
         });
-        this.room.leave();
+
+        if (this.room.connection.isOpen) {
+          this.room.leave();
+        }
         networkManager.clearPrivateRoom();
         this.room = undefined!;
       }
@@ -115,10 +116,10 @@ export class PrivateScene extends Phaser.Scene {
       const { width, height } = this.scale;
 
       const boundWidth = width * 0.75;
-      const boundHeight = height * 0.60;
+      const boundHeight = height * 0.4;
 
       const offsetX = width * 0.12;
-      const offsetY = height * 0.25;
+      const offsetY = height * 0.45;
 
       const spawnMinX = offsetX;
       const spawnMaxX = offsetX + boundWidth;
@@ -175,6 +176,13 @@ export class PrivateScene extends Phaser.Scene {
         this.currentPlayer = entity;
 
         // SET MOVEMENT BOUNDS HERE
+
+
+
+        // const worldBoundsGraphic = this.add.graphics();
+        // worldBoundsGraphic.lineStyle(3, 0x00ff00, 1); 
+        // worldBoundsGraphic.strokeRect(offsetX, offsetY, boundWidth, boundHeight);
+
 
         this.physics.world.setBounds(offsetX, offsetY, boundWidth, boundHeight);
         entity.setCollideWorldBounds(true);
@@ -235,6 +243,7 @@ export class PrivateScene extends Phaser.Scene {
 
         if (pointer.leftButtonReleased()) {
           const { worldX, worldY } = pointer;
+
           this.target.x = worldX;
           this.target.y = worldY;
 
@@ -257,7 +266,17 @@ export class PrivateScene extends Phaser.Scene {
   fixedTick(time: number, delta: number) {
     if (!this.room) return;
     if (!this.currentPlayer) return;
+    if (!this.currentPlayer.body) return;
     this.currentTick++;
+
+    const body = this.currentPlayer.body as Phaser.Physics.Arcade.Body;
+
+    // check if player hit world bounds
+    if (body.blocked.left || body.blocked.right || body.blocked.up || body.blocked.down) {
+      body.setVelocity(0, 0);
+      this.isMoving = false;
+    }
+
     const distance = Phaser.Math.Distance.Between(
       this.currentPlayer.x,
       this.currentPlayer.y,
