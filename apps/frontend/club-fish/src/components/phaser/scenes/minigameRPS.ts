@@ -1,13 +1,8 @@
 import Phaser from 'phaser'
 import { TimerBar } from './TimerBar'
-//new below
-import { Math as pMath } from "phaser";
 import { room_, createNonMainRoom } from './MainScene';
 import Pointer = Phaser.Input.Pointer;
-import { Client, Room, getStateCallbacks } from "colyseus.js";
-import type { MainRoom } from "@/types/myroomstate";
-import { networkManager } from "@/lib/colyseus/networkController";
-const { Vector2 } = pMath;
+
 export let selectedCard: string = "None";
 export let opponentSelectedCard: string = "None";
 export class minigameRPS extends Phaser.Scene {
@@ -49,7 +44,7 @@ export class minigameRPS extends Phaser.Scene {
     }
     async create(){
         this.initialTime = 10;
-        //const room = await createNonMainRoom(2);
+        this.sent = false;
         selectedCard = "None";
         opponentSelectedCard = "None";
 
@@ -201,81 +196,56 @@ export class minigameRPS extends Phaser.Scene {
         this.canClick = false;
     }
     private onTimerTick() {
-        this.initialTime--; // Decrement the time
-
-        // Update the text display
+        this.initialTime--;
         this.timerText?.setText(`${this.initialTime}`);
 
-        // Check if the countdown has reached zero
         if (this.initialTime <= 0) {
-            this.timerEvent.destroy(); // Stop the timer
-            this.timerText?.setText('Time\'s Up!'); // Display a final message
-            this.canClick = false //remove residuary click permission
-            //pick random card for user if they have nothing selected
-            if (selectedCard == "None"){
-                const randomNum = Math.floor(Math.random() * 3) + 1
-                switch (randomNum){
-                    case 1: //select claw
-                        this.selectCard(this.claw)
-                        this.playerSelection.setText("Claw!")
-                        selectedCard = "Claw"
-                        break;
-                    case 2: //select kelp
-                        this.selectCard(this.kelp)
-                        this.playerSelection.setText("Kelp!")
-                        selectedCard = "Kelp"
-                        break;
-                    case 3: //select coral
-                        this.selectCard(this.coral)
-                        this.playerSelection.setText("Coral!")
-                        selectedCard = "Coral"
-                        break;
-                    default:
-                        console.log("unexpected no automatic choice")
-                        break;
-                }
+            this.timerEvent.destroy();
+            this.timerText?.setText("Time's Up!");
+            this.canClick = false;
+
+            // Pick random card if player didn't select
+            if (selectedCard === "None") {
+                const choices = ["Claw", "Kelp", "Coral"];
+                selectedCard = choices[Math.floor(Math.random() * 3)];
+                if (selectedCard === "Claw") this.selectCard(this.claw);
+                if (selectedCard === "Kelp") this.selectCard(this.kelp);
+                if (selectedCard === "Coral") this.selectCard(this.coral);
+
+                this.playerSelection.setText(selectedCard + "!");
             }
-            //send player choice to the server as a message this.selectedCard
-            if (this.sent == false){
-                room_.send("player_selection", selectedCard)
-            }
-            if (!this.sent) { //in the case that other player has dc'd or something else causing the move to not get sent
-                this.sent = true;
+
+            // Send player's choice once
+            if (!this.sent) {
                 room_.send("player_selection", selectedCard);
+                this.sent = true;
+            }
 
-                // Start a 5-second opponent timeout
-                this.time.delayedCall(5000, () => {
-                    if (opponentSelectedCard === "None") {
-                        console.warn("Opponent did not respond — assigning random move.");
-                        
-                        const random = ["Claw", "Kelp", "Coral"];
-                        opponentSelectedCard = random[Math.floor(Math.random() * 3)];
-                    }
-                });
-            } 
+            // 5-second timeout for opponent
+            this.time.delayedCall(5000, () => {
+                if (opponentSelectedCard === "None") {
+                    console.warn("Opponent did not respond — assigning random move.");
+                    const random = ["Claw", "Kelp", "Coral"];
+                    opponentSelectedCard = random[Math.floor(Math.random() * 3)];
+                }
+            });
         }
-    }
+}
 
 
-    async update(){
-        this.timerBar.updateBar(); //update bar fill amount
-        //dev scene reset/movement keybinds, change as needed
-        if (!this.cursors){
-			return
-		}
-        // if (this.cursors.shift?.isDown){
-        //     console.log("leaving rps scene");
-		// }
-        // if (this.cursors.space?.isDown){
-        //     this.scene.start("MainScene")
-        // }
-        if (opponentSelectedCard != "None" && selectedCard != "None" && this.initialTime <= 0){
-            await new Promise(res => setTimeout(res, 2000)); //wait 2 seconds
-            // this.claw.destroy();
-            // this.coral.destroy();
-            // this.kelp.destroy();
-            this.scene.start("rps-results");
+    async update() {
+        this.timerBar.updateBar();
+
+        if (!this.cursors) return;
+
+        // Only proceed if both choices are ready
+        if (selectedCard !== "None" && opponentSelectedCard !== "None" && this.initialTime <= 0) {
+            // Prevent multiple scene transitions
+            if (!this.scene.isActive("rps-results")) {
+                this.time.delayedCall(1500, () => {
+                    this.scene.start("rps-results");
+                })
+            }
         }
-
     }
 }

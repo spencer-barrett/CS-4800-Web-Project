@@ -194,9 +194,11 @@ const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
     onClose(); // Close overlay
   };
 
+  const [showDecorateOverlay, setShowDecorateOverlay] = useState(false);
   const handleDecorate = () => {
     console.log("Entering decorate mode...");
     // TODO: Add decorate logic here
+    setShowDecorateOverlay(prev => !prev);
   };
 
   return (
@@ -206,16 +208,40 @@ const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
         Create your own private room for others to join
       </p>
       <div className="flex gap-2">
-        {/* Show "Go to my Bowl" or "Decorate" based on ownership */}
         {!isOwner ? (
           <Button onClick={handleJoinMyOwnRoom}>Go to my Bowl</Button>
         ) : (
           <Button onClick={handleDecorate}>Decorate</Button>
         )}
-
         <Button onClick={handleReturnToMain}>Return to Hub</Button>
         <Button onClick={onClose}>Close</Button>
       </div>
+
+      {/* Overlay */}
+      {showDecorateOverlay && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white text-black p-6 rounded-xl w-[400px] relative">
+            <h3 className="text-lg font-bold mb-4">Decorate Your Bowl</h3>
+            <p className="mb-4">Here you can choose decorations for your private room!</p>
+
+            {/* Example decoration options */}
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <button className="border p-2 rounded">Coral</button>
+              <button className="border p-2 rounded">Seaweed</button>
+              <button className="border p-2 rounded">Rock</button>
+            </div>
+
+            <button
+              className="absolute top-2 right-2 text-red-500 font-bold"
+              onClick={() => setShowDecorateOverlay(false)}
+            >
+              X
+            </button>
+
+            <Button onClick={() => setShowDecorateOverlay(false)}>Save</Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
