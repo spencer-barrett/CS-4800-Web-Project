@@ -7,11 +7,8 @@ export class MyRoom extends Room<MyRoomState> {
 
   onCreate(options: any) {
     this.maxClients = options.size ?? 4;
-    console.log(`${this.roomName} created with maxClients=${this.maxClients}!`);
-
     // Persistent chat
     this.onMessage("chat", (client, message: { text: string; sender: string }) => {
-      console.log(`chat from ${client.sessionId}: ${message.text}`);
 
       // Add message to state
       const chatMsg = new ChatMessageSchema();
@@ -58,7 +55,6 @@ export class MyRoom extends Room<MyRoomState> {
       const player = this.state.players.get(client.sessionId);
       if (player) {
         player.inputQueue.push(payload);
-        console.log(`Received from ${client.sessionId}: (${payload.x}, ${payload.y})`);
       }
     });
 
@@ -109,9 +105,7 @@ export class MyRoom extends Room<MyRoomState> {
     player.equippedBracelet = options.equippedCosmetics?.bracelet || "";
     this.state.players.set(client.sessionId, player);
 
-    console.log("server color:", player.color);
-    console.log("server display name:", player.displayName);
-    console.log("server userId:", player.userId);
+
 
     // Trigger RPS start if room is full
     if (this.clients.length === this.maxClients) {
