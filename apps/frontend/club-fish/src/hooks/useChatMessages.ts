@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 import { networkManager } from "@/lib/colyseus/networkController";
 import { auth, db } from "@/lib/firebase/clientApp";
@@ -15,7 +14,6 @@ export default function useChatMessages() {
   useEffect(() => {
     function attach(room: MainRoom, roomType: 'main' | 'private') {
       const handleIncoming = (msg: ChatMessage) => {
-        console.log(`[${roomType}] Received chat message:`, msg);
         setMessages((prev) => [...prev, msg]);
       };
       room.onMessage("chat", handleIncoming);
@@ -27,37 +25,43 @@ export default function useChatMessages() {
       if (privateRoom) {
         return { room: privateRoom, type: 'private' };
       }
-
       const mainRoom = networkManager.getMainRoom();
       if (mainRoom) {
         return { room: mainRoom, type: 'main' };
       }
-
       return null;
     };
 
     const activeRoom = getActiveRoom();
     if (activeRoom) {
-      console.log(`[Chat] Attaching to ${activeRoom.type} room`);
       return attach(activeRoom.room, activeRoom.type);
     }
 
-    const onReady = () => {
+    const onReady = () => { 
       const activeRoom = getActiveRoom();
       if (!activeRoom) return;
-
-      console.log(`[Chat] Room ready, attaching to ${activeRoom.type} room`);
       cleanup = attach(activeRoom.room, activeRoom.type);
       window.removeEventListener("colyseus:room-ready", onReady);
     };
 
-    window.addEventListener("colyseus:room-ready", handleRoomReady);
+    let cleanup: (() => void) | undefined; 
+
+    window.addEventListener("colyseus:room-ready", onReady); 
 
     return () => {
-      window.removeEventListener("colyseus:room-ready", handleRoomReady);
-      cleanupRef.current?.();
+      window.removeEventListener("colyseus:room-ready", onReady); 
+      cleanup?.(); 
     };
   }, []);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
 
   // send a chat message
   const sendMessage = async (text: string) => {
