@@ -1,26 +1,26 @@
 import { Room, Client } from "@colyseus/core";
-import { InputData, MyRoomState, Player } from "./schema/MyRoomState";
+import { InputData, MyRoomState, Player, ChatMessageSchema } from "./schema/MyRoomState";
 
 export class MyRoom extends Room<MyRoomState> {
   state = new MyRoomState();
   fixedTimeStep = 1000 / 60;
 
   onCreate(options: any) {
-    this.maxClients = 4;
-    if (options.size) {
-      this.maxClients = options.size
-      console.log("room size set to:", this.maxClients)
-    }
-    console.log(`${this.roomName} created!`);
+    this.maxClients = options.size ?? 4;
+    console.log(`${this.roomName} created with maxClients=${this.maxClients}!`);
 
-
-    this.onMessage("chat", (client, message) => {
+    // Persistent chat
+    this.onMessage("chat", (client, message: { text: string; sender: string }) => {
       console.log(`chat from ${client.sessionId}: ${message.text}`);
-      const payload = {
-        text: message.text,
-        sender: message.sender,
-      };
-      this.broadcast("chat", payload)
+
+      // Add message to state
+      const chatMsg = new ChatMessageSchema();
+      chatMsg.text = message.text;
+      chatMsg.sender = message.sender;
+      this.state.messages.push(chatMsg);
+
+      // Broadcast to all clients
+      this.broadcast("chat", chatMsg);
     });
 
 
@@ -54,16 +54,19 @@ export class MyRoom extends Room<MyRoomState> {
       console.log("Server updated color to:", player.color)
     })
 
-    this.onMessage(0, (client, payload) => {
+    this.onMessage(0, (client, payload: InputData) => {
       const player = this.state.players.get(client.sessionId);
-      console.log(`   Received from ${client.sessionId}: (${payload.x}, ${payload.y})`);
+      if (player) {
+        player.inputQueue.push(payload);
+        console.log(`Received from ${client.sessionId}: (${payload.x}, ${payload.y})`);
+      }
+    });
 
       player.inputQueue.push(payload);
     })
     let elapsedTime = 0;
     this.setSimulationInterval((deltaTime) => {
       elapsedTime += deltaTime;
-
       while (elapsedTime >= this.fixedTimeStep) {
         elapsedTime -= this.fixedTimeStep;
         this.fixedTick(this.fixedTimeStep);
@@ -83,7 +86,7 @@ export class MyRoom extends Room<MyRoomState> {
         player.y = input.y;
         player.tick = input.tick;
       }
-    })
+    });
   }
 
   onJoin(client: Client, options: any) {
@@ -105,15 +108,15 @@ export class MyRoom extends Room<MyRoomState> {
     player.equippedHat = options.equippedCosmetics?.hat || "";
     player.equippedBracelet = options.equippedCosmetics?.bracelet || "";
     this.state.players.set(client.sessionId, player);
-    console.log("server color: ", player.color);
-    console.log("server display name: ", player.displayName);
 
-    //for rps
+    console.log("server color:", player.color);
+    console.log("server display name:", player.displayName);
+    console.log("server userId:", player.userId);
+
+    // Trigger RPS start if room is full
     if (this.clients.length === this.maxClients) {
-      //broadcast that room is full to initiate minigames
       this.broadcast("roomIsFull", "test msg");
     }
-    console.log("server userId: ", player.userId);
   }
 
   onLeave(client: Client, consented: boolean) {

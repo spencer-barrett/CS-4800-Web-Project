@@ -1,9 +1,10 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
 import { networkManager } from "@/lib/colyseus/networkController";
 import { auth, db } from "@/lib/firebase/clientApp";
 import { ChatMessage } from "@/types/chat-message";
 import { UserProfile } from "@/types/user-profile";
 import { getDoc, doc } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
 import { MainRoom } from "@/types/myroomstate";
 
 export default function useChatMessages() {
@@ -13,7 +14,6 @@ export default function useChatMessages() {
   useEffect(() => {
     function attach(room: MainRoom, roomType: 'main' | 'private') {
       const handleIncoming = (msg: ChatMessage) => {
-        console.log(`[${roomType}] Received chat message:`, msg);
         setMessages((prev) => [...prev, msg]);
       };
       room.onMessage("chat", handleIncoming);
@@ -25,36 +25,32 @@ export default function useChatMessages() {
       if (privateRoom) {
         return { room: privateRoom, type: 'private' };
       }
-
       const mainRoom = networkManager.getMainRoom();
       if (mainRoom) {
         return { room: mainRoom, type: 'main' };
       }
-
       return null;
     };
 
     const activeRoom = getActiveRoom();
     if (activeRoom) {
-      console.log(`[Chat] Attaching to ${activeRoom.type} room`);
       return attach(activeRoom.room, activeRoom.type);
     }
 
-    const onReady = () => {
+    const onReady = () => { 
       const activeRoom = getActiveRoom();
       if (!activeRoom) return;
-
-      console.log(`[Chat] Room ready, attaching to ${activeRoom.type} room`);
       cleanup = attach(activeRoom.room, activeRoom.type);
       window.removeEventListener("colyseus:room-ready", onReady);
     };
 
-    let cleanup: (() => void) | undefined;
-    window.addEventListener("colyseus:room-ready", onReady);
+    let cleanup: (() => void) | undefined; 
+
+    window.addEventListener("colyseus:room-ready", onReady); 
 
     return () => {
-      window.removeEventListener("colyseus:room-ready", onReady);
-      cleanup?.();
+      window.removeEventListener("colyseus:room-ready", onReady); 
+      cleanup?.(); 
     };
   }, []);
 
@@ -67,13 +63,13 @@ export default function useChatMessages() {
     }
   }, [messages]);
 
+  // send a chat message
   const sendMessage = async (text: string) => {
     if (!text.trim()) return;
     if (!auth.currentUser) return;
 
     const snap = await getDoc(doc(db, "users", auth.currentUser.uid));
     const profile = snap.data() as UserProfile | undefined;
-
     const sender = profile?.displayName ?? "Anonymous";
     const message: ChatMessage = { text, sender };
 

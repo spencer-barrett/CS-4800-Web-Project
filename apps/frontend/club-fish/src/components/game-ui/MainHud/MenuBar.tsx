@@ -18,6 +18,7 @@ import ShopOverlay from "./Shop/ShopOverlay";
 import ProfileOverlay from "./Profile/ProfileOverlay";
 import { usePlayer } from "@/context/playerContext";
 import FriendsList from "./Friends/FriendsList";
+import { MusicManager } from "@/components/phaser/MusicManager";
 
 type MenuBarProps = {
   showMessage?: boolean;
@@ -194,9 +195,11 @@ const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
     onClose(); // Close overlay
   };
 
+  const [showDecorateOverlay, setShowDecorateOverlay] = useState(false);
   const handleDecorate = () => {
     console.log("Entering decorate mode...");
     // TODO: Add decorate logic here
+    setShowDecorateOverlay(prev => !prev);
   };
 
   return (
@@ -206,16 +209,40 @@ const PrivateRoomOverlay: React.FC<PanelComponentProps> = ({ onClose }) => {
         Create your own private room for others to join
       </p>
       <div className="flex gap-2">
-        {/* Show "Go to my Bowl" or "Decorate" based on ownership */}
         {!isOwner ? (
           <Button onClick={handleJoinMyOwnRoom}>Go to my Bowl</Button>
         ) : (
           <Button onClick={handleDecorate}>Decorate</Button>
         )}
-
         <Button onClick={handleReturnToMain}>Return to Hub</Button>
         <Button onClick={onClose}>Close</Button>
       </div>
+
+      {/* Overlay */}
+      {showDecorateOverlay && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white text-black p-6 rounded-xl w-[400px] relative">
+            <h3 className="text-lg font-bold mb-4">Decorate Your Bowl</h3>
+            <p className="mb-4">Here you can choose decorations for your private room!</p>
+
+            {/* Example decoration options */}
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <button className="border p-2 rounded">Coral</button>
+              <button className="border p-2 rounded">Seaweed</button>
+              <button className="border p-2 rounded">Rock</button>
+            </div>
+
+            <button
+              className="absolute top-2 right-2 text-red-500 font-bold"
+              onClick={() => setShowDecorateOverlay(false)}
+            >
+              X
+            </button>
+
+            <Button onClick={() => setShowDecorateOverlay(false)}>Save</Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -302,6 +329,7 @@ const PANEL_COMPONENTS: Record<PanelKey, React.FC<PanelComponentProps>> = {
 
 export default function MenuBar({ showMessage, onToggleChat }: MenuBarProps) {
   const [activeItem, setActiveItem] = useState<PanelKey | null>(null);
+  const [muted, setMuted] = useState(MusicManager.muted);
 
   const handleClick = () => {
     onToggleChat?.();
@@ -315,6 +343,13 @@ export default function MenuBar({ showMessage, onToggleChat }: MenuBarProps) {
   const toggle = (key: PanelKey) =>
     setActiveItem((current) => (current === key ? null : key));
   const ActivePanel = activeItem ? PANEL_COMPONENTS[activeItem] : null;
+
+  const handleMute = () => {
+    const game = (window as any).PhaserGame;
+    if (!game) return;
+    const newMuted = MusicManager.toggleMute(game.scene.getScene("MainScene"));
+    setMuted(newMuted);
+  };
 
   return (
     <>
@@ -361,6 +396,22 @@ export default function MenuBar({ showMessage, onToggleChat }: MenuBarProps) {
               </TooltipContent>
             </Tooltip>
           ))}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleMute}
+                style={{ pointerEvents: "auto" }}
+                className="!rounded-md px-3 py-1 text-sm bg-[#0c2d30] shadow-md cursor-pointer hover:bg-[#144D52] hud-frame"
+              >
+                {muted ? "🔇" : "🔊"}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{muted ? "Unmute Music" : "Mute Music"}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
