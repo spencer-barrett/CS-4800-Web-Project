@@ -5,6 +5,7 @@ import { getStateCallbacks } from "colyseus.js";
 import type { MainRoom } from "@/types/myroomstate";
 import { networkManager } from "@/lib/colyseus/networkController";
 import { PlayerData } from "@/types/player-data";
+import { MusicManager } from "../MusicManager";
 const { Vector2 } = pMath;
 
 export let room_: MainRoom;
@@ -79,6 +80,8 @@ export class MainScene extends Phaser.Scene {
   }
 
   async create() {
+    //music
+    MusicManager.play(this, "main-theme", 0.4);
 
 
     this.game.registry.set("playerData", this.playerData);
@@ -108,6 +111,8 @@ export class MainScene extends Phaser.Scene {
         networkManager.clearMainRoom();
         this.room = undefined!;
       }
+      this.playerEntities = {};
+      this.playerNameLabels = {};
     });
 
     $(this.room.state).players.onAdd((player, sessionId) => {

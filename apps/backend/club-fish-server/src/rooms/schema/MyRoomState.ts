@@ -1,4 +1,4 @@
-import { MapSchema, Schema, type } from "@colyseus/schema";
+import { MapSchema, Schema, ArraySchema, type } from "@colyseus/schema";
 
 export interface InputData {
   x: 0;
@@ -18,7 +18,11 @@ export class Player extends Schema {
   @type("string") equippedBracelet: string = ""; 
   inputQueue: InputData[] = [];
 }
+export class ChatMessageSchema extends Schema {
+  @type("string") text = "";
+  @type("string") sender = "";
+}
 export class MyRoomState extends Schema {
   @type({ map: Player }) players = new MapSchema<Player>();
-
+  @type([ChatMessageSchema]) messages = new ArraySchema<ChatMessageSchema>();
 }

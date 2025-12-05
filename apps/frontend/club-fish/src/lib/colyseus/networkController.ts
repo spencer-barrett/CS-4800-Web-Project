@@ -2,8 +2,6 @@ import { Client } from "colyseus.js";
 import type { MyRoomState, MainRoom } from "@/types/myroomstate";
 import { PlayerData } from "@/types/player-data";
 
-
-
 export class NetworkManager {
   private readonly client: Client;
   private mainRoom: MainRoom | null = null;
@@ -49,7 +47,6 @@ export class NetworkManager {
     targetSessionId: string
   ): Promise<MainRoom> {
     try {
-
       // use the target session ID to create a unique room name
       const roomName = `private_${targetSessionId}`;
 
@@ -59,7 +56,7 @@ export class NetworkManager {
         currency: player.currency,
         roomName: roomName,
         userId: player.userId,
-        equippedCosmetics: player.equippedCosmetics || {}, // NEW
+        equippedCosmetics: player.equippedCosmetics || {},
       });
 
       this.privateRoom = room;
@@ -74,12 +71,10 @@ export class NetworkManager {
 
   /** Connect to main persistent world room */
   async connectMainRoom(player: PlayerData, roomSize?: number): Promise<MainRoom> {
-
     if (this.mainRoom && this.mainRoom.connection.isOpen) {
       console.log("Reusing existing main room connection");
       return this.mainRoom;
     }
-
 
     if (this.isConnectingMain) {
       console.log("Already connecting to main room, waiting...");
@@ -92,16 +87,14 @@ export class NetworkManager {
     this.isConnectingMain = true;
 
     try {
-
       const room = await this.client.joinOrCreate<MyRoomState>("my_room", {
         size: roomSize,
         bodyColor: player.bodyColor,
         displayName: player.displayName,
         currency: player.currency,
         userId: player.userId,
-        equippedCosmetics: player.equippedCosmetics || {}, // NEW 
+        equippedCosmetics: player.equippedCosmetics || {},
       });
-
 
       this.mainRoom = room;
       player.sessionId = this.mainRoom.sessionId;
@@ -119,7 +112,7 @@ export class NetworkManager {
     }
   }
 
-  async connectNonMainRoom(type: string, roomSize?: number, player?: PlayerData): Promise<MainRoom> { //create a different type of room later
+  async connectNonMainRoom(type: string, roomSize?: number, player?: PlayerData): Promise<MainRoom> {
     try {
       const room = await this.client.joinOrCreate<MyRoomState>(type + "_room", { size: roomSize });
 
@@ -160,7 +153,10 @@ export class NetworkManager {
   }
 
   getMainRoom(): MainRoom | null {
-    return this.mainRoom;
+    if (this.mainRoom && this.mainRoom.connection.isOpen) {
+      return this.mainRoom;
+    }
+    return null;
   }
 
   getPrivateRoom(): MainRoom | null {
@@ -180,7 +176,7 @@ export class NetworkManager {
     console.log("Left main room");
   }
 
-  async leaveNonMainRoom(): Promise<void> { //set to rps for now
+  async leaveNonMainRoom(): Promise<void> {
     if (!this.nonMainRoom) return;
     await this.nonMainRoom.leave();
     this.nonMainRoom = null;
@@ -238,14 +234,7 @@ export class NetworkManager {
       console.log(`Unequipped ${slot} (private room)`);
     }
   }
-
-
-
 }
-
-
-
-
 
 export const networkManager = new NetworkManager(
   process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "wss://game.fishfish.io"
