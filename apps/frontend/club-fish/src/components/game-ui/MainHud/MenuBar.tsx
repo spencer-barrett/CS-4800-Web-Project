@@ -18,6 +18,7 @@ import ShopOverlay from "./Shop/ShopOverlay";
 import ProfileOverlay from "./Profile/ProfileOverlay";
 import { usePlayer } from "@/context/playerContext";
 import FriendsList from "./Friends/FriendsList";
+import { MusicManager } from "@/components/phaser/MusicManager";
 
 type MenuBarProps = {
   showMessage?: boolean;
@@ -328,6 +329,7 @@ const PANEL_COMPONENTS: Record<PanelKey, React.FC<PanelComponentProps>> = {
 
 export default function MenuBar({ showMessage, onToggleChat }: MenuBarProps) {
   const [activeItem, setActiveItem] = useState<PanelKey | null>(null);
+  const [muted, setMuted] = useState(MusicManager.muted);
 
   const handleClick = () => {
     onToggleChat?.();
@@ -341,6 +343,13 @@ export default function MenuBar({ showMessage, onToggleChat }: MenuBarProps) {
   const toggle = (key: PanelKey) =>
     setActiveItem((current) => (current === key ? null : key));
   const ActivePanel = activeItem ? PANEL_COMPONENTS[activeItem] : null;
+
+  const handleMute = () => {
+    const game = (window as any).PhaserGame;
+    if (!game) return;
+    const newMuted = MusicManager.toggleMute(game.scene.getScene("MainScene"));
+    setMuted(newMuted);
+  };
 
   return (
     <>
@@ -387,6 +396,22 @@ export default function MenuBar({ showMessage, onToggleChat }: MenuBarProps) {
               </TooltipContent>
             </Tooltip>
           ))}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleMute}
+                style={{ pointerEvents: "auto" }}
+                className="!rounded-md px-3 py-1 text-sm bg-[#0c2d30] shadow-md cursor-pointer hover:bg-[#144D52] hud-frame"
+              >
+                {muted ? "🔇" : "🔊"}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{muted ? "Unmute Music" : "Mute Music"}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
