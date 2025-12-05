@@ -33,7 +33,7 @@ export default function Footer() {
           >
             <Logo className="text-foreground !h-[57px] !w-[90px]" />
 
-            <div>Lorem Ipusm</div>
+            {/* <div>Guppy Labs</div> */}
           </div>
           <section className="md:flex justify-center hidden">
             {items.map((item) => (
@@ -93,7 +93,7 @@ export default function Footer() {
         <div id="legal-info" className="flex items-center justify-center">
           <ul className="flex flex-col text-center gap-2 !text-[0.75rem]">
             <li className="">
-              © {currentTime.getFullYear()} Lorem Ipsum - All Rights Reserved
+              © {currentTime.getFullYear()} GuppyLabs - All Rights Reserved
             </li>
             <li className="">
               <Link href="https://glblobs.blob.core.windows.net/docs/privacy_policy.pdf">
