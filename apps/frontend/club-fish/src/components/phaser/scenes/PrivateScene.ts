@@ -378,10 +378,12 @@ export class PrivateScene extends Phaser.Scene {
 
     const body = this.currentPlayer.body as Phaser.Physics.Arcade.Body;
 
-    // check if player hit world bounds
-    if (body.blocked.left || body.blocked.right || body.blocked.up || body.blocked.down) {
-      body.setVelocity(0, 0);
-      this.isMoving = false;
+    // check if player hit world bounds (only if body exists)
+    if (body && body.blocked) {
+      if (body.blocked.left || body.blocked.right || body.blocked.up || body.blocked.down) {
+        body.setVelocity(0, 0);
+        this.isMoving = false;
+      }
     }
 
     const distance = Phaser.Math.Distance.Between(
@@ -400,7 +402,9 @@ export class PrivateScene extends Phaser.Scene {
 
       if (distance < 5) {
         const body = this.currentPlayer.body as Phaser.Physics.Arcade.Body;
-        body.setVelocity(0, 0);
+        if (body) {
+          body.setVelocity(0, 0);
+        }
         this.isMoving = false;
       }
     }
