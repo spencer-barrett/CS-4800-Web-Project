@@ -45,7 +45,6 @@ export default function CharacterCreateOverlay({ game }: { game: Phaser.Game | n
                 acquiredAt: serverTimestamp(),
             });
 
-            console.log("Added starter color to inventory:", colorInfo);
 
             router.replace("/play");
         } catch (e) {
